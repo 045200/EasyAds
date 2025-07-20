@@ -7,12 +7,24 @@ on:
     paths:
       - 'data/python/**'
       - 'data/source/**'
-    
+      - 'data/mod/**'
+
+env:
+  PYTHON_SCRIPT_DIR: ./data/python
+  TZ: Asia/Shanghai
+
 jobs:
   update:
     runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || steps.changes.outputs.any_changed == 'true'
+    
     steps:
       - uses: actions/checkout@v4
+          
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 'latest'
           
       - name: Check for file changes
         id: changes
@@ -21,59 +33,69 @@ jobs:
           files: |
             data/python/**
             data/source/**
+            data/mod/**
             
-      - name: Download Rules
-        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f "$PYTHON_SCRIPT_DIR/requirements.txt" ]; then
+            pip install -r "$PYTHON_SCRIPT_DIR/requirements.txt"
+          fi
+
+      - name: Run update scripts
         continue-on-error: true
         run: |
-          python ./data/python/dl.py
+          set -e
+          echo "▶ Starting scripts execution..."
           
-      - name: Merge Rules
-        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: |
-          python ./data/python/merge.py
+          # Download Rules
+          python "$PYTHON_SCRIPT_DIR/dl.py"
           
-      - name: Generate dns Rules
-        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: |
-          python ./data/python/filter-dns.py
-
-      - name: Generate qx Rules
-        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: |
-          python ./data/python/qx.py
+          # Merge Rules
+          python "$PYTHON_SCRIPT_DIR/merge.py"
           
-      - name: Generate mihomo Rules
-        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: |
-          python ./data/python/mihomo.py
+          # Generate dns Rules
+          python "$PYTHON_SCRIPT_DIR/filter-dns.py"
 
-      - name: Generate Domain List
-        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: |
-          python ./data/python/domain_list.py
+          # Generate qx Rules
+          python "$PYTHON_SCRIPT_DIR/qx.py"
+          
+          # Generate mihomo Rules
+          python "$PYTHON_SCRIPT_DIR/mihomo.py"
 
-      - name: Update Title&ReadMe
-        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: |
-          python ./data/python/title.py
-          python ./data/python/clean-readme.py
+          # Generate Domain List
+          python "$PYTHON_SCRIPT_DIR/domain_list.py"
 
-      - name: Git push assets to Github
-        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+          # Update documentation
+          python "$PYTHON_SCRIPT_DIR/title.py"
+          python "$PYTHON_SCRIPT_DIR/clean-readme.py"
+          
+          echo "✓ All scripts executed successfully"
+
+      - name: Commit and push changes
         run: |
-          git init
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git branch -m master
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+          
+          # Check for changes
+          if git diff --quiet; then
+            echo "No changes detected"
+            exit 0
+          fi
+          
+          # Commit changes
           git add --all
-          git commit -m "Updated at $(TZ=UTC-8 date +'%Y-%m-%d %H:%M:%S')（北京时间）"
-          git push -u origin -f
+          git commit -m "Auto-update: $(date +'%Y-%m-%d %H:%M:%S') CST"
+          
+          # Safely push (non-force)
+          git pull --rebase
+          git push
 
-      - name: Delete workflow runs 
+      - name: Clean up workflow runs
+        if: success()
         uses: Mattraks/delete-workflow-runs@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository }}
-          retain_days: 0
-          keep_minimum_runs: 0
+          retain_days: 3
+          keep_minimum_runs: 5
