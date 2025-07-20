@@ -35,7 +35,7 @@ def process_rule_files(target_files: Set[str], rules_dir: Path) -> None:
             # 读取文件内容并计算行数
             with file_path.open('r', encoding='utf-8') as file:
                 lines = file.readlines()
-                line_count = len(lines)
+                line_count = len([line for line in lines if line.strip() and not line.startswith('!')])
                 content = ''.join(lines)
             
             # 生成新内容
@@ -55,7 +55,15 @@ def process_rule_files(target_files: Set[str], rules_dir: Path) -> None:
 
 if __name__ == "__main__":
     target_files = {'adblock.txt', 'allow.txt', 'dns.txt'}
-    rules_dir = Path(__file__).parent / 'data' / 'rules'
+    
+    # 修正路径构造
+    script_dir = Path(__file__).parent
+    base_dir = script_dir.parent  # 假设脚本在data/python/目录下
+    rules_dir = base_dir / "rules"  # 规则目录在data/rules/
+    
+    # 调试输出
+    print(f"Looking for rules directory at: {rules_dir}")
+    print(f"Absolute rules directory path: {rules_dir.absolute()}")
     
     if not rules_dir.exists():
         raise FileNotFoundError(f"Rules directory not found: {rules_dir}")
