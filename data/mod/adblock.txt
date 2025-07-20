@@ -1,3 +1,53 @@
+! 微信主域名及子域名规则
+||weixin.qq.com^$important
+||wx.qq.com^$important
+||wechat.com^$important
+
+! 朋友圈广告
+||ad.weixin.qq.com^
+||adn.weixin.qq.com^
+||adtest.weixin.qq.com^
+||adcdn.weixin.qq.com^
+||ad.*.qq.com^
+||ad.*.tencent.com^
+||gdt.qq.com^
+||mmbiz.qpic.cn^$domain=weixin.qq.com
+
+! 小程序广告
+||mp.weixin.qq.com/mp/ad*
+||mp.weixin.qq.com/mp/advertisement*
+||mp.weixin.qq.com/wxopen/ad*
+||a*.qq.com/tws*
+||tbskip.qq.com^
+||mini-program-ads.qq.com^
+
+! 通用广告跟踪
+||sngapm.qq.com^
+||beacon.qq.com^
+||report.qq.com^
+||analytics.qq.com^
+||monitor.qq.com^
+||stats.qq.com^
+||log.qq.com^
+||trace.qq.com^
+
+! 腾讯广告通用域名
+||e.qq.com^
+||c.gdt.qq.com^
+||v.gdt.qq.com^
+||m.gdt.qq.com^
+||g.gdt.qq.com^
+||mi.gdt.qq.com^
+||nc.gdt.qq.com^
+||ssl.gdt.qq.com^
+||gm.gdt.qq.com^
+
+! 屏蔽广告图片资源
+||*.qq.com/ad*
+||*.tencent.com/ad*
+||*.qq.com/*/ad*
+||*.tencent.com/*/ad*
+
 !屏蔽B站直播P2P上传
 *.chat.bilibili.com
 !Amazon ADS
