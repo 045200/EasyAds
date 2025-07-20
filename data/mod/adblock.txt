@@ -1,4 +1,5 @@
-! 朋友圈广告
+! ===== 腾讯系广告 =====
+! 微信生态
 ||ad.weixin.qq.com^
 ||adn.weixin.qq.com^
 ||adtest.weixin.qq.com^
@@ -7,41 +8,126 @@
 ||ad.*.tencent.com^
 ||gdt.qq.com^
 ||mmbiz.qpic.cn^$domain=weixin.qq.com
-
-! 小程序广告
 ||mp.weixin.qq.com/mp/ad*
 ||mp.weixin.qq.com/mp/advertisement*
 ||mp.weixin.qq.com/wxopen/ad*
 ||a*.qq.com/tws*
 ||tbskip.qq.com^
 ||mini-program-ads.qq.com^
+! 优量汇
+||qq.com/ylh/
+||qpic.cn/ylh/
+||qzone.com/ylh/
+||qzone.qq.com/ylh/
+||ylh.qq.com^
+||e.qq.com/ylh/
+||gdt.qq.com/ylh/
+||mi.gdt.qq.com/ylh/
+||ssl.gdt.qq.com/ylh/
+||v.gdt.qq.com/ylh/
+||c.gdt.qq.com/ylh/
+||nc.gdt.qq.com/ylh/
+||gm.gdt.qq.com/ylh/
+||qq.com/adx/
+||qq.com/adjs/
+||qq.com/ad-material/
 
-! 通用广告跟踪
-||sngapm.qq.com^
-||beacon.qq.com^
-||report.qq.com^
-||analytics.qq.com^
-||monitor.qq.com^
-||stats.qq.com^
-||log.qq.com^
-||trace.qq.com^
+! ===== 字节系 =====
+! 穿山甲
+||pangolin.snssdk.com^
+||pangolin16*.snssdk.com^
+||isnssdk.com/pangle/
+||isnssdk.com/adx/
+||toutiao.com/pangle/
+||toutiao.com/adx/
+||bytedance.com/pangle/
+||bytedance.com/adx/
+||snssdk.com/adx/
+||snssdk.com/ad-material/
+||lf1-ttcdn-tos.pstatp.com/ad/
+||lf1-ttcdn-tos.pstatp.com/adx/
+||lf1-ttcdn-tos.pstatp.com/pangle/
+||ixigua.com/adx/
+||ixigua.com/pangle/
+||douyin.com/adx/
+||douyin.com/pangle/
 
-! 腾讯广告通用域名
-||e.qq.com^
-||c.gdt.qq.com^
-||v.gdt.qq.com^
-||m.gdt.qq.com^
-||g.gdt.qq.com^
-||mi.gdt.qq.com^
-||nc.gdt.qq.com^
-||ssl.gdt.qq.com^
-||gm.gdt.qq.com^
+! ===== 百度系 =====
+||baidu.com/als/ad
+||baidu.com/cpro/
+||baidu.com/pos/
+||baidu.com/adx/
+||baidu.com/adjs/
+||baidu.com/ad-material/
+||baidustatic.com/ad/
+||baidustatic.com/adx/
+||baidustatic.com/adjs/
+||hm.baidu.com/hm.gif?*ad=
+||cpro.baidu.com^
+||pos.baidu.com^
+||dup.baidustatic.com/js/du^
+||mbd.baidu.com/ad/
+||tuisong.baidu.com/ad/
+||hmma.baidu.com^
 
-! 屏蔽广告图片资源
-||*.qq.com/ad*
-||*.tencent.com/ad*
-||*.qq.com/*/ad*
-||*.tencent.com/*/ad*
+! ===== 阿里系 =====
+||alimama.com^$domain=~alimama.com
+||taobao.com/adx/
+||taobao.com/adjs/
+||taobao.com/ad-material/
+||tbcdn.cn/adx/
+||tbcdn.cn/adjs/
+||tbcdn.cn/ad-material/
+||amdc.alipay.com/ad/
+||market.m.taobao.com/adx/
+||acs.m.taobao.com/ad/
+||ykad-data.youku.com^
+||adashx.ut.taobao.com^
+||ucweb.com/adx/
+||ucweb.com/adjs/
+||ucweb.com/ad-material/
+
+! ===== 其他主流平台 =====
+! 360
+||360.cn/adx/
+||360.cn/adjs/
+||360.cn/ad-material/
+||qhres.com/ad/
+||qhres.com/adx/
+||qhres.com/adjs/
+||so.com/adx/
+||so.com/adjs/
+! 快手
+||gifshow.com/adx/
+||gifshow.com/adjs/
+||ksad.ksapisrv.com^
+||ksad.ksapisrv.com/adx/
+||ksad.ksapisrv.com/adjs/
+||live-ad.kuaishou.com^
+||live-ad.kuaishou.com/adx/
+||live-ad.kuaishou.com/adjs/
+! 美团/点评
+||meituan.com/adx/
+||meituan.com/adjs/
+||dianping.com/adx/
+||dianping.com/adjs/
+||dpfile.com/ad-material/
+||dpfile.com/adx/
+||dpfile.com/adjs/
+
+! ===== 通用拦截规则 =====
+! 动态资源
+||*/ad-*.jpg^$image
+||*/ads/*.mp4^$media
+||*/ad-material/*.wasm^
+||*/adx/*.js^
+||*/adx/*.css^
+! 行为特征
+||*/stats?type=ad^
+||*/log?ad=^
+||*/tracking/ad^
+||*/adlog/*
+||*/adreport/*
 
 !屏蔽B站直播P2P上传
 *.chat.bilibili.com
