@@ -43,6 +43,8 @@ except Exception as e:
 # 广告拦截规则源
 adblock = [
     "https://raw.githubusercontent.com/damengzhu/banad/main/jiekouAD.txt",  # 大萌主-接口广告
+
+"https://cdn.jsdelivr.net/gh/privacy-protection-tools/anti-AD/anti-ad-easylist.txt", # anti-ad
     "https://raw.githubusercontent.com/afwfv/DD-AD/main/rule/DD-AD.txt",  # DD-AD规则
     "https://raw.githubusercontent.com/Cats-Team/dns-filter/main/abp.txt",  # AdRules DNS过滤
     "https://raw.hellogithub.com/hosts",  # GitHub加速hosts
