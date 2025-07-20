@@ -1,35 +1,25 @@
 import os
 import re
 from pathlib import Path
+from datetime import datetime, timezone, timedelta
+import pytz
+
+def get_beijing_time():
+    """获取北京时间 (UTC+8)"""
+    tz = pytz.timezone('Asia/Shanghai')
+    return datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
 
 def extract_to_loon_rules(input_file, output_file):
-    """
-    Extract rules from AdBlock-style DNS rules file and convert to Loon rules.
-    
-    Args:
-        input_file (str): Path to input DNS rules file
-        output_file (str): Path to output Loon rules file
-    """
-    print("Generating Loon rules from domain list...")
-
-    # Convert to Path objects for better path handling
+    """转换规则为Loon格式"""
     input_path = Path(input_file)
     output_path = Path(output_file)
 
-    # Debug print to show the actual path being checked
-    print(f"Looking for input file at: {input_path}")
-    print(f"Absolute input path: {input_path.absolute()}")
-
     if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
+        raise FileNotFoundError(f"输入文件不存在: {input_path}")
 
     try:
         with input_path.open('r', encoding='utf-8', errors='ignore') as infile:
-            ip_rules = []
-            domain_rules = []
-            domain_suffix_rules = []
-            domain_keyword_rules = []
-            
+            ip_rules, domain_rules, suffix_rules, keyword_rules = [], [], [], []
             ip_pattern = re.compile(r'^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(/\d{1,2})?$')
             
             for line in infile:
@@ -37,71 +27,46 @@ def extract_to_loon_rules(input_file, output_file):
                 if not line or line.startswith('!'):
                     continue
                 
-                # Handle IP-CIDR rules
                 if line.startswith("||") and line.endswith("^"):
                     rule = line[2:-1]
                     if ip_pattern.match(rule.split('/')[0]):
                         ip_rules.append(f"IP-CIDR,{rule},REJECT,no-resolve")
                     else:
-                        domain_suffix_rules.append(f"DOMAIN-SUFFIX,{rule},REJECT")
-                
-                # Handle direct domain rules (without wildcards)
-                elif line.startswith("|http://") or line.startswith("|https://"):
+                        suffix_rules.append(f"DOMAIN-SUFFIX,{rule},REJECT")
+                elif line.startswith(("|http://", "|https://")):
                     domain = line.split('://')[1].split('^')[0].split('/')[0]
                     domain_rules.append(f"DOMAIN,{domain},REJECT")
-                
-                # Handle domain keyword rules (could be improved with more patterns)
                 elif '*' in line:
                     keyword = line.replace('*', '').replace('^', '').replace('||', '')
                     if keyword:
-                        domain_keyword_rules.append(f"DOMAIN-KEYWORD,{keyword},REJECT")
+                        keyword_rules.append(f"DOMAIN-KEYWORD,{keyword},REJECT")
 
-        # Ensure output directory exists
         output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        beijing_time = get_beijing_time()
+        ip_count, domain_count = len(set(ip_rules)), len(set(domain_rules))
+        suffix_count, keyword_count = len(set(suffix_rules)), len(set(keyword_rules))
+        total_count = ip_count + domain_count + suffix_count + keyword_count
 
         with output_path.open('w', encoding='utf-8') as outfile:
-            outfile.write("# Loon Rules Generated from GOODBYEADS\n")
-            outfile.write("# Homepage: https://github.com/045200/GOODBYEADS\n")
-            outfile.write("# Updated: " + str(Path(__file__).stat().st_mtime) + "\n\n")
+            outfile.write("# Loon规则由GOODBYEADS生成\n")
+            outfile.write(f"# 更新时间(北京时间): {beijing_time}\n")
+            outfile.write(f"# 规则统计: 总计{total_count}条 (IP:{ip_count} DOMAIN:{domain_count} "
+                         f"SUFFIX:{suffix_count} KEYWORD:{keyword_count})\n\n")
             
-            # Write IP rules first
-            if ip_rules:
-                outfile.write("# IP Rules\n")
-                outfile.write("\n".join(sorted(set(ip_rules))) + "\n\n")
-            
-            # Write domain rules
-            if domain_rules:
-                outfile.write("# Domain Rules\n")
-                outfile.write("\n".join(sorted(set(domain_rules))) + "\n\n")
-            
-            # Write domain suffix rules
-            if domain_suffix_rules:
-                outfile.write("# Domain Suffix Rules\n")
-                outfile.write("\n".join(sorted(set(domain_suffix_rules))) + "\n\n")
-            
-            # Write domain keyword rules
-            if domain_keyword_rules:
-                outfile.write("# Domain Keyword Rules\n")
-                outfile.write("\n".join(sorted(set(domain_keyword_rules))) + "\n")
+            if ip_rules: outfile.write("# IP规则\n" + "\n".join(sorted(set(ip_rules))) + "\n\n"
+            if domain_rules: outfile.write("# 域名规则\n" + "\n".join(sorted(set(domain_rules))) + "\n\n"
+            if suffix_rules: outfile.write("# 域名后缀\n" + "\n".join(sorted(set(suffix_rules))) + "\n\n"
+            if keyword_rules: outfile.write("# 关键词规则\n" + "\n".join(sorted(set(keyword_rules))) + "\n"
 
-        total_rules = len(ip_rules) + len(domain_rules) + len(domain_suffix_rules) + len(domain_keyword_rules)
-        print(f"Generated {total_rules} Loon rules (IP: {len(ip_rules)}, DOMAIN: {len(domain_rules)}, "
-              f"SUFFIX: {len(domain_suffix_rules)}, KEYWORD: {len(domain_keyword_rules)})")
+        print(f"生成成功! 规则总数: {total_count}")
 
     except Exception as e:
-        print(f"Error processing files: {e}")
+        print(f"处理失败: {e}")
         raise
 
-# Example usage
 if __name__ == "__main__":
-    # Get the directory where this script is located
     script_dir = Path(__file__).parent
-
-    # Calculate base directory (assuming script is in data/python/)
-    base_dir = script_dir.parent
-
-    # Construct correct file paths
-    input_file = base_dir / "rules" / "dns.txt"
-    output_file = base_dir / "rules" / "loon-rules.list"  # Changed to .list suffix
-
+    input_file = script_dir.parent / "rules" / "dns.txt"
+    output_file = script_dir.parent / "rules" / "loon-rules.list"
     extract_to_loon_rules(input_file, output_file)
