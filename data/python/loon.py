@@ -61,6 +61,6 @@ if __name__ == "__main__":
 
     # Construct correct file paths
     input_file = base_dir / "rules" / "dns.txt"
-    output_file = base_dir / "rules" / "loon-rules.conf"  # Changed output filename
+    output_file = base_dir / "rules" / "loon-rules.lpx"  # Changed output filename
 
     extract_domains_to_loon_rules(input_file, output_file)
