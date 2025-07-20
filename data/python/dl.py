@@ -70,6 +70,8 @@ allow = [
     "https://raw.githubusercontent.com/liwenjie119/adg-rules/master/white.txt",  # liwenjie119
     "https://raw.githubusercontent.com/miaoermua/AdguardFilter/main/whitelist.txt",  # 喵二白名单
     "https://raw.githubusercontent.com/Kuroba-Sayuki/FuLing-AdRules/refs/heads/main/FuLingRules/FuLingAllowList.txt",  # 茯苓白名单
+
+"https://raw.githubusercontent.com/Cats-Team/AdRules/refs/heads/script/script/allowlist.txt", # cat白名单
     "https://raw.githubusercontent.com/urkbio/adguardhomefilter/main/whitelist.txt",  # 酷安cocieto
     "https://anti-ad.net/easylist.txt"  # anti-AD白名单
 ]
