@@ -18911,7 +18911,6 @@ api.linkchuanon.com
 api.linkgist.com
 api.linkmine.co.kr
 api.linkz.net
-api.live.bilibili.com
 api.liveramp.com
 api.livestt.co
 api.locallogic.co
@@ -19473,7 +19472,6 @@ api.v2.sslsecure1.com
 api.v4v6.gslb.aiclk.com
 api.v79top.com
 api.v7king.com
-api.vc.bilibili.com
 api.velenox.com
 api.venkocredit.com.br
 api.venyoo.ru
@@ -19800,8 +19798,6 @@ app.bgsufalcons.com
 app.bible.com
 app.biblelens.com
 app.bikeep.com
-app.biliapi.com
-app.biliapi.net
 app.bimbaylola.com
 app.bloombergconnects.org
 app.bluehens.com
@@ -23790,7 +23786,6 @@ bfofv.starkcarpet.com
 bfp.capitalone.com
 bfrcs.avidgear.com
 bfrdj.thewoodveneerhub.co.uk
-bfs-tf-all-bd.bilivideo.com
 bfst.bloofusion.de
 bft5.destinia.fr
 bftqdd.xyz
@@ -55406,7 +55401,6 @@ httpkafka.unityads.unity3d.com
 httpring.qq.com
 https-apple.com
 https-filtering-check.adtidy.org
-https://
 httpsdns.baidu.com
 httpsjs.com
 httpwwwadserver.com
@@ -55896,7 +55890,6 @@ i.toywords.games
 i.upoker.net
 i.viafoura.co
 i0-vcdn.anthill.vn
-i0.hdslb.com
 i0k.cn
 i1.advertnative.com
 i1.dl-ad.com
@@ -64033,7 +64026,6 @@ ldv.midoplay.com
 ldvalc.manzara.cz
 ldxinb.xyz
 ldxpmz.people.com
-le3-api.game.bilibili.com
 le4le.com
 leabd.douguo.com
 lead-123.com
@@ -73620,7 +73612,6 @@ meltwindfly.pro
 melvoranix.pro
 member-app.rightwayhealthcare.com
 member.ad.org.vn
-member.bilibili.com
 member.naiadsystems.com
 member.oewa.at
 member.usenix.org
@@ -84117,7 +84108,6 @@ passionatehamster.pro
 passionatehelp.pro
 passitwist.pro
 passkowildf.pro
-passport.bilibili.com
 pasta.esfile.duapps.com
 pastedeamb.pro
 pastelchinchilla.pro
@@ -87360,8 +87350,6 @@ prowareness.actonservice.com
 proxima.midjourney.com
 proximityads.flipcorp.com
 proxy-mob-cld.alicdn.com
-proxy-tf-all-ws.bilivideo.com
-proxy-tf-all-ws1.bilivideo.com
 proxy.advp.apple.com
 proxy.dzeio.com
 proxy.optoutadserving.com
@@ -99911,7 +99899,6 @@ show-msgch.qq.com
 show-s.mediav.com
 show.3.mediav.com
 show.aklm.cc
-show.bilibili.com
 show.decorex.com
 show.f.mediav.com
 show.g.mediav.com
@@ -118299,7 +118286,6 @@ textuinpha.pro
 teyourmarketing.trungaleegan.com
 teyvmb.moniquelhuillier.com
 tezlpl.icu
-tf-i0.hdslb.com
 tf.360.cn
 tfbulkidn.com
 tfcdn.jingmiuyyds.com
@@ -127077,12 +127063,8 @@ uplog.inews.qq.com
 upltew.iwellps.com
 upoll.umengcloud.com
 uporods.com
-upos-sz-mirrorcos.bilivideo.com
 upos-sz-static.bilivideo.com
 upos-sz-staticcos.bilivideo.com
-upos-tf-all-hw.bilivideo.com
-upos-tf-all-tx.bilivideo.com
-upos-tribe-static.bilivideo.com
 uposnmb.icu
 uposz.procoffeegear.com
 uppbrl.thomassabo.com

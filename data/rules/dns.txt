@@ -2,11 +2,11 @@
 ! Title: GOODBYEADS
 ! Homepage: https://github.com/045200/GOODBYEADS
 ! Expires: 12 Hours
-! Version: 2025-07-20 18:10:46（北京时间）
+! Version: 2025-07-20 18:17:24（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 163341
+! Total count: 163323
 # DNS rules extracted from adblock.txt
-# Generated on 2025-07-20 10:10:44.141154
+# Generated on 2025-07-20 10:17:20.959478
 
 ||*-*-*-lrycfv.vip^
 ||*-*.ap-east-1.elb.amazonaws.com^
@@ -18917,7 +18917,6 @@
 ||api.linkgist.com^
 ||api.linkmine.co.kr^
 ||api.linkz.net^
-||api.live.bilibili.com^
 ||api.liveramp.com^
 ||api.livestt.co^
 ||api.locallogic.co^
@@ -19479,7 +19478,6 @@
 ||api.v4v6.gslb.aiclk.com^
 ||api.v79top.com^
 ||api.v7king.com^
-||api.vc.bilibili.com^
 ||api.velenox.com^
 ||api.venkocredit.com.br^
 ||api.venyoo.ru^
@@ -19806,8 +19804,6 @@
 ||app.bible.com^
 ||app.biblelens.com^
 ||app.bikeep.com^
-||app.biliapi.com^
-||app.biliapi.net^
 ||app.bimbaylola.com^
 ||app.bloombergconnects.org^
 ||app.bluehens.com^
@@ -23796,7 +23792,6 @@
 ||bfp.capitalone.com^
 ||bfrcs.avidgear.com^
 ||bfrdj.thewoodveneerhub.co.uk^
-||bfs-tf-all-bd.bilivideo.com^
 ||bfst.bloofusion.de^
 ||bft5.destinia.fr^
 ||bftqdd.xyz^
@@ -55412,7 +55407,6 @@
 ||httpring.qq.com^
 ||https-apple.com^
 ||https-filtering-check.adtidy.org^
-||https://^
 ||httpsdns.baidu.com^
 ||httpsjs.com^
 ||httpwwwadserver.com^
@@ -55902,7 +55896,6 @@
 ||i.upoker.net^
 ||i.viafoura.co^
 ||i0-vcdn.anthill.vn^
-||i0.hdslb.com^
 ||i0k.cn^
 ||i1.advertnative.com^
 ||i1.dl-ad.com^
@@ -64039,7 +64032,6 @@
 ||ldvalc.manzara.cz^
 ||ldxinb.xyz^
 ||ldxpmz.people.com^
-||le3-api.game.bilibili.com^
 ||le4le.com^
 ||leabd.douguo.com^
 ||lead-123.com^
@@ -73626,7 +73618,6 @@
 ||melvoranix.pro^
 ||member-app.rightwayhealthcare.com^
 ||member.ad.org.vn^
-||member.bilibili.com^
 ||member.naiadsystems.com^
 ||member.oewa.at^
 ||member.usenix.org^
@@ -84123,7 +84114,6 @@
 ||passionatehelp.pro^
 ||passitwist.pro^
 ||passkowildf.pro^
-||passport.bilibili.com^
 ||pasta.esfile.duapps.com^
 ||pastedeamb.pro^
 ||pastelchinchilla.pro^
@@ -87366,8 +87356,6 @@
 ||proxima.midjourney.com^
 ||proximityads.flipcorp.com^
 ||proxy-mob-cld.alicdn.com^
-||proxy-tf-all-ws.bilivideo.com^
-||proxy-tf-all-ws1.bilivideo.com^
 ||proxy.advp.apple.com^
 ||proxy.dzeio.com^
 ||proxy.optoutadserving.com^
@@ -99917,7 +99905,6 @@
 ||show-s.mediav.com^
 ||show.3.mediav.com^
 ||show.aklm.cc^
-||show.bilibili.com^
 ||show.decorex.com^
 ||show.f.mediav.com^
 ||show.g.mediav.com^
@@ -118305,7 +118292,6 @@
 ||teyourmarketing.trungaleegan.com^
 ||teyvmb.moniquelhuillier.com^
 ||tezlpl.icu^
-||tf-i0.hdslb.com^
 ||tf.360.cn^
 ||tfbulkidn.com^
 ||tfcdn.jingmiuyyds.com^
@@ -127083,12 +127069,8 @@
 ||upltew.iwellps.com^
 ||upoll.umengcloud.com^
 ||uporods.com^
-||upos-sz-mirrorcos.bilivideo.com^
 ||upos-sz-static.bilivideo.com^
 ||upos-sz-staticcos.bilivideo.com^
-||upos-tf-all-hw.bilivideo.com^
-||upos-tf-all-tx.bilivideo.com^
-||upos-tribe-static.bilivideo.com^
 ||uposnmb.icu^
 ||uposz.procoffeegear.com^
 ||uppbrl.thomassabo.com^
