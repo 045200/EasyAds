@@ -79,17 +79,6 @@
 </details>
 
 <details>
-<summary><b>🔍 SmartDNS规则</b></summary>
-<br>
-
-| 规则类型 | 📥 GitHub直链 | 🚀 国内加速链接 |
-| :---- | :---- | :---- |
-| SmartDNS拦截规则 | [smartdns.conf](https://raw.githubusercontent.com/045200/GOODBYEADS/master/data/rules/smartdns.conf) | [smartdns.conf](https://ghfast.top/raw.githubusercontent.com/045200/GOODBYEADS/master/data/rules/smartdns.conf) |
-| SmartDNS白名单 | [smartdns-whitelist.conf](https://raw.githubusercontent.com/045200/GOODBYEADS/master/data/rules/smartdns-whitelist.conf) | [smartdns-whitelist.conf](https://ghfast.top/raw.githubusercontent.com/045200/GOODBYEADS/master/data/rules/smartdns-whitelist.conf) |
-
-</details>
-
-<details>
 <summary><b>✅ 白名单规则</b></summary>
 <br>
 
