@@ -47,7 +47,8 @@ adblock = [
 "https://cdn.jsdelivr.net/gh/privacy-protection-tools/anti-AD/anti-ad-easylist.txt", # anti-ad
     "https://raw.githubusercontent.com/afwfv/DD-AD/main/rule/DD-AD.txt",  # DD-AD规则
     "https://raw.githubusercontent.com/Cats-Team/dns-filter/main/abp.txt",  # AdRules DNS过滤
-    "https://raw.hellogithub.com/hosts",  # GitHub加速hosts
+    
+"https://raw.hellogithub.com/hosts",  # GitHub加速hosts
 
 "https://raw.githubusercontent.com/Cats-Team/AdRules/main/adblock.txt",  # cat
     
@@ -74,7 +75,9 @@ allow = [
     "https://raw.githubusercontent.com/Kuroba-Sayuki/FuLing-AdRules/refs/heads/main/FuLingRules/FuLingAllowList.txt",  # 茯苓白名单
 
 "https://raw.githubusercontent.com/Cats-Team/AdRules/refs/heads/script/script/allowlist.txt", # cat白名单
-    "https://raw.githubusercontent.com/urkbio/adguardhomefilter/main/whitelist.txt",  # 酷安cocieto
+ 
+"https://raw.githubusercontent.com/hululu1068/AdGuard-Rule/refs/heads/main/rule/mylist.txt", # hululu1068
+   "https://raw.githubusercontent.com/urkbio/adguardhomefilter/main/whitelist.txt",  # 酷安cocieto
     "https://anti-ad.net/easylist.txt"  # anti-AD白名单
 ]
 
