@@ -10000,6 +10000,8 @@ ad-visor.com
 ad-vortex.com
 ad-wisteria.excite.co.jp
 ad-x.co.uk
+ad.*.qq.com
+ad.*.tencent.com
 ad.10010.com
 ad.103092804.com
 ad.12306.cn
@@ -11495,6 +11497,7 @@ adcdn.goo.ne.jp
 adcdn.holmesmind.com
 adcdn.hpplay.cn
 adcdn.tencentmusic.com
+adcdn.weixin.qq.com
 adcdn6.tencentmusic.com
 adcdnx.com
 adcell.com
@@ -12150,6 +12153,7 @@ adn.insight.ucweb.com
 adn.lrb.co.uk
 adn.plxnt.com
 adn.static-files.com
+adn.weixin.qq.com
 adn.zone-telechargement.com
 adnami.io
 adnami2.io
@@ -16123,6 +16127,7 @@ adten.eu
 adteractive.com
 adtest.adwo.com
 adtest.agrantsem.com
+adtest.weixin.qq.com
 adtgs.adk2.co
 adtgs.com
 adthletic.com
@@ -20377,6 +20382,7 @@ analytics.qogita.com
 analytics.qoqa.ch
 analytics.qoqa.com
 analytics.qoqa.ninja
+analytics.qq.com
 analytics.qs-apps.com
 analytics.qualcomm.com
 analytics.qualityquestions.co
@@ -59045,6 +59051,7 @@ g.ezodn.com
 g.f5gh.com
 g.frepouch.com
 g.fundsmith.co.uk
+g.gdt.qq.com
 g.gegeyingshi.com
 g.getsimpler.me
 g.goishtrie.com
@@ -61340,6 +61347,7 @@ glycisensu.pro
 glyyfm.hansungmall.net
 glzsji.nordman.ru
 gm.gds.mmstat.com
+gm.gdt.qq.com
 gm.mmstat.com
 gm.mob.com
 gm.uc003.com
@@ -85240,6 +85248,7 @@ log.popin.cc
 log.prezi.com
 log.pullcenter.live
 log.pvpgang.com
+log.qq.com
 log.quora.com
 log.qvb.qcloud.com
 log.rabobank.nl
@@ -94234,6 +94243,7 @@ mingleverse.pro
 mingtians.top
 mingyueqingfengshe.com
 mini-prog-drm.vodplayvideo.net
+mini-program-ads.qq.com
 mini-site.larksuite-marketing.com
 mini.eastday.com
 mini.hao123.com
@@ -133476,6 +133486,7 @@ ssl.cbinet.com
 ssl.citgo.com
 ssl.findpharma.com
 ssl.fotowoltaikomat.pl
+ssl.gdt.qq.com
 ssl.google-analytics.com
 ssl.graham-center.org
 ssl.licensemag.com
@@ -138396,6 +138407,7 @@ stats.qbitstore.nl
 stats.qdq.com
 stats.qiumibao.com
 stats.qovery.com
+stats.qq.com
 stats.quicksilvercre.com
 stats.qwant.com
 stats.r18.dev
@@ -143587,6 +143599,7 @@ tbmgyz.centerparcs.de
 tbnmmjm.com
 tbpqwn.thestones.co.kr
 tbs.tradedoubler.com
+tbskip.qq.com
 tbsveryfunnyads.112.2o7.net
 tbtrck.com
 tbunkrolo.com
