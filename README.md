@@ -3,20 +3,20 @@
 <h3 align="center">一个强力去广告的规则集合</h3>
 
 <p align="center">
-  <a href="https://github.com/8680/GOODBYEADS">
-    <img src="https://img.shields.io/github/last-commit/8680/GOODBYEADS?style=flat-square&color=blue" alt="last update" />
+  <a href="https://github.com/045200/GOODBYEADS">
+    <img src="https://img.shields.io/github/last-commit/045200/GOODBYEADS?style=flat-square&color=blue" alt="last update" />
   </a>
-  <a href="https://github.com/8680/GOODBYEADS">
-    <img src="https://img.shields.io/github/forks/8680/GOODBYEADS?style=flat-square&color=brightgreen" alt="forks" />
+  <a href="https://github.com/045200/GOODBYEADS">
+    <img src="https://img.shields.io/github/forks/045200/GOODBYEADS?style=flat-square&color=brightgreen" alt="forks" />
   </a>
-  <a href="https://github.com/8680/GOODBYEADS">
-    <img src="https://img.shields.io/github/stars/8680/GOODBYEADS?style=flat-square&color=yellow" alt="stars" />
+  <a href="https://github.com/045200/GOODBYEADS">
+    <img src="https://img.shields.io/github/stars/045200/GOODBYEADS?style=flat-square&color=yellow" alt="stars" />
   </a>
-  <a href="https://github.com/8680/GOODBYEADS/issues/">
-    <img src="https://img.shields.io/github/issues/8680/GOODBYEADS?style=flat-square&color=red" alt="open issues" />
+  <a href="https://github.com/045200/GOODBYEADS/issues/">
+    <img src="https://img.shields.io/github/issues/045200/GOODBYEADS?style=flat-square&color=red" alt="open issues" />
   </a>
-  <a href="https://github.com/8680/GOODBYEADS">
-    <img src="https://img.shields.io/github/license/8680/GOODBYEADS?style=flat-square&color=9cf" alt="license" />
+  <a href="https://github.com/045200/GOODBYEADS">
+    <img src="https://img.shields.io/github/license/045200/GOODBYEADS?style=flat-square&color=9cf" alt="license" />
   </a>
 </p>
 
@@ -53,8 +53,8 @@
 
 | 规则类型 | 📥 GitHub直链 | 🚀 国内加速链接 |
 | :---- | :---- | :---- |
-| AdGuard 拦截规则 | [adblock.txt](https://raw.githubusercontent.com/8680/GOODBYEADS/master/data/rules/adblock.txt) | [adblock.txt](https://ghfast.top/raw.githubusercontent.com/8680/GOODBYEADS/master/data/rules/adblock.txt) |
-| AdGuard Home DNS拦截规则 | [dns.txt](https://raw.githubusercontent.com/8680/GOODBYEADS/master/data/rules/dns.txt) | [dns.txt](https://ghfast.top/raw.githubusercontent.com/8680/GOODBYEADS/master/data/rules/dns.txt) |
+| AdGuard 拦截规则 | [adblock.txt](https://raw.githubusercontent.com/045200/GOODBYEADS/master/data/rules/adblock.txt) | [adblock.txt](https://ghfast.top/raw.githubusercontent.com/045200/GOODBYEADS/master/data/rules/adblock.txt) |
+| AdGuard Home DNS拦截规则 | [dns.txt](https://raw.githubusercontent.com/045200/GOODBYEADS/master/data/rules/dns.txt) | [dns.txt](https://ghfast.top/raw.githubusercontent.com/045200/GOODBYEADS/master/data/rules/dns.txt) |
 
 </details>
 
@@ -64,7 +64,7 @@
 
 | 规则类型 | 📥 GitHub直链 | 🚀 国内加速链接 |
 | :---- | :---- | :---- |
-| 黑名单域名列表 | [ad-domain.txt](https://raw.githubusercontent.com/8680/GOODBYEADS/master/data/rules/ad-domain.txt) | [ad-domain.txt](https://ghfast.top/raw.githubusercontent.com/8680/GOODBYEADS/master/data/rules/ad-domain.txt) |
+| 黑名单域名列表 | [ad-domain.txt](https://raw.githubusercontent.com/045200/GOODBYEADS/master/data/rules/ad-domain.txt) | [ad-domain.txt](https://ghfast.top/raw.githubusercontent.com/045200/GOODBYEADS/master/data/rules/ad-domain.txt) |
 
 </details>
 
@@ -74,7 +74,7 @@
 
 | 规则类型 | 📥 GitHub直链 | 🚀 国内加速链接 |
 | :---- | :---- | :---- |
-| Quantumult X规则 | [qx.list](https://raw.githubusercontent.com/8680/GOODBYEADS/master/data/rules/qx.list) | [qx.list](https://ghfast.top/raw.githubusercontent.com/8680/GOODBYEADS/master/data/rules/qx.list) |
+| Quantumult X规则 | [qx.list](https://raw.githubusercontent.com/045200/GOODBYEADS/master/data/rules/qx.list) | [qx.list](https://ghfast.top/raw.githubusercontent.com/045200/GOODBYEADS/master/data/rules/qx.list) |
 
 </details>
 
@@ -84,8 +84,8 @@
 
 | 规则类型 | 📥 GitHub直链 | 🚀 国内加速链接 |
 | :---- | :---- | :---- |
-| SmartDNS拦截规则 | [smartdns.conf](https://raw.githubusercontent.com/8680/GOODBYEADS/master/data/rules/smartdns.conf) | [smartdns.conf](https://ghfast.top/raw.githubusercontent.com/8680/GOODBYEADS/master/data/rules/smartdns.conf) |
-| SmartDNS白名单 | [smartdns-whitelist.conf](https://raw.githubusercontent.com/8680/GOODBYEADS/master/data/rules/smartdns-whitelist.conf) | [smartdns-whitelist.conf](https://ghfast.top/raw.githubusercontent.com/8680/GOODBYEADS/master/data/rules/smartdns-whitelist.conf) |
+| SmartDNS拦截规则 | [smartdns.conf](https://raw.githubusercontent.com/045200/GOODBYEADS/master/data/rules/smartdns.conf) | [smartdns.conf](https://ghfast.top/raw.githubusercontent.com/045200/GOODBYEADS/master/data/rules/smartdns.conf) |
+| SmartDNS白名单 | [smartdns-whitelist.conf](https://raw.githubusercontent.com/045200/GOODBYEADS/master/data/rules/smartdns-whitelist.conf) | [smartdns-whitelist.conf](https://ghfast.top/raw.githubusercontent.com/045200/GOODBYEADS/master/data/rules/smartdns-whitelist.conf) |
 
 </details>
 
@@ -95,25 +95,7 @@
 
 | 规则类型 | 📥 GitHub直链 | 🚀 国内加速链接 |
 | :---- | :---- | :---- |
-| 白名单规则 | [allow.txt](https://raw.githubusercontent.com/8680/GOODBYEADS/master/data/rules/allow.txt) | [allow.txt](https://ghfast.top/raw.githubusercontent.com/8680/GOODBYEADS/master/data/rules/allow.txt) |
-</details>
-
-## 📚 上游列表
-
-<details>
-<summary><b>点击查看数据来源</b></summary>
-<br>
-
-- [AdGuard规则](https://github.com/AdguardTeam/AdguardFilters)
-- [Tv规则](https://perflyst.github.io/PiHoleBlocklist/SmartTV-AGH.txt)
-- [EasyPrivacy规则](https://easylist.to/)
-- [乘风视频过滤规则](https://raw.githubusercontent.com/xinggsf/Adblock-Plus-Rule/master/mv.txt)
-- [去APP下载提示规则](https://raw.githubusercontent.com/Noyllopa/NoAppDownload/master/NoAppDownload.txt)
-- [oisd规则](https://small.oisd.nl/)
-- [AWAvenue 秋风广告规则](https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/AWAvenue-Ads-Rule.txt)
-- [CJX's Annoyance List](https://raw.githubusercontent.com/cjx82630/cjxlist/master/cjx-annoyance.txt)
-- [补充规则](https://github.com/8680/GOODBYEADS)
-
+| 白名单规则 | [allow.txt](https://raw.githubusercontent.com/045200/GOODBYEADS/master/data/rules/allow.txt) | [allow.txt](https://ghfast.top/raw.githubusercontent.com/045200/GOODBYEADS/master/data/rules/allow.txt) |
 </details>
 
 ## 🚫 拦截效果
