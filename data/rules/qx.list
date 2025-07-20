@@ -32886,6 +32886,7 @@ DOMAIN,openbox.mobilem.360.cn,reject
 DOMAIN,opencdnpddpic2.cdn.vsjwtcdn.com,reject
 DOMAIN,opencdnpddvod2.jomodns.com,reject
 DOMAIN,opencollective.com,reject
+DOMAIN,openjmacs.m.taobao.com,reject
 DOMAIN,openlog.cashcatads.com,reject
 DOMAIN,openmsf.3g.qq.com,reject
 DOMAIN,openrcv.baidu.com,reject
@@ -46733,7 +46734,9 @@ DOMAIN,umdc.aliapp.org,reject
 DOMAIN,umeng.co,reject
 DOMAIN,umeng.com.gds.alibabadns.com,reject
 DOMAIN,umeng.com,reject
+DOMAIN,umengacs.m.taobao.com,reject
 DOMAIN,umengcloud.com,reject
+DOMAIN,umengjmacs.m.taobao.com,reject
 DOMAIN,umettcomme.pro,reject
 DOMAIN,umetthotsp.pro,reject
 DOMAIN,umid.orion.meizu.com,reject
@@ -77623,6 +77626,7 @@ DOMAIN,yoke.tianyaoguan.cn,reject
 DOMAIN,yonsandileer.com,reject
 DOMAIN,yorkenergyadvice.com,reject
 DOMAIN,youjiudilai.com,reject
+DOMAIN,youku-acs.m.taobao.com,reject
 DOMAIN,youku-dtv.m.cn.miaozhen.com,reject
 DOMAIN,youku6.top,reject
 DOMAIN,youp05.com,reject

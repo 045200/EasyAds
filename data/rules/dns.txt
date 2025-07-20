@@ -2,9 +2,12 @@
 ! Title: GOODBYEADS
 ! Homepage: https://github.com/045200/GOODBYEADS
 ! Expires: 12 Hours
-! Version: 2025-07-20 14:52:55（北京时间）
+! Version: 2025-07-20 15:21:54（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 78319
+! Total count: 78320
+# DNS rules extracted from adblock.txt
+# Generated on 2025-07-20 07:21:54.370325
+
 ||*-*-*-lrycfv.vip^
 ||*-*.ap-east-1.elb.amazonaws.com^
 ||*-*.ap-northeast-2.elb.amazonaws.com^
