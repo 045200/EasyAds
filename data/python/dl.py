@@ -51,8 +51,7 @@ adblock = [
   "https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/AWAvenue-Ads-Rule.txt",
   "https://raw.githubusercontent.com/2Gardon/SM-Ad-FuckU-hosts/refs/heads/master/SMAdHosts",
  "https://raw.githubusercontent.com/Kuroba-Sayuki/FuLing-AdRules/refs/heads/main/FuLingRules/FuLingBlockList.txt",
-  "https://raw.githubusercontent.com/Kuroba-Sayuki/FuLing-AdRules/refs/heads/main/FuLingRules/FuLingAllowList.txt" #茯苓白名单
-  "https://raw.githubusercontent.com/twoone-3/AdGuardHomeForRoot/refs/heads/main/src/bin/data/filters/1732747955.txt" #twoone-3
+  "https://raw.githubusercontent.com/twoone-3/AdGuardHomeForRoot/refs/heads/main/src/bin/data/filters/1732747955.txt"
 
 ]
 
@@ -62,11 +61,9 @@ allow = [
 "https://raw.githubusercontent.com/qq5460168/dangchu/main/white.txt",
   "https://raw.githubusercontent.com/mphin/AdGuardHomeRules/main/Allowlist.txt",
   "https://file-git.trli.club/file-hosts/allow/Domains",
-  "https://raw.githubusercontent.com/user001235/112/main/white.txt",
   "https://raw.githubusercontent.com/jhsvip/ADRuls/main/white.txt",
   "https://raw.githubusercontent.com/liwenjie119/adg-rules/master/white.txt",
-  "https://raw.githubusercontent.com/miaoermua/AdguardFilter/main/whitelist.txt",
- "https://raw.githubusercontent.com/Zisbusy/AdGuardHome-Rules/refs/heads/main/Rules/whitelist.txt",
+  "https://raw.githubusercontent.com/miaoermua/AdguardFilter/main/whitelist.txt"，
   "https://raw.githubusercontent.com/Kuroba-Sayuki/FuLing-AdRules/refs/heads/main/FuLingRules/FuLingAllowList.txt",
   "https://raw.githubusercontent.com/urkbio/adguardhomefilter/main/whitelist.txt",
 
