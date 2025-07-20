@@ -46,14 +46,14 @@ adblock = [
 
 #-"https://cdn.jsdelivr.net/gh/privacy-protection-tools/anti-AD/anti-ad-easylist.txt", # anti-ad
     "https://raw.githubusercontent.com/afwfv/DD-AD/main/rule/DD-AD.txt",  # DD-AD规则
-    "https://raw.githubusercontent.com/Cats-Team/dns-filter/main/abp.txt",  # AdRules DNS过滤
-    
+
 "https://raw.hellogithub.com/hosts",  # GitHub加速hosts
 
 "https://raw.githubusercontent.com/Cats-Team/AdRules/main/adblock.txt",  # cat
     
 "https://raw.githubusercontent.com/qq5460168/dangchu/main/adhosts.txt",  # 测试hosts
-    "https://lingeringsound.github.io/10007_auto/adb.txt",  # 10007自动规则
+    
+"https://lingeringsound.github.io/10007_auto/adb.txt",  # 10007自动规则
     "https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Replenish.txt",  # 秋风补充
     "https://raw.githubusercontent.com/2771936993/HG/main/hg1.txt",  # 海哥规则
     "https://github.com/entr0pia/fcm-hosts/raw/fcm/fcm-hosts",  # FCM Hosts
