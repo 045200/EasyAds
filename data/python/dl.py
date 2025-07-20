@@ -45,7 +45,8 @@ adblock = [
     "https://raw.githubusercontent.com/damengzhu/banad/main/jiekouAD.txt",  # 大萌主-接口广告
 
 #-"https://cdn.jsdelivr.net/gh/privacy-protection-tools/anti-AD/anti-ad-easylist.txt", # anti-ad
-    "https://raw.githubusercontent.com/afwfv/DD-AD/main/rule/DD-AD.txt",  # DD-AD规则
+    
+"https://raw.githubusercontent.com/afwfv/DD-AD/main/rule/DD-AD.txt",  # DD-AD规则
 
 "https://raw.hellogithub.com/hosts",  # GitHub加速hosts
 
@@ -56,13 +57,20 @@ adblock = [
 "https://lingeringsound.github.io/10007_auto/adb.txt",  # 10007自动规则
     
 "https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Replenish.txt",  # 秋风补充
-    "https://raw.githubusercontent.com/2771936993/HG/main/hg1.txt",  # 海哥规则
-    "https://github.com/entr0pia/fcm-hosts/raw/fcm/fcm-hosts",  # FCM Hosts
-    "https://raw.githubusercontent.com/790953214/qy-Ads-Rule/refs/heads/main/black.txt",  # 晴雅黑名单
-    "https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/AWAvenue-Ads-Rule.txt",  # 秋风主规则
-    "https://raw.githubusercontent.com/2Gardon/SM-Ad-FuckU-hosts/refs/heads/master/SMAdHosts",  # 下一个ID见
-    "https://raw.githubusercontent.com/Kuroba-Sayuki/FuLing-AdRules/refs/heads/main/FuLingRules/FuLingBlockList.txt",  # 茯苓拦截
-    "https://raw.githubusercontent.com/twoone-3/AdGuardHomeForRoot/refs/heads/main/src/bin/data/filters/1732747955.txt"  # twoone-3
+    
+"https://raw.githubusercontent.com/2771936993/HG/main/hg1.txt",  # 海哥规则
+    
+"https://github.com/entr0pia/fcm-hosts/raw/fcm/fcm-hosts",  # FCM Hosts
+    
+"https://raw.githubusercontent.com/790953214/qy-Ads-Rule/refs/heads/main/black.txt",  # 晴雅黑名单
+    
+"https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/AWAvenue-Ads-Rule.txt",  # 秋风主规则
+    
+"https://raw.githubusercontent.com/2Gardon/SM-Ad-FuckU-hosts/refs/heads/master/SMAdHosts",  # 下一个ID见
+    
+"https://raw.githubusercontent.com/Kuroba-Sayuki/FuLing-AdRules/refs/heads/main/FuLingRules/FuLingBlockList.txt",  # 茯苓拦截
+    
+"https://raw.githubusercontent.com/twoone-3/AdGuardHomeForRoot/refs/heads/main/src/bin/data/filters/1732747955.txt"  # twoone-3
 ]
 
 # 白名单规则
