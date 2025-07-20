@@ -139,6 +139,12 @@
 *.z9ehxz.com
 *.ztgha.xyz
 *.zzz725.top
+*/ad-material/*.wasm
+*/adx/*.css
+*/adx/*.js
+*/log?ad=
+*/stats?type=ad
+*/tracking/ad
 */vhot2.qqvideo.tc.qq.com
 *33*-*.1drv.com
 *ad.adbkwai.com
@@ -20382,7 +20388,6 @@ analytics.qogita.com
 analytics.qoqa.ch
 analytics.qoqa.com
 analytics.qoqa.ninja
-analytics.qq.com
 analytics.qs-apps.com
 analytics.qualcomm.com
 analytics.qualityquestions.co
@@ -26116,6 +26121,7 @@ auy07180km.com
 auy07181km.com
 auy07190km.com
 auy07200km.com
+auy07201km.com
 av1.xdrig.com
 av6fm8zw2cvz.furucombo.app
 av8d.net
@@ -49962,6 +49968,7 @@ duoroumao.cn
 duosiwindl.pro
 duote.com
 duoviracco.pro
+dup.baidustatic.com/js/du
 dup.baidustatic.com
 dupab.spode.co.uk
 dupinpu.com
@@ -59051,7 +59058,6 @@ g.ezodn.com
 g.f5gh.com
 g.frepouch.com
 g.fundsmith.co.uk
-g.gdt.qq.com
 g.gegeyingshi.com
 g.getsimpler.me
 g.goishtrie.com
@@ -61347,7 +61353,6 @@ glycisensu.pro
 glyyfm.hansungmall.net
 glzsji.nordman.ru
 gm.gds.mmstat.com
-gm.gdt.qq.com
 gm.mmstat.com
 gm.mob.com
 gm.uc003.com
@@ -78692,6 +78697,7 @@ ks18.ygcname2009.com
 ks42zt.spec.fm
 ks66666661.com
 ks67.com
+ksad.ksapisrv.com
 ksadrewrty.com
 ksamarketing.sedgwick.com
 ksasd.eshopygo.bg
@@ -81792,6 +81798,7 @@ liulu888.com
 liutiattal.pro
 liuyimin5.cn
 liuzishen.com
+live-ad.kuaishou.com
 live-api.hktvmall.com
 live-api.immomo.com
 live-api.oncustomer.asia
@@ -85248,7 +85255,6 @@ log.popin.cc
 log.prezi.com
 log.pullcenter.live
 log.pvpgang.com
-log.qq.com
 log.quora.com
 log.qvb.qcloud.com
 log.rabobank.nl
@@ -103507,6 +103513,7 @@ pangolin-sdk-toutiao-b.com
 pangolin-sdk-toutiao.com
 pangolin-sdk-toutiao1.com
 pangolin.snssdk.com
+pangolin16*.snssdk.com
 pangolin16.isnssdk.com
 pangolin16.sgsnssdk.com
 pangolinbutlerlounge.com
@@ -133486,7 +133493,6 @@ ssl.cbinet.com
 ssl.citgo.com
 ssl.findpharma.com
 ssl.fotowoltaikomat.pl
-ssl.gdt.qq.com
 ssl.google-analytics.com
 ssl.graham-center.org
 ssl.licensemag.com
@@ -138407,7 +138413,6 @@ stats.qbitstore.nl
 stats.qdq.com
 stats.qiumibao.com
 stats.qovery.com
-stats.qq.com
 stats.quicksilvercre.com
 stats.qwant.com
 stats.r18.dev
@@ -192172,6 +192177,7 @@ yldmgrimg.net
 yldr.io
 yleaqv.soopsori.co.kr
 ylflwbj.cn
+ylh.qq.com
 ylicxdkgkvfc.com
 yllix.com
 ylll1558.bosios23pi.vip
