@@ -1,37 +1,47 @@
 import os
-
-# Change to the project root directory
-os.chdir('tmp')
+from pathlib import Path
 
 def extract_domains(input_file, output_file):
+    """
+    Extract domains from AdBlock-style DNS rules file.
+    
+    Args:
+        input_file (str): Path to input DNS rules file
+        output_file (str): Path to output domain list file
+    """
     print("Extracting domain list...")
     
-    with open(input_file, 'r', encoding='utf-8', errors='ignore') as file:
-        lines = file.readlines()
+    # Convert to Path objects for better path handling
+    input_path = Path(input_file)
+    output_path = Path(output_file)
     
-    count = 0
-    with open(output_file, 'w') as file:
-        # Add header comment
-        file.write("# GOODBYEADS Domain List\n")
-        file.write("# Homepage: https://github.com/8680/GOODBYEADS\n")
-        file.write("# Generated from GOODBYEADS DNS rules\n\n")
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    
+    try:
+        with input_path.open('r', encoding='utf-8', errors='ignore') as infile:
+            domains = []
+            for line in infile:
+                line = line.strip()
+                if line.startswith("||") and line.endswith("^"):
+                    domain = line[2:-1]
+                    domains.append(domain)
+                    
+        with output_path.open('w', encoding='utf-8') as outfile:
+            outfile.write("# GOODBYEADS Domain List\n")
+            outfile.write("# Homepage: https://github.com/045200/GOODBYEADS\n")
+            outfile.write("# Generated from GOODBYEADS DNS rules\n\n")
+            outfile.write("\n".join(domains))
+            
+        print(f"Extracted {len(domains)} domains to domain list")
         
-        for line in lines:
-            line = line.strip()
-            # Check if the line starts with "||" and ends with "^" (adblock DNS syntax)
-            if line.startswith("||") and line.endswith("^"):
-                # Extract domain from the rule (remove || prefix and ^ suffix)
-                domain = line[2:-1]
-                # Write only the domain name without any prefix or suffix
-                file.write(f"{domain}\n")
-                count += 1
+    except IOError as e:
+        print(f"Error processing files: {e}")
+
+# Example usage
+if __name__ == "__main__":
+    base_dir = Path(__file__).parent.parent
+    input_file = base_dir / "data" / "rules" / "dns.txt"
+    output_file = base_dir / "data" / "rules" / "ad-domain.txt"
     
-    print(f"Extracted {count} domains to domain list")
-
-# Input from current dns.txt file
-input_file_path = ".././data/rules/dns.txt"
-# Output to new ad-domain.txt file
-output_file_path = ".././data/rules/ad-domain.txt"
-
-# Generate domain list
-extract_domains(input_file_path, output_file_path) 
+    extract_domains(input_file, output_file)
