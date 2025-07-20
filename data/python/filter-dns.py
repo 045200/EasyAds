@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+import datetime  # 需要导入datetime模块
 
 def filter_adblock_rules(input_path, output_path):
     """
@@ -37,7 +38,10 @@ def filter_adblock_rules(input_path, output_path):
 
 if __name__ == "__main__":
     base_dir = Path(__file__).parent.parent
-    input_file = base_dir / "data" / "rules" / "adblock.txt"
-    output_file = base_dir / "data" / "rules" / "dns.txt"
+    input_file = base_dir / "rules" / "adblock.txt"  # 移除了重复的data目录
+    output_file = base_dir / "rules" / "dns.txt"     # 移除了重复的data目录
+    
+    # 确保输出目录存在
+    output_file.parent.mkdir(parents=True, exist_ok=True)
     
     filter_adblock_rules(input_file, output_file)
