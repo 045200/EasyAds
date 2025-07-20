@@ -2,9 +2,9 @@
 ! Title: GOODBYEADS
 ! Homepage: https://github.com/045200/GOODBYEADS
 ! Expires: 12 Hours
-! Version: 2025-07-20 22:02:29（北京时间）
+! Version: 2025-07-20 22:30:18（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 8962
+! Total count: 8954
 @@$cookie=__gads,domain=godstoryinfo.com|laweducationinfo.com|rsgames.xyz|vichitrainfo.com
 @@&http_referer=$domain=chaopx.com
 @@*.flyme.cn
@@ -810,7 +810,6 @@
 @@||ads.adfox.ru/crossdomain.xml$object-subrequest,domain=carambatv.ru
 @@||ads.alafish.cn^
 @@||ads.alafish.cn^$~third-party
-@@||ads.amazon^
 @@||ads.atmosphere.copernicus.eu^
 @@||ads.cdn.tvb.com^
 @@||ads.cdn.tvb.com^*.key
@@ -822,7 +821,6 @@
 @@||ads.exoclick.com/ads.js$script,domain=mobilevids.org
 @@||ads.google.com/adserver/adlogger_tracker.php$domain=chrissmoove.com
 @@||ads.google.com^
-@@||ads.instacart.com^
 @@||ads.lingxing.com^
 @@||ads.lingxing.com^$document
 @@||ads.lingxing.com^$~third-party
@@ -844,7 +842,6 @@
 @@||ads.stickyadstv.com/www/delivery$object-subrequest,domain=play.tv|playtv.fr
 @@||ads.stickyadstv.com/www/delivery/swfIndex.php?$xmlhttprequest,domain=wakanim.tv
 @@||ads.taboola.com^
-@@||ads.tiktok.com^
 @@||ads.tiktok.com^$document
 @@||ads.tiktok.com^$generichide
 @@||ads.tiktok.com^$~third-party
@@ -7963,17 +7960,14 @@
 @@||tra.scds.pmdstatic.net/sourcepoint/$domain=businessinsider.fr|caminteresse.fr|capital.fr|voici.fr
 @@||traceparts.com/lib/piano-analytics/piano-analytics.js$script,~third-party
 @@||track.adform.net/serving/scripts/trackpoint$script,domain=sky.it
-@@||track.cpau.info^
 @@||track.ksta.de/cre-*/tracking/call.js
 @@||track.mybloglog.com/js/jsserv.php?$domain=egotastic.com
 @@||track.nzz.ch/*/api/auth_v*/
 @@||track.nzz.ch/*/api/oauth/
 @@||track.nzz.ch/cre-*/tracking/
-@@||track.sendcloud.org^
 @@||track.sendle.com/tracking$removeparam=ref
 @@||track.shipstation.com/collections/trackingEvents.js$~third-party
 @@||track.sohu.com^
-@@||track.toggl.com^
 @@||track2.royalmail.com^
 @@||trackcmp.net^|
 @@||tracker.ai.xiaomi.com^
@@ -7984,8 +7978,6 @@
 @@||tracker.mattel.com/tracker.aspx?site=$script
 @@||tracker.mattel.com^$domain=barbie.com
 @@||tracker.trackerfix.com
-@@||tracking-protection.cdn.mozilla.net^
-@@||tracking.epicgames.com^
 @@||tracking.immobilienscout24.de/tr.js?customCounterName=is24.de.meinkonto.merkzettel.myscout
 @@||tracking.miui.com^
 @@||trackjs.com/agent/$script,domain=delta.com
