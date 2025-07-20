@@ -88,10 +88,20 @@ def remove_whitelist_domains(input_file: str, whitelist_file: str) -> int:
         return 0
 
 if __name__ == "__main__":
-    base_dir = Path(__file__).parent.parent
-    input_file = base_dir / "data" / "rules" / "dns.txt"
-    output_file = base_dir / "data" / "rules" / "qx.list"
-    whitelist_file = base_dir / "data" / "mod" / "whitelist.txt"
+    # 获取当前脚本所在目录的父目录
+    script_dir = Path(__file__).parent
+    base_dir = script_dir.parent  # 假设脚本在data/python/目录下
+    
+    # 构造正确的文件路径
+    input_file = base_dir / "rules" / "dns.txt"
+    output_file = base_dir / "rules" / "qx.list"
+    whitelist_file = base_dir / "mod" / "whitelist.txt"
+    
+    # 确保输出目录存在
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    print(f"Looking for input file at: {input_file}")
+    print(f"Absolute input path: {input_file.absolute()}")
     
     processed = replace_content_in_file(input_file, output_file)
     removed = remove_whitelist_domains(output_file, whitelist_file)
