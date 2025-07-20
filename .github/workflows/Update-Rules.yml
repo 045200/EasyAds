@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 获取完整提交历史
           
       - name: Check for file changes
         id: changes
@@ -50,6 +52,11 @@ jobs:
         run: |
           python ./data/python/mihomo.py
 
+      - name: Generate loon Rules
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        run: |
+          python ./data/python/loon.py
+
       - name: Generate Domain List
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
@@ -61,16 +68,26 @@ jobs:
           python ./data/python/title.py
           python ./data/python/clean-readme.py
 
-      - name: Git push assets to Github
+      - name: Configure Git
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
-          git init
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git branch -m master
+
+      - name: Commit Changes
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        run: |
           git add --all
-          git commit -m "Updated at $(TZ=UTC-8 date +'%Y-%m-%d %H:%M:%S')（北京时间）"
-          git push -u origin -f
+          git commit -m "Updated at $(TZ=UTC-8 date +'%Y-%m-%d %H:%M:%S')（北京时间）" || echo "No changes to commit"
+
+      - name: Sync and Push Changes
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        run: |
+          for i in 1 2 3; do
+            git pull --rebase origin master
+            git push origin master && break || sleep 5
+          done
 
       - name: Delete workflow runs 
         uses: Mattraks/delete-workflow-runs@main
