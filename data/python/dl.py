@@ -62,7 +62,7 @@ allow = [
   "https://file-git.trli.club/file-hosts/allow/Domains",
   "https://raw.githubusercontent.com/jhsvip/ADRuls/main/white.txt",
   "https://raw.githubusercontent.com/liwenjie119/adg-rules/master/white.txt",
-  "https://raw.githubusercontent.com/miaoermua/AdguardFilter/main/whitelist.txt"，
+  "https://raw.githubusercontent.com/miaoermua/AdguardFilter/main/whitelist.txt",
   "https://raw.githubusercontent.com/Kuroba-Sayuki/FuLing-AdRules/refs/heads/main/FuLingRules/FuLingAllowList.txt",
   "https://raw.githubusercontent.com/urkbio/adguardhomefilter/main/whitelist.txt",
 
