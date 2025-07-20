@@ -148,4 +148,29 @@ def main():
     # Path configuration
     config = {
         "source_file": MI_HOME / "rules" / "dns.txt",          # Input rules file
-        "intermedia
+        "intermediate_file": MI_HOME / "temp" / "domains.txt", # Prepared domain list
+        "output_file": MI_HOME / "rules" / "mihomo.mrs",       # Output mrs file
+        "tool_dir": MI_HOME / "tools"                          # Directory for Mihomo tool
+    }
+
+    # Create necessary directories
+    for path in [config["intermediate_file"].parent, config["tool_dir"]]:
+        path.mkdir(parents=True, exist_ok=True)
+
+    # Step 1: Prepare domain file
+    if not prepare_domain_file(config["source_file"], config["intermediate_file"]):
+        sys.exit(1)
+
+    # Step 2: Download Mihomo tool if needed
+    mihomo_tool = download_mihomo_tool(config["tool_dir"])
+    if not mihomo_tool:
+        sys.exit(1)
+
+    # Step 3: Convert to mrs format
+    if not convert_to_mrs(config["intermediate_file"], config["output_file"], mihomo_tool):
+        sys.exit(1)
+
+    log("Mihomo rules generation completed successfully")
+
+if __name__ == "__main__":
+    main()
