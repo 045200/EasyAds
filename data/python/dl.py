@@ -35,25 +35,42 @@ subprocess.run("cp ./data/mod/whitelist.txt ./tmp/allow01.txt", shell=True)
 
 # 拦截规则
 adblock = [
-    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_2_Base/filter.txt",
-    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_224_Chinese/filter.txt",
-    "https://perflyst.github.io/PiHoleBlocklist/SmartTV-AGH.txt",
-    "https://easylist-downloads.adblockplus.org/easylist.txt",
-    "https://easylist-downloads.adblockplus.org/easylistchina.txt",
-    "https://easylist-downloads.adblockplus.org/easyprivacy.txt",
-    "https://raw.githubusercontent.com/Noyllopa/NoAppDownload/master/NoAppDownload.txt",
-    "https://raw.githubusercontent.com/sjhgvr/oisd/main/abp_small.txt",
-    "https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/AWAvenue-Ads-Rule.txt",
-    "https://raw.githubusercontent.com/xinggsf/Adblock-Plus-Rule/master/rule.txt",
-    "https://raw.githubusercontent.com/cjx82630/cjxlist/master/cjx-annoyance.txt"
+     "https://raw.githubusercontent.com/damengzhu/banad/main/jiekouAD.txt",
+  "https://raw.githubusercontent.com/afwfv/DD-AD/main/rule/DD-AD.txt",
+  "https://raw.githubusercontent.com/Cats-Team/dns-filter/main/abp.txt",
+
+"https://raw.hellogithub.com/hosts",
+ "https://raw.githubusercontent.com/qq5460168/dangchu/main/adhosts.txt",
+    "https://lingeringsound.github.io/10007_auto/adb.txt",
+
+"https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Replenish.txt",
+
+"https://raw.githubusercontent.com/2771936993/HG/main/hg1.txt",
+  "https://github.com/entr0pia/fcm-hosts/raw/fcm/fcm-hosts",
+  "https://raw.githubusercontent.com/790953214/qy-Ads-Rule/refs/heads/main/black.txt",
+  "https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/AWAvenue-Ads-Rule.txt",
+  "https://raw.githubusercontent.com/2Gardon/SM-Ad-FuckU-hosts/refs/heads/master/SMAdHosts",
+ "https://raw.githubusercontent.com/Kuroba-Sayuki/FuLing-AdRules/refs/heads/main/FuLingRules/FuLingBlockList.txt",
+  "https://raw.githubusercontent.com/Kuroba-Sayuki/FuLing-AdRules/refs/heads/main/FuLingRules/FuLingAllowList.txt" #茯苓白名单
+  "https://raw.githubusercontent.com/twoone-3/AdGuardHomeForRoot/refs/heads/main/src/bin/data/filters/1732747955.txt" #twoone-3
+
 ]
 
 # 白名单规则
 allow = [
-    "https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/ChineseFilter/sections/allowlist.txt",
-    "https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/GermanFilter/sections/allowlist.txt",
-    "https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/TurkishFilter/sections/allowlist.txt",
-    "https://raw.githubusercontent.com/AdguardTeam/AdguardFilters/master/SpywareFilter/sections/allowlist.txt"
+
+"https://raw.githubusercontent.com/qq5460168/dangchu/main/white.txt",
+  "https://raw.githubusercontent.com/mphin/AdGuardHomeRules/main/Allowlist.txt",
+  "https://file-git.trli.club/file-hosts/allow/Domains",
+  "https://raw.githubusercontent.com/user001235/112/main/white.txt",
+  "https://raw.githubusercontent.com/jhsvip/ADRuls/main/white.txt",
+  "https://raw.githubusercontent.com/liwenjie119/adg-rules/master/white.txt",
+  "https://raw.githubusercontent.com/miaoermua/AdguardFilter/main/whitelist.txt",
+ "https://raw.githubusercontent.com/Zisbusy/AdGuardHome-Rules/refs/heads/main/Rules/whitelist.txt",
+  "https://raw.githubusercontent.com/Kuroba-Sayuki/FuLing-AdRules/refs/heads/main/FuLingRules/FuLingAllowList.txt",
+  "https://raw.githubusercontent.com/urkbio/adguardhomefilter/main/whitelist.txt",
+
+"https://anti-ad.net/easylist.txt"
 ]
 
 # 下载
