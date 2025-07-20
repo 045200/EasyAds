@@ -1,7 +1,7 @@
 import os
 import re
 from pathlib import Path
-from datetime import datetime, timezone, timedelta
+from datetime import datetime
 import pytz
 
 def get_beijing_time():
@@ -44,8 +44,10 @@ def extract_to_loon_rules(input_file, output_file):
         output_path.parent.mkdir(parents=True, exist_ok=True)
         
         beijing_time = get_beijing_time()
-        ip_count, domain_count = len(set(ip_rules)), len(set(domain_rules))
-        suffix_count, keyword_count = len(set(suffix_rules)), len(set(keyword_rules))
+        ip_count = len(set(ip_rules))
+        domain_count = len(set(domain_rules))
+        suffix_count = len(set(suffix_rules))
+        keyword_count = len(set(keyword_rules))
         total_count = ip_count + domain_count + suffix_count + keyword_count
 
         with output_path.open('w', encoding='utf-8') as outfile:
@@ -54,10 +56,14 @@ def extract_to_loon_rules(input_file, output_file):
             outfile.write(f"# 规则统计: 总计{total_count}条 (IP:{ip_count} DOMAIN:{domain_count} "
                          f"SUFFIX:{suffix_count} KEYWORD:{keyword_count})\n\n")
             
-            if ip_rules: outfile.write("# IP规则\n" + "\n".join(sorted(set(ip_rules))) + "\n\n"
-            if domain_rules: outfile.write("# 域名规则\n" + "\n".join(sorted(set(domain_rules))) + "\n\n"
-            if suffix_rules: outfile.write("# 域名后缀\n" + "\n".join(sorted(set(suffix_rules))) + "\n\n"
-            if keyword_rules: outfile.write("# 关键词规则\n" + "\n".join(sorted(set(keyword_rules))) + "\n"
+            if ip_rules:
+                outfile.write("# IP规则\n" + "\n".join(sorted(set(ip_rules))) + "\n\n")
+            if domain_rules:
+                outfile.write("# 域名规则\n" + "\n".join(sorted(set(domain_rules))) + "\n\n")
+            if suffix_rules:
+                outfile.write("# 域名后缀\n" + "\n".join(sorted(set(suffix_rules))) + "\n\n")
+            if keyword_rules:
+                outfile.write("# 关键词规则\n" + "\n".join(sorted(set(keyword_rules))) + "\n")
 
         print(f"生成成功! 规则总数: {total_count}")
 
