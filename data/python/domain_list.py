@@ -15,6 +15,10 @@ def extract_domains(input_file, output_file):
     input_path = Path(input_file)
     output_path = Path(output_file)
     
+    # Debug print to show the actual path being checked
+    print(f"Looking for input file at: {input_path}")
+    print(f"Absolute input path: {input_path.absolute()}")
+    
     if not input_path.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
     
@@ -27,6 +31,9 @@ def extract_domains(input_file, output_file):
                     domain = line[2:-1]
                     domains.append(domain)
                     
+        # Ensure output directory exists
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
         with output_path.open('w', encoding='utf-8') as outfile:
             outfile.write("# GOODBYEADS Domain List\n")
             outfile.write("# Homepage: https://github.com/045200/GOODBYEADS\n")
@@ -40,8 +47,14 @@ def extract_domains(input_file, output_file):
 
 # Example usage
 if __name__ == "__main__":
-    base_dir = Path(__file__).parent.parent
-    input_file = base_dir / "data" / "rules" / "dns.txt"
-    output_file = base_dir / "data" / "rules" / "ad-domain.txt"
+    # Get the directory where this script is located
+    script_dir = Path(__file__).parent
+    
+    # Calculate base directory (assuming script is in data/python/)
+    base_dir = script_dir.parent
+    
+    # Construct correct file paths
+    input_file = base_dir / "rules" / "dns.txt"  # Removed duplicate "data"
+    output_file = base_dir / "rules" / "ad-domain.txt"
     
     extract_domains(input_file, output_file)
