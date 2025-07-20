@@ -42,7 +42,8 @@ except Exception as e:
 
 # 广告拦截规则源
 adblock = [
-    "https://raw.githubusercontent.com/damengzhu/banad/main/jiekouAD.txt",  # 大萌主-接口广告
+    
+"https://raw.githubusercontent.com/damengzhu/banad/main/jiekouAD.txt",  # 大萌主-接口广告
 
 #-"https://cdn.jsdelivr.net/gh/privacy-protection-tools/anti-AD/anti-ad-easylist.txt", # anti-ad
     
@@ -90,10 +91,8 @@ allow = [
     
 "https://raw.githubusercontent.com/Kuroba-Sayuki/FuLing-AdRules/refs/heads/main/FuLingRules/FuLingAllowList.txt",  # 茯苓白名单
 
-
 "https://raw.githubusercontent.com/Cats-Team/AdRules/refs/heads/script/script/allowlist.txt", # cat白名单
  
-
 "https://raw.githubusercontent.com/hululu1068/AdGuard-Rule/refs/heads/main/rule/mylist.txt", # hululu1068
    
 "https://raw.githubusercontent.com/urkbio/adguardhomefilter/main/whitelist.txt",  # 酷安cocieto
