@@ -1,43 +1,63 @@
 import datetime
 import pytz
-import glob
-import os
+from pathlib import Path
+from typing import Set
 
-# 获取当前时间并转换为北京时间
-utc_time = datetime.datetime.now(pytz.timezone('UTC'))
-beijing_time = utc_time.astimezone(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
+HEADER_TEMPLATE = """[Adblock Plus 2.0]
+! Title: GOODBYEADS
+! Homepage: https://github.com/045200/GOODBYEADS
+! Expires: 12 Hours
+! Version: {timestamp}（北京时间）
+! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
+! Total count: {line_count}
+"""
 
-# 需要处理的特定文件名集合
-target_files = {'adblock.txt', 'allow.txt', 'dns.txt'}
+def get_beijing_time() -> str:
+    """获取当前北京时间"""
+    utc_time = datetime.datetime.now(pytz.timezone('UTC'))
+    return utc_time.astimezone(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
 
-# 获取文件列表
-file_list = glob.glob('./data/rules/*.txt')
+def process_rule_files(target_files: Set[str], rules_dir: Path) -> None:
+    """
+    处理规则文件，添加标准头信息
+    
+    Args:
+        target_files: 需要处理的目标文件名集合
+        rules_dir: 规则文件目录路径
+    """
+    beijing_time = get_beijing_time()
+    
+    for file_path in rules_dir.glob('*.txt'):
+        if file_path.name not in target_files:
+            continue
+            
+        try:
+            # 读取文件内容并计算行数
+            with file_path.open('r', encoding='utf-8') as file:
+                lines = file.readlines()
+                line_count = len(lines)
+                content = ''.join(lines)
+            
+            # 生成新内容
+            new_content = HEADER_TEMPLATE.format(
+                timestamp=beijing_time,
+                line_count=line_count
+            ) + content
+            
+            # 写回文件
+            with file_path.open('w', encoding='utf-8') as file:
+                file.write(new_content)
+                
+            print(f"Processed {file_path.name} with {line_count} rules")
+                
+        except IOError as e:
+            print(f"Error processing {file_path.name}: {e}")
 
-# 遍历文件列表
-for file_path in file_list:
-    filename = os.path.basename(file_path)
-    if filename not in target_files:
-        continue  # 跳过不在目标列表中的文件
-
-    # 打开文件并读取内容
-    with open(file_path, 'r', encoding='utf-8') as file:
-        content = file.read()
-
-    # 计算文件的行数
-    line_count = content.count('\n') + 1 if content else 0
-
-    # 在文件顶部插入内容
-    new_content = (
-        f"[Adblock Plus 2.0]\n"
-        f"! Title: GOODBYEADS\n"
-        f"! Homepage: https://github.com/045200/GOODBYEADS\n"
-        f"! Expires: 12 Hours\n"
-        f"! Version: {beijing_time}（北京时间）\n"
-        f"! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列\n"
-        f"! Total count: {line_count}\n"
-        f"{content}"
-    )
-
-    # 将更新后的内容写入文件
-    with open(file_path, 'w', encoding='utf-8') as file:
-        file.write(new_content)
+if __name__ == "__main__":
+    target_files = {'adblock.txt', 'allow.txt', 'dns.txt'}
+    rules_dir = Path(__file__).parent / 'data' / 'rules'
+    
+    if not rules_dir.exists():
+        raise FileNotFoundError(f"Rules directory not found: {rules_dir}")
+    
+    process_rule_files(target_files, rules_dir)
