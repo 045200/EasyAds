@@ -2,11 +2,11 @@
 ! Title: GOODBYEADS
 ! Homepage: https://github.com/045200/GOODBYEADS
 ! Expires: 12 Hours
-! Version: 2025-07-20 22:39:40（北京时间）
+! Version: 2025-07-21 09:13:30（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 163194
+! Total count: 163199
 # DNS rules extracted from adblock.txt
-# Generated on 2025-07-20 14:39:38.151739
+# Generated on 2025-07-21 01:13:27.565298
 
 ||*-*-*-lrycfv.vip^
 ||*-*.ap-east-1.elb.amazonaws.com^
@@ -27316,6 +27316,7 @@
 ||cdickef.top^
 ||cdinmaf.top^
 ||cdipsumf.top^
+||cdjbf8trk.com^
 ||cdjhcf.hometogo.es^
 ||cdjst7i1v.com^
 ||cdl.booksy.com^
@@ -47909,6 +47910,7 @@
 ||ga.clearbit.com^
 ||ga.collecte.com.au^
 ||ga.dehangmat.nl^
+||ga.finam.ru^
 ||ga.getresponse.com^
 ||ga.groc.press^
 ||ga.haengekojebutik.dk^
@@ -65657,6 +65659,7 @@
 ||lixiangmo.com^
 ||lixiaodongcy.com^
 ||lixiclean-ss.olladeals.com^
+||lizard.donald.cat^
 ||lizard.priorart.dev^
 ||lizard.utropia.es^
 ||lizehuandian.top^
@@ -76930,6 +76933,7 @@
 ||mn123cass.xyz^
 ||mnaom.luckybrand.com^
 ||mnbqg.vitamed.at^
+||mnbvpo8trk.com^
 ||mnbyto.goo-net.com^
 ||mnefl.viasox.com^
 ||mnemoripro.pro^
@@ -89029,6 +89033,7 @@
 ||rabbebagna.pro^
 ||rabbilique.pro^
 ||rabbismocc.pro^
+||rabbit.donald.cat^
 ||rabbit.kilowatt.media^
 ||rabbit.meitustat.com^
 ||rabbit.radicalxchange.org^
