@@ -2,11 +2,11 @@
 ! Title: GOODBYEADS
 ! Homepage: https://github.com/045200/GOODBYEADS
 ! Expires: 12 Hours
-! Version: 2025-07-21 09:13:30（北京时间）
+! Version: 2025-07-21 20:29:21（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 163199
+! Total count: 163211
 # DNS rules extracted from adblock.txt
-# Generated on 2025-07-21 01:13:27.565298
+# Generated on 2025-07-21 12:29:18.210482
 
 ||*-*-*-lrycfv.vip^
 ||*-*.ap-east-1.elb.amazonaws.com^
@@ -7154,6 +7154,7 @@
 ||abovede6.com^
 ||abox.simpleshop.cz^
 ||abpwqf.lolaflora.com.mx^
+||abr.ge^
 ||abracon.actonservice.com^
 ||abradeiacu.pro^
 ||abram.xin^
@@ -22067,6 +22068,8 @@
 ||auy07190km.com^
 ||auy07200km.com^
 ||auy07201km.com^
+||auy07210km.com^
+||auy07211km.com^
 ||av1.xdrig.com^
 ||av6fm8zw2cvz.furucombo.app^
 ||avads.co.uk^
@@ -60905,6 +60908,7 @@
 ||jc1.dayfund.com.cn^
 ||jc917x3.adaptive.marketing^
 ||jcaqvl.twinset.com^
+||jcbj62b2t.com^
 ||jcblar.floridarentals.com^
 ||jcdard.top^
 ||jcde.site^
@@ -62700,6 +62704,7 @@
 ||kistacity.viessmann.se^
 ||kit22.com^
 ||kitchen.juicer.cc^
+||kitchenfu47.top^
 ||kite.cardneyestate.co.uk^
 ||kite.devin.website^
 ||kite.ibirthdayclub.com^
@@ -81851,6 +81856,7 @@
 ||opuuh.bikesonline.com.au^
 ||opwc.cn^
 ||opwcuo.sundancecatalog.com^
+||opwqkq.icu^
 ||opxvkr.urbancherry.jp^
 ||opzioamoi.pro^
 ||opzksyy.cn^
@@ -82555,6 +82561,7 @@
 ||oxytopearl.pro^
 ||oyaswl.manor.ch^
 ||oydhgg.sekokan-navi.jp^
+||oyed.cn^
 ||oyfnkle.cn^
 ||oyhurln.cn^
 ||oykrja.intersena.com.br^
@@ -87877,6 +87884,7 @@
 ||q1bp.icu^
 ||q27sz.com^
 ||q2usj.icu^
+||q3rlg1flo.com^
 ||q4l5gz6lqog6.www.eventus.io^
 ||q511.wpbf.com^
 ||q5sn40kmp2.com^
@@ -95497,6 +95505,7 @@
 ||sdk-link.tt.cn^
 ||sdk-log-inter.youdao.com^
 ||sdk-log-upload-os.hoyoverse.com^
+||sdk-log.airbridge.io^
 ||sdk-log.partner.sm.cn^
 ||sdk-monitoring.ogury.co^
 ||sdk-open-phone.getui.com^
@@ -116849,6 +116858,7 @@
 ||tags2.adsafety.net^
 ||tagsd.com/newServing/tracking_id.php^
 ||tagserverorl.harvest.net^
+||tagservice.maximus.mobkoi.com^
 ||tagtracking.vibescm.com^
 ||tahjib.tahjibshopbd.com^
 ||tahkc.trixiecosmetics.com^
@@ -124039,6 +124049,7 @@
 ||trk.americanhealthfinder.com^
 ||trk.americanhomeadvice.com^
 ||trk.amperecomputing.com^
+||trk.analytics.wisetracker.co.kr^
 ||trk.anthology.com^
 ||trk.appliedintelligence.live^
 ||trk.applymyrate.com^
@@ -161305,6 +161316,7 @@
 ||y4re1yokqv.com^
 ||y5qhzz3q.designdetails.fm^
 ||y66xvgo5i.chuimg.com^
+||y6oiuyphb.com^
 ||y738.nhregister.com^
 ||y74s.xyz^
 ||y752.milfordmirror.com^
