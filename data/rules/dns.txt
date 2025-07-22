@@ -2,11 +2,11 @@
 ! Title: GOODBYEADS
 ! Homepage: https://github.com/045200/GOODBYEADS
 ! Expires: 12 Hours
-! Version: 2025-07-22 09:09:34（北京时间）
+! Version: 2025-07-22 20:28:43（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 165439
+! Total count: 165450
 # DNS rules extracted from adblock.txt
-# Generated on 2025-07-22 01:09:31.970184
+# Generated on 2025-07-22 12:28:40.879082
 
 ||*-*-*-lrycfv.vip^
 ||*-*.ap-east-1.elb.amazonaws.com^
@@ -2452,6 +2452,7 @@
 ||9fwz.com^
 ||9gag-9gag.adsbynimbus.com^
 ||9gtest.bj2cu.u3.ucweb.com^
+||9hyf6wsiv5.com^
 ||9ibbcq2d.sina.cn^
 ||9js6.icu^
 ||9kkjfywjz50v.www.eventus.io^
@@ -62100,6 +62101,7 @@
 ||jmgam.drschollsshoes.com^
 ||jmif.cn^
 ||jmipzsn.icu^
+||jmlp.app^
 ||jmosa.pistolpete.com^
 ||jmpgwn.miniqueen.tw^
 ||jmr.nnxiant.cn^
@@ -73650,6 +73652,7 @@
 ||marketingplatform.google.com^
 ||marketingpro.euromaster.fr^
 ||marketingus.hso.com^
+||marketpd4.top^
 ||marketreports.autovistagroup.com^
 ||marketresearch.jacksonhealthcare.com^
 ||markirisjam.pro^
@@ -78771,6 +78774,7 @@
 ||mssdk.zijieapi.com^
 ||mssdk3-normal-lq.zijieapi.com^
 ||mssfv.aspinaloflondon.com^
+||msslwa.icu^
 ||mssp.baidu.com^
 ||mst.physiotherapie-mobili.de^
 ||mst.rnd.de^
@@ -88236,6 +88240,7 @@
 ||promos.thermoscientific.com^
 ||promos.trustedtours.com^
 ||promote.biz.weibo.cn^
+||promotion-partner.kuaishou.com^
 ||promotion.lginnotek.com^
 ||promotion.lindt.az^
 ||promotion.lindt.cr^
@@ -112329,6 +112334,7 @@
 ||stape.abaenglisheducation.com^
 ||stape.abpconline.org^
 ||stape.abrabadoaviator.com^
+||stape.ac^
 ||stape.academiaga.com.br^
 ||stape.academialendaria.ai^
 ||stape.academiareformatributaria.com.br^
@@ -115282,6 +115288,7 @@
 ||stats.sparkloop.app^
 ||stats.speedclicks.ero-advertising.com^
 ||stats.splinder.com^
+||stats.spreadsimple.com^
 ||stats.spreadtheworld.net^
 ||stats.sprocketrocket.co^
 ||stats.sprune.com^
@@ -121331,6 +121338,7 @@
 ||tnc-va*.capcutapi.com^
 ||tnc0-*.zijieapi.com^
 ||tnc0-aliec2.zijieapi.com^
+||tnc0-alisc1.zijieapi.com^
 ||tnc0-bjlgy.zijieapi.com^
 ||tnc16-*.byteoversea.com^
 ||tnc16-*.hypic.com^
@@ -121344,6 +121352,7 @@
 ||tnc3-aliec2.zijieapi^
 ||tnc3-alisc1.bytedance.com^
 ||tnc3-alisc1.snssdk.com^
+||tnc3-alisc1.toutiaoapi.com^
 ||tnc3-alisc1.zijieapi.com.queniuyk.com^
 ||tnc3-alisc1.zijieapi.com^
 ||tnc3-alisc1.zijieapi^
@@ -128329,6 +128338,7 @@
 ||ukavr.quiksilver.com^
 ||ukaxwr.leastedisoha.com^
 ||ukaytg.cortefiel.com^
+||ukfp.cn^
 ||ukg6sq48dy4zd6gn.edge41.testandtarget.omniture.com^
 ||ukgfxw.satofull.jp^
 ||uki2.secureforms.mcafee.com^
@@ -164979,6 +164989,7 @@
 ||zizzascard.pro^
 ||zizzasmiti.pro^
 ||zj-yxw.com^
+||zj9puq8ycu.com^
 ||zjbfke.centerparcs.be^
 ||zjejua.portmans.com.au^
 ||zjen.cn^
