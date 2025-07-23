@@ -2,11 +2,11 @@
 ! Title: GOODBYEADS
 ! Homepage: https://github.com/045200/GOODBYEADS
 ! Expires: 12 Hours
-! Version: 2025-07-23 09:10:58（北京时间）
+! Version: 2025-07-23 20:28:57（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 165453
+! Total count: 165473
 # DNS rules extracted from adblock.txt
-# Generated on 2025-07-23 01:10:55.243663
+# Generated on 2025-07-23 12:28:54.726372
 
 ||*-*-*-lrycfv.vip^
 ||*-*.ap-east-1.elb.amazonaws.com^
@@ -992,6 +992,7 @@
 ||1k5vz1ejbcx.staging.probemas.com^
 ||1k8j786ks5.com^
 ||1kanz.cn^
+||1kb4atu6x.com^
 ||1kpv4njzilv.community.intersystems.com^
 ||1l-hit.mail.ru^
 ||1l-hit.vkplay.ru^
@@ -14357,6 +14358,7 @@
 ||aejfyn.rsd-reisen.de^
 ||aeletheacd.com^
 ||aem-collector.daumkakao.io^
+||aem.dentsuchina.cn^
 ||aem.dickssportinggoods.com^
 ||aem.goinggoinggone.com^
 ||aem.golfgalaxy.com^
@@ -15491,6 +15493,8 @@
 ||alicdn.bayimob.com^
 ||alicdnv2.sitemonitor.cn.miaozhen.com^
 ||alice.bodyandbrows.com^
+||alicoccdncnc-xn.inter.71edge.com^
+||alicoccdnct-xn.inter.71edge.com^
 ||alictcarno.pro^
 ||alictibet.com^
 ||aliendivan.pro^
@@ -17207,6 +17211,7 @@
 ||analytics.spotta.nl^
 ||analytics.springboardvideo.com^
 ||analytics.spun.com.br^
+||analytics.ssmas.com^
 ||analytics.stadt-zuerich.ch^
 ||analytics.stanby.com^
 ||analytics.starlink.com^
@@ -22560,6 +22565,7 @@
 ||az5i.icu^
 ||az693360.vo.msecnd.net^
 ||az697jylm.cc^
+||az75h.cn^
 ||azad.adsrvr.org^
 ||azaleada1.top^
 ||azaob.sistaco.co.nz^
@@ -23429,6 +23435,7 @@
 ||bdates.fun^
 ||bdawrsi.icu^
 ||bdblpy.top^
+||bdcdncnc.inter.71edge.com^
 ||bdcm.kandianla.com^
 ||bdcmwcl.icu^
 ||bdcode.2345.com^
@@ -29370,6 +29377,7 @@
 ||clickserver.libero.it^
 ||clickstream-*.homedepot.com^
 ||clickstream.cresendo.net^
+||clickstream.sberbank.ru^
 ||clicksympo.pro^
 ||clicktracker.iscan.nl^
 ||clickwallads.s3.amazonaws.com^
@@ -40226,6 +40234,7 @@
 ||dmlph.sundaycitizen.co^
 ||dmlwvk.sunmaster.co.uk^
 ||dmm.aizhan.com^
+||dmndfrcstng.com^
 ||dmnxkj.cn^
 ||dmp.adspend.space^
 ||dmp.adviad.com^
@@ -42426,6 +42435,7 @@
 ||eiv.baidu.com^
 ||eiydgc.12storeez.ru^
 ||eiykmtb.cn^
+||eiyu7532.xyz^
 ||eizda.nelsondigital.io^
 ||ejacunoncr.pro^
 ||ejacurisco.pro^
@@ -58202,6 +58212,7 @@
 ||img16.diyifanwen.com^
 ||img2-veetgjy-com-idvprf5.qiniudns.com^
 ||img2.126.net^
+||img2.360buyimg.com^
 ||img2.ad.agrantsem.com^
 ||img2.qqwangming6.com^
 ||img2.titan007.com^
@@ -71139,6 +71150,7 @@
 ||m.historyvault.com^
 ||m.hot-mob.com^
 ||m.ioicommunity.com.my^
+||m.iqiyipic.com^
 ||m.irl.com^
 ||m.irlmail.org^
 ||m.jarvisinvest.com^
@@ -82736,6 +82748,7 @@
 ||op.pgops-2025.com^
 ||op.ssp.qq.com^
 ||op53t.nbganghui.com^
+||op9dbh1i0.com^
 ||op9ljes-111.dacyyq.com^
 ||opachscazo.pro^
 ||opads.ero-advertising.com^
@@ -83770,6 +83783,7 @@
 ||p.ianmjones.com^
 ||p.iforge.app^
 ||p.imgur.com^
+||p.jmlp.app^
 ||p.junshi881.com^
 ||p.junshifuxin.com^
 ||p.l.qq.com^
@@ -88934,6 +88948,7 @@
 ||pxufyn.karamba.com^
 ||pxvbnt.top^
 ||pxvlcc.crocs.fr^
+||pxwu.cn^
 ||pxxhbz.apamanshop.com^
 ||pxyjqea.icu^
 ||pyalkudisen.pro^
@@ -101204,6 +101219,7 @@
 ||sheep.peterfowler.com^
 ||sheep.pixair-survey.com^
 ||sheep.vaxstandby.com^
+||sheeplm.top^
 ||sheeppopco.pro^
 ||sheeroop.com^
 ||sheeta.nrj-play.fr^
@@ -101723,6 +101739,7 @@
 ||sio.localbird.io^
 ||sio.theneweraofbarbering.com^
 ||sioa.chewy.com^
+||siodgs.icu^
 ||siofdv.fashion.dmkt-sp.jp^
 ||sioq.cn^
 ||siouaequic.pro^
@@ -114157,6 +114174,7 @@
 ||static-google-analtyic.com^
 ||static-interactive-api.nend.net^
 ||static-online.kuaishang.cn^
+||static-s.iqiyi.com^
 ||static-ssl.mediav.com^
 ||static-ssp.yidianzixun.com^
 ||static-trackers.adtarget.me^
@@ -117841,6 +117859,7 @@
 ||t.comms.thetimes.co.uk^
 ||t.counter.dev^
 ||t.cozone.com^
+||t.cpurls.net^
 ||t.croas.de^
 ||t.csurams.com^
 ||t.csuvikings.com^
@@ -120762,6 +120781,7 @@
 ||timadsagency.com^
 ||timberpathways.pro^
 ||timbol.iad-03.braze.com^
+||time.aktion-mensch.de^
 ||time.metimespain.com^
 ||timeclock.mytoolr.com^
 ||timehop.adsbynimbus.com^
