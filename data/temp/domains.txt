@@ -24134,6 +24134,7 @@
 +.biome.medicalplus.com.bd
 +.biomobulin.pro
 +.bionddisce.pro
++.bionomysyconid.com
 +.biophysicsgroup.actonservice.com
 +.biparchiro.pro
 +.bipedaljellyfish.pro
@@ -61245,6 +61246,7 @@
 +.isoledulti.pro
 +.isoplexis.actonservice.com
 +.isopltopae.pro
++.isoptichabiru.com
 +.isosismana.pro
 +.isostasser.pro
 +.isothbrogl.pro
@@ -61392,6 +61394,7 @@
 +.ivbxao.roastmarket.de
 +.ivcxpw.kogan.com
 +.ivdguf.elephorm.com
++.ivdjs.com
 +.ivdsxn.atimes.co.jp
 +.ivdtc.lgbeauty.com
 +.ivegg.nuudcare.es
@@ -69911,6 +69914,7 @@
 +.log.willie.nl
 +.log.worldsoft-cms.info
 +.log.wtlogin.qq.com
++.log.xpln.tech
 +.log.yapaytech.com
 +.log.ycapp.yiche.com
 +.log.yougameover.com
@@ -111744,7 +111748,6 @@
 +.sstats.belgiantrain.be
 +.sstats.bentleymotors.com
 +.sstats.bever.nl
-+.sstats.bitdefender.com
 +.sstats.bnpparibasfortis.be
 +.sstats.bonappetit.com
 +.sstats.bookhostels.com

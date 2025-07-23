@@ -2,11 +2,11 @@
 ! Title: GOODBYEADS
 ! Homepage: https://github.com/045200/GOODBYEADS
 ! Expires: 12 Hours
-! Version: 2025-07-22 20:28:43（北京时间）
+! Version: 2025-07-23 09:10:58（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 165450
+! Total count: 165453
 # DNS rules extracted from adblock.txt
-# Generated on 2025-07-22 12:28:40.879082
+# Generated on 2025-07-23 01:10:55.243663
 
 ||*-*-*-lrycfv.vip^
 ||*-*.ap-east-1.elb.amazonaws.com^
@@ -24144,6 +24144,7 @@
 ||biome.medicalplus.com.bd^
 ||biomobulin.pro^
 ||bionddisce.pro^
+||bionomysyconid.com^
 ||biophysicsgroup.actonservice.com^
 ||biparchiro.pro^
 ||bipedaljellyfish.pro^
@@ -61255,6 +61256,7 @@
 ||isoledulti.pro^
 ||isoplexis.actonservice.com^
 ||isopltopae.pro^
+||isoptichabiru.com^
 ||isosismana.pro^
 ||isostasser.pro^
 ||isothbrogl.pro^
@@ -61402,6 +61404,7 @@
 ||ivbxao.roastmarket.de^
 ||ivcxpw.kogan.com^
 ||ivdguf.elephorm.com^
+||ivdjs.com^
 ||ivdsxn.atimes.co.jp^
 ||ivdtc.lgbeauty.com^
 ||ivegg.nuudcare.es^
@@ -69921,6 +69924,7 @@
 ||log.willie.nl^
 ||log.worldsoft-cms.info^
 ||log.wtlogin.qq.com^
+||log.xpln.tech^
 ||log.yapaytech.com^
 ||log.ycapp.yiche.com^
 ||log.yougameover.com^
@@ -111754,7 +111758,6 @@
 ||sstats.belgiantrain.be^
 ||sstats.bentleymotors.com^
 ||sstats.bever.nl^
-||sstats.bitdefender.com^
 ||sstats.bnpparibasfortis.be^
 ||sstats.bonappetit.com^
 ||sstats.bookhostels.com^
