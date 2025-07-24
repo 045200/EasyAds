@@ -2,9 +2,9 @@
 ! Title: GOODBYEADS
 ! Homepage: https://github.com/045200/GOODBYEADS
 ! Expires: 12 Hours
-! Version: 2025-07-23 20:28:57（北京时间）
+! Version: 2025-07-24 09:09:53（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 8952
+! Total count: 8955
 @@$cookie=__gads,domain=godstoryinfo.com|laweducationinfo.com|rsgames.xyz|vichitrainfo.com
 @@&http_referer=$domain=chaopx.com
 @@*.flyme.cn
@@ -6402,6 +6402,7 @@
 @@||per*.segmentify.com^$domain=mediamarkt.com.tr
 @@||personaclick.com^
 @@||personaclick.com^$document
+@@||petdrugsonline.co.uk/scripts/gtm.js$~third-party
 @@||petrochina.com.cn/advertisement_
 @@||pf.s.360.cn^
 @@||pfga0.market.xiaomi.com^
@@ -7087,6 +7088,7 @@
 @@||sdksp.video.qq.com
 @@||se*.360simg.com^
 @@||se.360.cn^
+@@||se.com/_uce_/immutable/chunks/google-analytics.$script
 @@||se.monetate.net/js/*/custom.js$domain=debenhams.com
 @@||se.monetate.net/js/*/entry.js$domain=debenhams.com
 @@||se.visilabs.net/Target.js$domain=boyner.com.tr
@@ -7601,6 +7603,7 @@
 @@||stats.statbroadcast.com/interface/webservice/event/$~third-party
 @@||stats.uptimerobot.com^
 @@||stats.wnba.com/templates/angular/tables/events/$~third-party
+@@||stats.wp.com/w.js$script,domain=wordpress.com
 @@||statsig.com^
 @@||statusapi.micloud.xiaomi.net^
 @@||staty.portalradiowy.pl/wstats/$script,third-party

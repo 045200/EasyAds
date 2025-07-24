@@ -2,11 +2,11 @@
 ! Title: GOODBYEADS
 ! Homepage: https://github.com/045200/GOODBYEADS
 ! Expires: 12 Hours
-! Version: 2025-07-23 20:28:57（北京时间）
+! Version: 2025-07-24 09:09:53（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 165473
+! Total count: 165479
 # DNS rules extracted from adblock.txt
-# Generated on 2025-07-23 12:28:54.726372
+# Generated on 2025-07-24 01:09:50.017416
 
 ||*-*-*-lrycfv.vip^
 ||*-*.ap-east-1.elb.amazonaws.com^
@@ -22956,6 +22956,7 @@
 ||balnequadr.pro^
 ||balsidisin.pro^
 ||balugcapit.pro^
+||balzadicyema.com^
 ||balzesgarb.pro^
 ||balzezeuxi.pro^
 ||bamalparti.pro^
@@ -50915,6 +50916,7 @@
 ||godurrigal.pro^
 ||godvd.cleansimpleeats.com^
 ||goe.edm.globalsources.com^
+||goeducklactase.com^
 ||goeyxwhp.site^
 ||gogaej.momastore.jp^
 ||gogds.colehaan.co.uk^
@@ -56176,6 +56178,7 @@
 ||hueadsortb.com^
 ||hueadsxml.com^
 ||huechl.paige.com^
+||hueddui.com^
 ||huffingtonpost.fr/px.gif^
 ||huffiunchr.pro^
 ||huffpost.met.vgwort.de^
@@ -56225,6 +56228,7 @@
 ||huloiresal.pro^
 ||humandisas.pro^
 ||humayun.meowmesh.com^
+||humbugsmillite.com^
 ||humduincor.pro^
 ||hummingbird.mavencoalition.io^
 ||hummingexam.com^
@@ -89658,6 +89662,7 @@
 ||qrx.pizzakingintake.co.uk^
 ||qrxmgfz.cn^
 ||qry062v.top^
+||qs251.com^
 ||qs275.cc^
 ||qs920.cc^
 ||qsahny.smartbuyglasses.dk^
@@ -96340,6 +96345,7 @@
 ||sckyf.com^
 ||sclerinden.pro^
 ||sclick.baidu.com^
+||sclimcertif.com^
 ||sclimib.top^
 ||scmarketing.colliers.com^
 ||scmetrics.exacttarget.com^
