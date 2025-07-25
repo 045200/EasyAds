@@ -2,11 +2,11 @@
 ! Title: GOODBYEADS
 ! Homepage: https://github.com/045200/GOODBYEADS
 ! Expires: 12 Hours
-! Version: 2025-07-24 20:29:12（北京时间）
+! Version: 2025-07-25 09:09:22（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 165570
+! Total count: 165563
 # DNS rules extracted from adblock.txt
-# Generated on 2025-07-24 12:29:10.093535
+# Generated on 2025-07-25 01:09:19.597780
 
 ||*-*-*-lrycfv.vip^
 ||*-*.ap-east-1.elb.amazonaws.com^
@@ -7928,7 +7928,6 @@
 ||ad-sdk-config.youdao.com^
 ||ad-sdk.aiclk.com^
 ||ad-sdk.altamob.xiaoying.co^
-||ad-sdk.huxiu.com^
 ||ad-sdk.lenovomm.com^
 ||ad-seek.jp^
 ||ad-sell.com^
@@ -11142,7 +11141,6 @@
 ||ads.mtv.uol.com.br^
 ||ads.multimania.lycos.fr^
 ||ads.museum.or.jp^
-||ads.music.126.net^
 ||ads.muslimehelfen.org^
 ||ads.mustangworks.com^
 ||ads.mvscoelho.com^
@@ -20882,7 +20880,6 @@
 ||applogs-v2.pixelfederation.com^
 ||applogs.pixelfederation.com^
 ||applovin.com^
-||applvn.com^
 ||apply.allusadeals.com^
 ||apply.bluetrustloans.com^
 ||apply.catalystfitnessflorida.com^
@@ -25245,6 +25242,7 @@
 ||brankzealo.pro^
 ||brasaantir.pro^
 ||brascomarketing.actonservice.com^
+||brasilschirrs.com^
 ||bravads.g2afse.com^
 ||bravantrent.eccocar.com^
 ||bravebreezes.pro^
@@ -40031,6 +40029,7 @@
 ||dkky3pjup1779.cloudfront.net^
 ||dklhflksd.com^
 ||dklnxtcj.icu^
+||dklvhfrnvr.com^
 ||dklwddl.cn^
 ||dkmvyl.kidsahoi.ch^
 ||dkno.netpartnering.com^
@@ -49534,6 +49533,7 @@
 ||ginmon.efscle.com^
 ||ginnapolyc.pro^
 ||ginnemotoc.pro^
+||gio07241rp.com^
 ||giocointer.pro^
 ||giocomalaf.pro^
 ||gioiascarn.pro^
@@ -57049,6 +57049,7 @@
 ||ieg.intel.com^
 ||iegvm.threadwallets.com^
 ||iegwze.goldcar.es^
+||ieiczidqyv.com^
 ||ieix.cn^
 ||iejfix.smartphoto.co.uk^
 ||iemalsviol.pro^
@@ -57356,8 +57357,6 @@
 ||imads.ero-advertising.com^
 ||imads.integral-marketing.com^
 ||imads.rediff.com^
-||imag8.pubmatic.com^
-||imag86.pubmatic.com^
 ||imagazine.advertserve.com^
 ||image-ad.sm.cn^
 ||image.adsgram.ai^
@@ -57388,7 +57387,6 @@
 ||imagenes.marketing.calidad.pucp.edu.pe^
 ||imagenes.ubmmexico.com^
 ||imagens.conteudo.algartelecom.com.br^
-||imageplus.baidu.com^
 ||imageresizer.services.adx1.com^
 ||images-cdn.azoogleads.com^
 ||images.1031.academy^
@@ -58117,7 +58115,6 @@
 ||img.ad2.maho.jp^
 ||img.adbox.sina.com.cn^
 ||img.adnyg.com.w.kunlungr.com^
-||img.adnyg.com^
 ||img.ads.csdn.net^
 ||img.ads.huntmad.com^
 ||img.ads.mobilefuse.net^
@@ -71177,7 +71174,6 @@
 ||m.jd.watbc.top^
 ||m.jd.watbe.top^
 ||m.kaikuhealth.com^
-||m.kubiqq.com^
 ||m.l.qq.com^
 ||m.lifetimemovieclub.com^
 ||m.lmnts.click^
@@ -77612,7 +77608,6 @@
 ||milyscagl.pro^
 ||mimakiusa.actonservice.com^
 ||mimasparci.pro^
-||mime.baidu.com^
 ||miminaggra.pro^
 ||mimogfalsu.pro^
 ||minacacidi.pro^
@@ -77635,7 +77630,6 @@
 ||mindopu.com^
 ||mindreadingpower.pro^
 ||mindsparkadvertising.com^
-||mine.baidu.com^
 ||mine.nahnoji.cz^
 ||minerad.com^
 ||minerva.devices.a2z.com^
@@ -101988,6 +101982,7 @@
 ||sklup.trysourse.com^
 ||skmcwz.haselmode.co.kr^
 ||skmpacqui.pro^
+||sknkggfnm.com^
 ||skogsborg.net^
 ||skokovulgh.pro^
 ||skosgrill.openapp.link^
@@ -120172,7 +120167,6 @@
 ||termosalva.pro^
 ||termosnamo.pro^
 ||termounibr.pro^
-||terms-drcn.platform.dbankcloud.cn^
 ||termvb.xyz^
 ||tern.daffy.org^
 ||tern.xebel.co^
@@ -120860,6 +120854,7 @@
 ||tinkeauton.pro^
 ||tinklscorb.pro^
 ||tinkoff.cityads.com^
+||tinnerydunging.com^
 ||tinnifiso.pro^
 ||tinnimesol.pro^
 ||tinninonin.pro^
@@ -162604,7 +162599,6 @@
 ||www4.bimobject.com^
 ||www4.qualigence.com^
 ||www4.smartadserver.com^
-||www42.zskwai.com^
 ||www4s.ing.be^
 ||www5.bimobject.com^
 ||www5.oss-cn-hangzhou.aliyuncs.com^
@@ -162848,7 +162842,6 @@
 ||xckyqq.com^
 ||xcmz999.com^
 ||xcojhb.unitysquare.co.kr^
-||xcultur.com^
 ||xcvrle.premiereclasse.com^
 ||xcvwrj.xyz^
 ||xcwdcynb.icu^

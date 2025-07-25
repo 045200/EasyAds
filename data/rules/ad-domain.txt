@@ -7922,7 +7922,6 @@ ad-score.com
 ad-sdk-config.youdao.com
 ad-sdk.aiclk.com
 ad-sdk.altamob.xiaoying.co
-ad-sdk.huxiu.com
 ad-sdk.lenovomm.com
 ad-seek.jp
 ad-sell.com
@@ -11136,7 +11135,6 @@ ads.mtgroup.kr
 ads.mtv.uol.com.br
 ads.multimania.lycos.fr
 ads.museum.or.jp
-ads.music.126.net
 ads.muslimehelfen.org
 ads.mustangworks.com
 ads.mvscoelho.com
@@ -20876,7 +20874,6 @@ applog.zijieapi.com
 applogs-v2.pixelfederation.com
 applogs.pixelfederation.com
 applovin.com
-applvn.com
 apply.allusadeals.com
 apply.bluetrustloans.com
 apply.catalystfitnessflorida.com
@@ -25239,6 +25236,7 @@ brands.picklebutnotcucumber.com
 brankzealo.pro
 brasaantir.pro
 brascomarketing.actonservice.com
+brasilschirrs.com
 bravads.g2afse.com
 bravantrent.eccocar.com
 bravebreezes.pro
@@ -40025,6 +40023,7 @@ dkiig.misen.com
 dkky3pjup1779.cloudfront.net
 dklhflksd.com
 dklnxtcj.icu
+dklvhfrnvr.com
 dklwddl.cn
 dkmvyl.kidsahoi.ch
 dkno.netpartnering.com
@@ -49528,6 +49527,7 @@ ginmisgass.pro
 ginmon.efscle.com
 ginnapolyc.pro
 ginnemotoc.pro
+gio07241rp.com
 giocointer.pro
 giocomalaf.pro
 gioiascarn.pro
@@ -57043,6 +57043,7 @@ iefw.adsafeprotected.com
 ieg.intel.com
 iegvm.threadwallets.com
 iegwze.goldcar.es
+ieiczidqyv.com
 ieix.cn
 iejfix.smartphoto.co.uk
 iemalsviol.pro
@@ -57350,8 +57351,6 @@ im2.smartadserver.com
 imads.ero-advertising.com
 imads.integral-marketing.com
 imads.rediff.com
-imag8.pubmatic.com
-imag86.pubmatic.com
 imagazine.advertserve.com
 image-ad.sm.cn
 image.adsgram.ai
@@ -57382,7 +57381,6 @@ imagedvdreview.analytics.qlook.net
 imagenes.marketing.calidad.pucp.edu.pe
 imagenes.ubmmexico.com
 imagens.conteudo.algartelecom.com.br
-imageplus.baidu.com
 imageresizer.services.adx1.com
 images-cdn.azoogleads.com
 images.1031.academy
@@ -58111,7 +58109,6 @@ img.ad.zhangyue.com
 img.ad2.maho.jp
 img.adbox.sina.com.cn
 img.adnyg.com.w.kunlungr.com
-img.adnyg.com
 img.ads.csdn.net
 img.ads.huntmad.com
 img.ads.mobilefuse.net
@@ -71171,7 +71168,6 @@ m.jarvisinvest.com
 m.jd.watbc.top
 m.jd.watbe.top
 m.kaikuhealth.com
-m.kubiqq.com
 m.l.qq.com
 m.lifetimemovieclub.com
 m.lmnts.click
@@ -77606,7 +77602,6 @@ milycoy2.pro
 milyscagl.pro
 mimakiusa.actonservice.com
 mimasparci.pro
-mime.baidu.com
 miminaggra.pro
 mimogfalsu.pro
 minacacidi.pro
@@ -77629,7 +77624,6 @@ mindmeister.twodcompany.com
 mindopu.com
 mindreadingpower.pro
 mindsparkadvertising.com
-mine.baidu.com
 mine.nahnoji.cz
 minerad.com
 minerva.devices.a2z.com
@@ -101982,6 +101976,7 @@ skluff.com
 sklup.trysourse.com
 skmcwz.haselmode.co.kr
 skmpacqui.pro
+sknkggfnm.com
 skogsborg.net
 skokovulgh.pro
 skosgrill.openapp.link
@@ -120166,7 +120161,6 @@ termolabyr.pro
 termosalva.pro
 termosnamo.pro
 termounibr.pro
-terms-drcn.platform.dbankcloud.cn
 termvb.xyz
 tern.daffy.org
 tern.xebel.co
@@ -120854,6 +120848,7 @@ tingeultra.pro
 tinkeauton.pro
 tinklscorb.pro
 tinkoff.cityads.com
+tinnerydunging.com
 tinnifiso.pro
 tinnimesol.pro
 tinninonin.pro
@@ -162598,7 +162593,6 @@ www3s.pitstopautoparts.com
 www4.bimobject.com
 www4.qualigence.com
 www4.smartadserver.com
-www42.zskwai.com
 www4s.ing.be
 www5.bimobject.com
 www5.oss-cn-hangzhou.aliyuncs.com
@@ -162842,7 +162836,6 @@ xckxrn.endriss.de
 xckyqq.com
 xcmz999.com
 xcojhb.unitysquare.co.kr
-xcultur.com
 xcvrle.premiereclasse.com
 xcvwrj.xyz
 xcwdcynb.icu
