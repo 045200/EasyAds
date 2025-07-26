@@ -133,8 +133,6 @@
 *.z9ehxz.com
 *.ztgha.xyz
 *.zzz725.top
-*/ad-material/*.wasm
-*/adx/*.css
 */adx/*.js
 */log?ad=
 */stats?type=ad
@@ -25576,6 +25574,7 @@ brownguillemot.pro
 brownhyena.pro
 brownies.bobbyseamoss.com
 brownkittiwake.pro
+brownnx.top
 brownporcupine.pro
 brownslug.pro
 brownstallion.pro
@@ -49535,6 +49534,7 @@ ginnemotoc.pro
 gio07241rp.com
 gio07250rp.com
 gio07251rp.com
+gio07260rp.com
 giocointer.pro
 giocomalaf.pro
 gioiascarn.pro
@@ -66384,7 +66384,6 @@ litverse.pro
 liugaohao.com
 liutiattal.pro
 liuyimin5.cn
-live-ad.kuaishou.com
 live-api.hktvmall.com
 live-api.immomo.com
 live-api.oncustomer.asia
@@ -118423,6 +118422,7 @@ t13230.adserverevent.com
 t133.sun-sentinel.com
 t13932.adserverevent.com
 t16-fghgdf.com
+t1d26dvout.com
 t1tgame.com
 t2.a.market.xiaomi.com
 t2.aboutyou.de
@@ -130414,6 +130414,7 @@ valdes.net.anwalt.de
 valenciaadschool.com
 valenstral.pro
 valerieavisnba.com
+valeriesara.com
 valewformo.pro
 valf.atm.cp31.ott.cibntv.net
 vali-g1.cp31.ott.cibntv.net
@@ -132461,6 +132462,7 @@ w5.gskwai.com
 w500peu.com
 w55c.net
 w59g.icu
+w5ftl8bhu3.com
 w6.chabad.org
 w6.gskwai.com
 w7.berlin.de

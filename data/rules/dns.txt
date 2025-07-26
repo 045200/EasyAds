@@ -2,11 +2,11 @@
 ! Title: GOODBYEADS
 ! Homepage: https://github.com/045200/GOODBYEADS
 ! Expires: 12 Hours
-! Version: 2025-07-26 09:08:02（北京时间）
+! Version: 2025-07-26 19:49:11（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 165578
+! Total count: 165580
 # DNS rules extracted from adblock.txt
-# Generated on 2025-07-26 01:07:59.327231
+# Generated on 2025-07-26 11:49:08.125064
 
 ||*-*-*-lrycfv.vip^
 ||*-*.ap-east-1.elb.amazonaws.com^
@@ -139,8 +139,6 @@
 ||*.z9ehxz.com^
 ||*.ztgha.xyz^
 ||*.zzz725.top^
-||*/ad-material/*.wasm^
-||*/adx/*.css^
 ||*/adx/*.js^
 ||*/log?ad=^
 ||*/stats?type=ad^
@@ -25582,6 +25580,7 @@
 ||brownhyena.pro^
 ||brownies.bobbyseamoss.com^
 ||brownkittiwake.pro^
+||brownnx.top^
 ||brownporcupine.pro^
 ||brownslug.pro^
 ||brownstallion.pro^
@@ -49541,6 +49540,7 @@
 ||gio07241rp.com^
 ||gio07250rp.com^
 ||gio07251rp.com^
+||gio07260rp.com^
 ||giocointer.pro^
 ||giocomalaf.pro^
 ||gioiascarn.pro^
@@ -66390,7 +66390,6 @@
 ||liugaohao.com^
 ||liutiattal.pro^
 ||liuyimin5.cn^
-||live-ad.kuaishou.com^
 ||live-api.hktvmall.com^
 ||live-api.immomo.com^
 ||live-api.oncustomer.asia^
@@ -118429,6 +118428,7 @@
 ||t133.sun-sentinel.com^
 ||t13932.adserverevent.com^
 ||t16-fghgdf.com^
+||t1d26dvout.com^
 ||t1tgame.com^
 ||t2.a.market.xiaomi.com^
 ||t2.aboutyou.de^
@@ -130420,6 +130420,7 @@
 ||valenciaadschool.com^
 ||valenstral.pro^
 ||valerieavisnba.com^
+||valeriesara.com^
 ||valewformo.pro^
 ||valf.atm.cp31.ott.cibntv.net^
 ||vali-g1.cp31.ott.cibntv.net^
@@ -132467,6 +132468,7 @@
 ||w500peu.com^
 ||w55c.net^
 ||w59g.icu^
+||w5ftl8bhu3.com^
 ||w6.chabad.org^
 ||w6.gskwai.com^
 ||w7.berlin.de^
