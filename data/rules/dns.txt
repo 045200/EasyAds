@@ -2,11 +2,11 @@
 ! Title: GOODBYEADS
 ! Homepage: https://github.com/045200/GOODBYEADS
 ! Expires: 12 Hours
-! Version: 2025-07-26 20:25:50（北京时间）
+! Version: 2025-07-27 09:16:36（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 165582
+! Total count: 165585
 # DNS rules extracted from adblock.txt
-# Generated on 2025-07-26 12:25:47.816929
+# Generated on 2025-07-27 01:16:32.862708
 
 ||*-*-*-lrycfv.vip^
 ||*-*.ap-east-1.elb.amazonaws.com^
@@ -26130,6 +26130,7 @@
 ||byrramphi.pro^
 ||bysbpc.teufelaudio.nl^
 ||bysfnu.bodeboca.com^
+||byt73g6rrr.com^
 ||byteadverts.com^
 ||bytmfj.xyz^
 ||byunsh.novasol.pl^
@@ -83221,6 +83222,7 @@
 ||oroscimmut.pro^
 ||orpggb.esprit.at^
 ||orpixel.adsafeprotected.com^
+||orpy.cn^
 ||orqhz.alexandrebirman.com^
 ||orricarsen.pro^
 ||orrorpreme.pro^
@@ -128581,6 +128583,7 @@
 ||umkezbh.cn^
 ||umlvbe.rucipello.com^
 ||umoriwhisk.pro^
+||umrr.cn^
 ||umrvmb.net.anwalt.de^
 ||umtzwr.adidas.co.kr^
 ||umvtri.trenirkaren.sk^
