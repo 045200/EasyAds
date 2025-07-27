@@ -45,11 +45,11 @@ adblock = [
     
 "https://raw.githubusercontent.com/damengzhu/banad/main/jiekouAD.txt",  # 大萌主-接口广告
 
-#-"https://cdn.jsdelivr.net/gh/privacy-protection-tools/anti-AD/anti-ad-easylist.txt", # anti-ad
+#- "https://cdn.jsdelivr.net/gh/privacy-protection-tools/anti-AD/anti-ad-easylist.txt", # anti-ad
     
 "https://raw.githubusercontent.com/afwfv/DD-AD/main/rule/DD-AD.txt",  # DD-AD规则
 
-"https://raw.hellogithub.com/hosts",  # GitHub加速hosts
+#- "https://raw.hellogithub.com/hosts",  # GitHub加速hosts
 
 "https://raw.githubusercontent.com/Cats-Team/AdRules/main/adblock.txt",  # cat
     
