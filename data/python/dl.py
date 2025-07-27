@@ -49,7 +49,7 @@ adblock = [
     
 "https://raw.githubusercontent.com/afwfv/DD-AD/main/rule/DD-AD.txt",  # DD-AD规则
 
-#- "https://raw.hellogithub.com/hosts",  # GitHub加速hosts
+"https://raw.hellogithub.com/hosts",  # GitHub加速hosts
 
 "https://raw.githubusercontent.com/Cats-Team/AdRules/main/adblock.txt",  # cat
     
