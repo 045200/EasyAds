@@ -2,11 +2,11 @@
 ! Title: GOODBYEADS
 ! Homepage: https://github.com/045200/GOODBYEADS
 ! Expires: 12 Hours
-! Version: 2025-07-27 19:11:11（北京时间）
+! Version: 2025-07-27 20:26:32（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 165846
+! Total count: 165848
 # DNS rules extracted from adblock.txt
-# Generated on 2025-07-27 11:11:09.285359
+# Generated on 2025-07-27 12:26:29.181011
 
 ||*-*-*-lrycfv.vip^
 ||*-*.ap-east-1.elb.amazonaws.com^
@@ -49576,6 +49576,7 @@
 ||gio07260rp.com^
 ||gio07261rp.com^
 ||gio07270rp.com^
+||gio07271rp.com^
 ||giocointer.pro^
 ||giocomalaf.pro^
 ||gioiascarn.pro^
@@ -163218,6 +163219,7 @@
 ||xgxiss.amf.com.ua^
 ||xgyvaf.easydew.co.kr^
 ||xgzdys.com^
+||xh04i9ine.com^
 ||xh33g.net^
 ||xh990214c.llpstudy.top^
 ||xhbzrk.hotmart.com^
