@@ -35,14 +35,13 @@ def generate_release_template():
                         .astimezone(pytz.timezone('Asia/Shanghai')))
         date_str = beijing_time.strftime('%Y-%m-%d')
         time_str = beijing_time.strftime('%H:%M:%S')
-        tag_name = f"v{beijing_time.strftime('%Y%m%d')}"  # 格式如 v20250730
+        tag_name = f"release-{beijing_time.strftime('%Y%m%d-%H%M')}"  # 格式如 release-20250730-1836
         
         # 生成发布模板
         release_template = {
             "tag_name": tag_name,
             "name": f"规则更新 {date_str}",
-            "body": f"""\
-## 规则更新 {date_str}
+            "body": f"""## 规则更新 {date_str}
 
 **更新时间**: {date_str} {time_str} (北京时间)
 
