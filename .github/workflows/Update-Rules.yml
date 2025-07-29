@@ -81,6 +81,20 @@ jobs:
           git add --all
           git commit -m "Updated at $(TZ=UTC-8 date +'%Y-%m-%d %H:%M:%S')（北京时间）" || echo "No changes to commit"
 
+      - name: Generate Release Template
+        run: python ./data/python/release.py
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        with:
+           tag_name: $(jq -r .tag_name release_template.json)
+           release_name: $(jq -r .name release_template.json)
+           body: $(jq -r .body release_template.json)
+           draft: $(jq -r .draft release_template.json)
+           prerelease: $(jq -r .prerelease release_template.json)
+           env:
+             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
       - name: Sync and Push Changes
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
