@@ -96,46 +96,48 @@ jobs:
           git push origin HEAD:master
 
       - name: Extract release information
-        id: extract-info
-        run: |
-            # Extract and format Beijing time
-              UPDATE_TIME=$(TZ=Asia/Shanghai date '+%Y-%m-%d %H:%M:%S')
+  id: extract-info
+  run: |
+    # 设置支持emoji的locale环境
+    export LC_ALL=en_US.UTF-8
+    export LANG=en_US.UTF-8
     
-            # Extract rule statistics
-              STATS=$(grep -A 2 "📈 拦截规则数量:" README.md | sed -e 's/\([0-9]\+\)/printf "%'"'"'d" \1/ge')
+    UPDATE_TIME=$(TZ=Asia/Shanghai date '+%Y-%m-%d %H:%M:%S')
     
-            # Generate version info
-              TAG_VERSION=$(date -d "$UPDATE_TIME" +'v%Y%m%d')
-              PRETTY_TIME=$(date -d "$UPDATE_TIME" +'%Y年%m月%d日 %H:%M:%S')
+    # 使用更可靠的统计信息提取方式
+    STATS=$(grep -a -A 2 "拦截规则数量:" README.md | sed -e 's/\([0-9]\+\)/printf "%'"'"'d" \1/ge')
     
-            # 正确设置多行输出到GITHUB_OUTPUT
-              DELIMITER=$(openssl rand -hex 16)
-              echo "update_time=$UPDATE_TIME" >> $GITHUB_OUTPUT
-              echo "pretty_time=$PRETTY_TIME" >> $GITHUB_OUTPUT
-              echo "tag_version=$TAG_VERSION" >> $GITHUB_OUTPUT
-              echo "stats<<${DELIMITER}" >> $GITHUB_OUTPUT
-              echo "$STATS" >> $GITHUB_OUTPUT
-              echo "${DELIMITER}" >> $GITHUB_OUTPUT
-              echo "tag_version=$TAG_VERSION" >> $GITHUB_OUTPUT
+    TAG_VERSION=$(date -d "$UPDATE_TIME" +'v%Y%m%d')
+    PRETTY_TIME=$(date -d "$UPDATE_TIME" +'%Y年%m月%d日 %H:%M:%S')
+    
+    # 安全输出到GITHUB_OUTPUT
+    echo "update_time=${UPDATE_TIME}" >> $GITHUB_OUTPUT
+    echo "pretty_time=${PRETTY_TIME}" >> $GITHUB_OUTPUT
+    echo "tag_version=${TAG_VERSION}" >> $GITHUB_OUTPUT
+    
+    # 处理可能为空的stats
+    if [ -z "$STATS" ]; then
+      STATS="⚠️ 未能提取规则统计信息"
+    fi
+    echo "stats=${STATS}" >> $GITHUB_OUTPUT
 
-      # Step 15: Create release
       - name: Create release
-        if: steps.extract-info.outputs.stats != ''
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ steps.extract-info.outputs.tag_version }}
-          name: "Rules Update ${{ steps.extract-info.outputs.pretty_time }}"
-          body: |
-            📅 **Update Time**: ${{ steps.extract-info.outputs.pretty_time }}
-
-            📊 **Rules Statistics**:
-            ───────────────────────
-            ${{ steps.extract-info.outputs.stats }}
-            ───────────────────────
-
-            🔄 **Update Status**: ${{ steps.changes.outputs.any_changed == 'true' && 'Rules updated' || 'No changes detected' }}
-          draft: false
-          prerelease: false
+  if: always() && steps.extract-info.outputs.stats && steps.extract-info.conclusion == 'success'
+  uses: softprops/action-gh-release@v1
+  with:
+    tag_name: ${{ steps.extract-info.outputs.tag_version }}
+    name: "Rules Update ${{ steps.extract-info.outputs.pretty_time }}"
+    body: |
+      📅 **Update Time**: ${{ steps.extract-info.outputs.pretty_time }}
+      
+      📊 **Rules Statistics**:
+      ───────────────────────
+      ${{ fromJSON(format('{{"{0}"}}', steps.extract-info.outputs.stats)) }}
+      ───────────────────────
+      
+      🔄 **Update Status**: ${{ steps.changes.outputs.any_changed == 'true' && 'Rules updated' || 'No changes detected' }}
+    draft: false
+    prerelease: false
 
       # Step 16: Cleanup workflow runs
       - name: Cleanup workflow runs
