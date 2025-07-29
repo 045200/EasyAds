@@ -1,22 +1,22 @@
 <div align="center">
-<h1 align="center">GOODBYEADS</h1>
+<h1 align="center">EasyAds</h1>
 <h3 align="center">一个强力去广告的规则集合</h3>
 
 <p align="center">
-  <a href="https://github.com/045200/GOODBYEADS">
-    <img src="https://img.shields.io/github/last-commit/045200/GOODBYEADS?style=flat-square&color=blue" alt="last update" />
+  <a href="https://github.com/045200/EasyAds">
+    <img src="https://img.shields.io/github/last-commit/045200/EasyAds?style=flat-square&color=blue" alt="last update" />
   </a>
   <a href="https://github.com/045200/GOODBYEADS">
-    <img src="https://img.shields.io/github/forks/045200/GOODBYEADS?style=flat-square&color=brightgreen" alt="forks" />
+    <img src="https://img.shields.io/github/forks/045200/EasyAds?style=flat-square&color=brightgreen" alt="forks" />
   </a>
   <a href="https://github.com/045200/GOODBYEADS">
-    <img src="https://img.shields.io/github/stars/045200/GOODBYEADS?style=flat-square&color=yellow" alt="stars" />
+    <img src="https://img.shields.io/github/stars/045200/EasyAds?style=flat-square&color=yellow" alt="stars" />
   </a>
   <a href="https://github.com/045200/GOODBYEADS/issues/">
-    <img src="https://img.shields.io/github/issues/045200/GOODBYEADS?style=flat-square&color=red" alt="open issues" />
+    <img src="https://img.shields.io/github/issues/045200/EasyAds?style=flat-square&color=red" alt="open issues" />
   </a>
   <a href="https://github.com/045200/GOODBYEADS">
-    <img src="https://img.shields.io/github/license/045200/GOODBYEADS?style=flat-square&color=9cf" alt="license" />
+    <img src="https://img.shields.io/github/license/045200/EasyAds?style=flat-square&color=9cf" alt="license" />
   </a>
 </p>
 
@@ -53,8 +53,8 @@
 
 | 规则类型 | 📥 GitHub直链 | 🚀 国内加速链接 |
 | :---- | :---- | :---- |
-| AdGuard 拦截规则 | [adblock.txt](https://raw.githubusercontent.com/045200/GOODBYEADS/master/data/rules/adblock.txt) | [adblock.txt](https://ghfast.top/raw.githubusercontent.com/045200/GOODBYEADS/master/data/rules/adblock.txt) |
-| AdGuard Home DNS拦截规则 | [dns.txt](https://raw.githubusercontent.com/045200/GOODBYEADS/master/data/rules/dns.txt) | [dns.txt](https://ghfast.top/raw.githubusercontent.com/045200/GOODBYEADS/master/data/rules/dns.txt) |
+| AdGuard 拦截规则 | [adblock.txt](https://raw.githubusercontent.com/045200/EasyAds/master/data/rules/adblock.txt) | [adblock.txt](https://ghfast.top/raw.githubusercontent.com/045200/EasyAds/master/data/rules/adblock.txt) |
+| AdGuard Home DNS拦截规则 | [dns.txt](https://raw.githubusercontent.com/045200/EasyAds/master/data/rules/dns.txt) | [dns.txt](https://ghfast.top/raw.githubusercontent.com/045200/EasyAds/master/data/rules/dns.txt) |
 
 </details>
 
@@ -64,7 +64,7 @@
 
 | 规则类型 | 📥 GitHub直链 | 🚀 国内加速链接 |
 | :---- | :---- | :---- |
-| 黑名单域名列表 | [ad-domain.txt](https://raw.githubusercontent.com/045200/GOODBYEADS/master/data/rules/ad-domain.txt) | [ad-domain.txt](https://ghfast.top/raw.githubusercontent.com/045200/GOODBYEADS/master/data/rules/ad-domain.txt) |
+| 黑名单域名列表 | [ad-domain.txt](https://raw.githubusercontent.com/045200/EasyAds/master/data/rules/ad-domain.txt) | [ad-domain.txt](https://ghfast.top/raw.githubusercontent.com/045200/EasyAds/master/data/rules/ad-domain.txt) |
 
 </details>
 
@@ -74,7 +74,17 @@
 
 | 规则类型 | 📥 GitHub直链 | 🚀 国内加速链接 |
 | :---- | :---- | :---- |
-| Quantumult X规则 | [qx.list](https://raw.githubusercontent.com/045200/GOODBYEADS/master/data/rules/qx.list) | [qx.list](https://ghfast.top/raw.githubusercontent.com/045200/GOODBYEADS/master/data/rules/qx.list) |
+| Quantumult X规则 | [qx.list](https://raw.githubusercontent.com/045200/EasyAds/master/data/rules/qx.list) | [qx.list](https://ghfast.top/raw.githubusercontent.com/045200/EasyAds/master/data/rules/qx.list) |
+
+</details>
+
+<details>
+<summary><b>🛩️ Clash Mihomo规则</b></summary>
+<br>
+
+| 规则类型 | 📥 GitHub直链 | 🚀 国内加速链接 |
+| :---- | :---- | :---- |
+| Clash Mihomo规则 | [mihomo.mrs](https://raw.githubusercontent.com/045200/EasyAds/master/data/rules/mihomo.mrs) | [mihomo.mrs](https://ghfast.top/raw.githubusercontent.com/045200/EasyAds/master/data/rules/mihomo.mrs) |
 
 </details>
 
@@ -84,7 +94,7 @@
 
 | 规则类型 | 📥 GitHub直链 | 🚀 国内加速链接 |
 | :---- | :---- | :---- |
-| 白名单规则 | [allow.txt](https://raw.githubusercontent.com/045200/GOODBYEADS/master/data/rules/allow.txt) | [allow.txt](https://ghfast.top/raw.githubusercontent.com/045200/GOODBYEADS/master/data/rules/allow.txt) |
+| 白名单规则 | [allow.txt](https://raw.githubusercontent.com/045200/EasyAds/master/data/rules/allow.txt) | [allow.txt](https://ghfast.top/raw.githubusercontent.com/045200/EasyAds/master/data/rules/allow.txt) |
 </details>
 
 ## 🚫 拦截效果
@@ -117,7 +127,7 @@
 ## ⭐ 感谢支持
 
 <p align='center'>
-  <a href="https://github.com/8680/GOODBYEADS/stargazers">
+  <a href="https://github.com/045200/EasyAds/stargazers">
     <img src="https://api.star-history.com/svg?repos=8680/GOODBYEADS&type=Date" alt="Star History Chart">
   </a>
 </p>
