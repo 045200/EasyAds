@@ -1,4 +1,4 @@
-name: Update Rules
+name: Update Rules and Notify
 on: 
   workflow_dispatch:
   schedule:
@@ -8,7 +8,9 @@ on:
       - 'data/python/**'
       - 'data/source/**'
       - 'data/mod/**'
-    
+  release:
+    types: [published]
+
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -88,6 +90,33 @@ jobs:
             git pull --rebase origin master
             git push origin master && break || sleep 5
           done
+
+      - name: Create Release on Tag
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            Automated release created by GitHub Actions
+            Changes included:
+            ${{ steps.changes.outputs.all_changed_files }}
+          draft: false
+          prerelease: false
+
+      - name: Notify Telegram on Changes
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'release'
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            🚀 ${{ github.repository }} 更新通知
+            ${{ github.event_name == 'release' && '🎉 新版本发布!' || '🔄 规则已更新!' }}
+            仓库: ${{ github.repository }}
+            ${{ github.event_name == 'release' && format('版本: {0}', github.ref) || format('提交: {0}', github.sha) }}
+            ${{ github.event_name == 'release' && format('发布说明: {0}', github.event.release.body) || format('变更文件: {0}', steps.changes.outputs.all_changed_files) }}
+            查看: ${{ github.event_name == 'release' && github.event.release.html_url || format('{0}/commit/{1}', github.server_url, github.sha) }}
 
       - name: Delete workflow runs 
         uses: Mattraks/delete-workflow-runs@main
