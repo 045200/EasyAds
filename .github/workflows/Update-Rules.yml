@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # 获取完整提交历史
+          fetch-depth: 0
           
       - name: Check for file changes
         id: changes
@@ -62,7 +62,7 @@ jobs:
         run: |
           python ./data/python/domain_list.py
 
-      - name: Update Title&ReadMe
+      - name: Update Title & ReadMe
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
           python ./data/python/title.py
@@ -84,6 +84,9 @@ jobs:
       - name: Generate Release Template
         run: python ./data/python/release.py
 
+      - name: Show Release Template
+        run: cat release_template.json
+
       - name: Create Release
         uses: actions/create-release@v1
         env:
@@ -94,7 +97,7 @@ jobs:
           body: $(jq -r .body release_template.json)
           draft: $(jq -r .draft release_template.json)
           prerelease: $(jq -r .prerelease release_template.json)
-      
+
       - name: Sync and Push Changes
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
@@ -104,9 +107,10 @@ jobs:
           done
 
       - name: Delete workflow runs 
+        if: always()
         uses: Mattraks/delete-workflow-runs@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository }}
           retain_days: 0
-          keep_minimum_runs: 0
+          keep_minimum_runs: 3
