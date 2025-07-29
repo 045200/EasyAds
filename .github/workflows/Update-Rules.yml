@@ -1,4 +1,4 @@
-name: Rules Auto Update and Release
+name: Update Rules and Notify
 on:
   workflow_dispatch:
   schedule:
@@ -8,6 +8,8 @@ on:
       - 'data/python/**'
       - 'data/source/**'
       - 'data/mod/**'
+  release:
+    types: [published]
 
 jobs:
   update:
@@ -19,7 +21,7 @@ jobs:
           fetch-depth: 0
 
       # 步骤2: 检查文件变更
-      - name: Check file changes
+      - name: Check for file changes
         id: changes
         uses: tj-actions/changed-files@v42
         with:
@@ -28,93 +30,104 @@ jobs:
             data/source/**
             data/mod/**
 
-      # 步骤3: 下载规则数据
-      - name: Download rules
-        if: steps.changes.outputs.any_changed == 'true' || contains(['workflow_dispatch', 'schedule'], github.event_name)
+      # 步骤3: 调试输出
+      - name: Debug Changes
+        run: |
+          echo "变更状态: ${{ steps.changes.outputs.any_changed }}"
+          echo "变更文件: ${{ steps.changes.outputs.all_changed_files }}"
+
+      # 步骤4-11: 规则处理流程
+      - name: Download Rules
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         continue-on-error: true
         run: python ./data/python/dl.py
 
-      # 步骤4: 合并规则
-      - name: Merge rules
-        if: steps.changes.outputs.any_changed == 'true' || contains(['workflow_dispatch', 'schedule'], github.event_name)
+      - name: Merge Rules
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: python ./data/python/merge.py
 
-      # 步骤5: 生成DNS规则
-      - name: Generate DNS rules
-        if: steps.changes.outputs.any_changed == 'true' || contains(['workflow_dispatch', 'schedule'], github.event_name)
+      - name: Generate dns Rules
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: python ./data/python/filter-dns.py
 
-      # 步骤6: 生成Quantumult X规则
-      - name: Generate QX rules
-        if: steps.changes.outputs.any_changed == 'true' || contains(['workflow_dispatch', 'schedule'], github.event_name)
+      - name: Generate qx Rules
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: python ./data/python/qx.py
 
-      # 步骤7: 生成Mihomo规则
-      - name: Generate Mihomo rules
-        if: steps.changes.outputs.any_changed == 'true' || contains(['workflow_dispatch', 'schedule'], github.event_name)
+      - name: Generate mihomo Rules
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: python ./data/python/mihomo.py
 
-      # 步骤8: 生成Loon规则
-      - name: Generate Loon rules
-        if: steps.changes.outputs.any_changed == 'true' || contains(['workflow_dispatch', 'schedule'], github.event_name)
+      - name: Generate loon Rules
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: python ./data/python/loon.py
 
-      # 步骤9: 生成域名列表
-      - name: Generate domain list
-        if: steps.changes.outputs.any_changed == 'true' || contains(['workflow_dispatch', 'schedule'], github.event_name)
+      - name: Generate Domain List
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: python ./data/python/domain_list.py
 
-      # 步骤10: 更新项目元数据
-      - name: Update metadata
-        if: steps.changes.outputs.any_changed == 'true' || contains(['workflow_dispatch', 'schedule'], github.event_name)
-        run: python ./data/python/title.py
+      - name: Update Title & ReadMe
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        run: |
+          python ./data/python/title.py
+          python ./data/python/clean-readme.py
 
-      # 步骤11: 配置Git环境
-      - name: Setup Git
-        if: steps.changes.outputs.any_changed == 'true' || contains(['workflow_dispatch', 'schedule'], github.event_name)
+      # 步骤12: Git操作
+      - name: Configure Git
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
 
-      # 步骤12: 提交变更
-      - name: Commit changes
-        if: steps.changes.outputs.any_changed == 'true' || contains(['workflow_dispatch', 'schedule'], github.event_name)
+      - name: Commit Changes
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
           git add --all
-          git commit -m "Auto-update at $(TZ=Asia/Shanghai date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
+          git commit -m "Auto-update at $(TZ=Asia/Shanghai date +'%Y-%m-%d %H:%M:%S')（北京时间）" || echo "No changes to commit"
 
-      # 步骤13: 推送变更
-      - name: Push changes
-        if: steps.changes.outputs.any_changed == 'true' || contains(['workflow_dispatch', 'schedule'], github.event_name)
+      - name: Push Changes
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
           git pull --rebase
           git push origin HEAD:master
 
-      # 步骤14: 创建版本发布
-      - name: Create GitHub Release
-        if: steps.changes.outputs.any_changed == 'true'
-        env:
-          ADBLOCK_COUNT: $(sed -n 's/^! Total count: //p' ./data/rules/adblock.txt)
-          DNS_COUNT: $(sed -n 's/^! Total count: //p' ./data/rules/dns.txt)
-          ALLOW_COUNT: $(sed -n 's/^! Total count: //p' ./data/rules/allow.txt)
+      # 步骤13: 准备Release内容
+      - name: Extract Release Notes
+        if: |
+          (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) ||
+          (steps.changes.outputs.any_changed == 'true') ||
+          (github.event_name == 'workflow_dispatch') ||
+          (github.event_name == 'schedule')
+        id: extract-notes
         run: |
-          echo "## 📊 规则统计" > release_note.md
-          echo "- 拦截规则: $ADBLOCK_COUNT条" >> release_note.md
-          echo "- DNS规则: $DNS_COUNT条" >> release_note.md
-          echo "- 白名单: $ALLOW_COUNT条" >> release_note.md
-          echo "\n⏰ 更新时间: $(TZ=Asia/Shanghai date +'%Y-%m-%d %H:%M:%S')" >> release_note.md
+          RELEASE_NOTES=$(awk '/更新时间:/{getline; printf "%s\\n%s\\n%s\\n", $0, getline, getline}' README.md)
+          echo "::set-output name=notes::${RELEASE_NOTES}"
+          echo "Extracted release notes:"
+          echo "${RELEASE_NOTES}"
 
-          gh release create \
-            "v$(TZ=Asia/Shanghai date +'%Y%m%d')" \
-            --title "规则更新 $(TZ=Asia/Shanghai date +'%m-%d')" \
-            --notes-file release_note.md
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # 步骤14: 创建Release（北京时间）
+      - name: Create Release
+        if: steps.extract-notes.outputs.notes != ''
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: "v$(TZ=Asia/Shanghai date +'%Y%m%d')"
+          name: "Release $(TZ=Asia/Shanghai date +'%Y-%m-%d %H:%M:%S 北京时间')"
+          body: |
+            🕒 生成时间: $(TZ=Asia/Shanghai date +'%Y-%m-%d %H:%M:%S %Z')
+            🔍 触发方式: ${{ github.event_name }}
+            📝 变更状态: ${{ steps.changes.outputs.any_changed }}
+            
+            ### 规则统计
+            ${{ steps.extract-notes.outputs.notes }}
+          draft: false
+          prerelease: false
+          generate_release_notes: false
 
-      # 步骤15: 清理历史工作流
-      - name: Cleanup workflow runs
+      # 步骤15: 清理历史运行（保留最近3天）
+      - name: Cleanup Workflows
         uses: Mattraks/delete-workflow-runs@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
           retain_days: 3
           keep_minimum_runs: 5
