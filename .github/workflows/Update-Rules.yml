@@ -1,4 +1,4 @@
-name: Update Rules and Notify
+name: 规则更新与通知
 on:
   workflow_dispatch:
   schedule:
@@ -15,13 +15,13 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      # 步骤1: 检出代码
+      # 步骤1：检出代码
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # 步骤2: 检查文件变更
-      - name: Check for file changes
+      # 步骤2：检查文件变更
+      - name: 检查文件变更
         id: changes
         uses: tj-actions/changed-files@v42
         with:
@@ -30,100 +30,104 @@ jobs:
             data/source/**
             data/mod/**
 
-      # 步骤3: 调试输出
-      - name: Debug Changes
-        run: |
-          echo "变更状态: ${{ steps.changes.outputs.any_changed }}"
-          echo "变更文件: ${{ steps.changes.outputs.all_changed_files }}"
-
-      # 步骤4-11: 规则处理流程
-      - name: Download Rules
+      # 步骤3：下载规则
+      - name: 下载规则
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         continue-on-error: true
         run: python ./data/python/dl.py
 
-      - name: Merge Rules
+      # 步骤4：合并规则
+      - name: 合并规则
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: python ./data/python/merge.py
 
-      - name: Generate dns Rules
+      # 步骤5：生成DNS规则
+      - name: 生成DNS规则
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: python ./data/python/filter-dns.py
 
-      - name: Generate qx Rules
+      # 步骤6：生成Quantumult X规则
+      - name: 生成Quantumult X规则
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: python ./data/python/qx.py
 
-      - name: Generate mihomo Rules
+      # 步骤7：生成Mihomo规则
+      - name: 生成Mihomo规则
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: python ./data/python/mihomo.py
 
-      - name: Generate loon Rules
+      # 步骤8：生成Loon规则
+      - name: 生成Loon规则
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: python ./data/python/loon.py
 
-      - name: Generate Domain List
+      # 步骤9：生成域名列表
+      - name: 生成域名列表
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: python ./data/python/domain_list.py
 
-      - name: Update Title & ReadMe
+      # 步骤10：更新标题和README
+      - name: 更新标题和README
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
           python ./data/python/title.py
           python ./data/python/clean-readme.py
 
-      # 步骤12: Git操作
-      - name: Configure Git
+      # 步骤11：配置Git
+      - name: 配置Git
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
 
-      - name: Commit Changes
+      # 步骤12：提交变更
+      - name: 提交变更
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
           git add --all
-          git commit -m "Auto-update at $(TZ=Asia/Shanghai date +'%Y-%m-%d %H:%M:%S')（北京时间）" || echo "No changes to commit"
+          git commit -m "自动更新于 $(TZ=Asia/Shanghai date +'%Y-%m-%d %H:%M:%S')（北京时间）" || echo "没有变更需要提交"
 
-      - name: Push Changes
+      # 步骤13：推送变更
+      - name: 推送变更
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
           git pull --rebase
           git push origin HEAD:master
 
-      - name: Extract Release Info
+      # 步骤14：提取发布信息
+      - name: 提取发布信息
         id: extract-info
         run: |
-           # 提取更新时间
-           UPDATE_TIME=$(grep -m1 "更新时间:" README.md | sed 's/更新时间: //')
-           # 提取规则统计（3行）
-           STATS=$(awk '/更新时间:/{getline; printf "%s\\n%s\\n%s", $0, getline, getline}' README.md)
-           # 转换为tag格式（v20250730）
-           TAG_VERSION=$(echo "$UPDATE_TIME" | awk '{gsub(/[-: ]/, "", $0); print "v"substr($0,1,8)}')
+          # 提取更新时间
+          UPDATE_TIME=$(grep -m1 "更新时间:" README.md | sed 's/更新时间: //')
+          # 提取规则统计（3行）
+          STATS=$(awk '/更新时间:/{getline; printf "%s\\n%s\\n%s", $0, getline, getline}' README.md)
+          # 转换为tag格式（v20250730）
+          TAG_VERSION=$(echo "$UPDATE_TIME" | awk '{gsub(/[-: ]/, "", $0); print "v"substr($0,1,8)}')
     
-           echo "::set-output name=update_time::$UPDATE_TIME"
-           echo "::set-output name=stats::$STATS"
-           echo "::set-output name=tag_version::$TAG_VERSION"
+          echo "::set-output name=update_time::$UPDATE_TIME"
+          echo "::set-output name=stats::$STATS"
+          echo "::set-output name=tag_version::$TAG_VERSION"
 
-           - name: Create Release
-             if:
-steps.extract-info.outputs.stats != ''
-  uses: softprops/action-gh-release@v1
-  with:
-    tag_name: ${{ steps.extract-info.outputs.tag_version }}
-    name: "Release ${{ steps.extract-info.outputs.update_time }}"
-    body: |
-      🔍 触发方式: ${{ github.event_name }}
-      📝 变更状态: ${{ steps.changes.outputs.any_changed }}
+      # 步骤15：创建发布
+      - name: 创建发布
+        if: steps.extract-info.outputs.stats != ''
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.extract-info.outputs.tag_version }}
+          name: "发布 ${{ steps.extract-info.outputs.update_time }}"
+          body: |
+            🔍 触发方式: ${{ github.event_name }}
+            📝 变更状态: ${{ steps.changes.outputs.any_changed }}
 
-      ### 规则统计
-      ${{ steps.extract-info.outputs.stats }}
-    draft: false
-    prerelease: false
-    generate_release_notes: false
+            ### 规则统计
+            ${{ steps.extract-info.outputs.stats }}
+          draft: false
+          prerelease: false
+          generate_release_notes: false
 
-      # 步骤15: 清理历史运行（保留最近3天）
-      - name: Cleanup Workflows
+      # 步骤16：清理历史运行（保留最近3天）
+      - name: 清理工作流运行记录
         uses: Mattraks/delete-workflow-runs@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
