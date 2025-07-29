@@ -22,6 +22,16 @@
 ||qq.com/adx/
 ||qq.com/adjs/
 ||qq.com/ad-material/
+||finder.weixin.qq.com^
+||finder*.weixin.qq.com^  # 通配符覆盖子域名
+||recommend.weread.qq.com^
+||mp.weixin.qq.com/api/recommend^
+||szextshort.weixin.qq.com^
+||tcss.qq.com^  # 腾讯统计服务
+||analytics.qq.com^  # 腾讯分析
+||weixin.qq.com/cgi-bin/recommend^
+||push.weread.qq.com^  # 微信读书推荐
+||miniprogram.qq.com/recommend^  # 小程序推荐
 
 # ====== 字节系广告 =====
 ||pangolin.snssdk.com^
