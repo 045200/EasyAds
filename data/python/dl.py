@@ -59,11 +59,11 @@ adblock = [
     
 "https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Replenish.txt",  # 秋风补充
     
-"https://raw.githubusercontent.com/2771936993/HG/main/hg1.txt",  # 海哥规则
+"http://hgzspj.51vip.biz/hg1.txt",  # 海哥规则
     
 "https://github.com/entr0pia/fcm-hosts/raw/fcm/fcm-hosts",  # FCM Hosts
     
-"https://raw.githubusercontent.com/790953214/qy-Ads-Rule/refs/heads/main/black.txt",  # 晴雅黑名单
+"http://rssv.cn/adguard/api.php?type=black",  # 晴雅黑名单
     
 "https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/AWAvenue-Ads-Rule.txt",  # 秋风主规则
     
