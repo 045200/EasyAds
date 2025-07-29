@@ -2,11 +2,11 @@
 ! Title: GOODBYEADS
 ! Homepage: https://github.com/045200/GOODBYEADS
 ! Expires: 12 Hours
-! Version: 2025-07-29 09:17:59（北京时间）
+! Version: 2025-07-29 20:00:38（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 163020
+! Total count: 163027
 # DNS rules extracted from adblock.txt
-# Generated on 2025-07-29 01:17:57.181781
+# Generated on 2025-07-29 12:00:35.328699
 
 ||*-*-*-lrycfv.vip^
 ||*-*.ap-east-1.elb.amazonaws.com^
@@ -1794,6 +1794,7 @@
 ||4we.icu^
 ||4wm.fun^
 ||4wu3gf.cn^
+||4xicd08qs.com^
 ||4zn.fun^
 ||5.61.55.143^
 ||5.ccutu.com^
@@ -6689,6 +6690,7 @@
 ||aai-id-sentry.advai.net^
 ||aai07280mu.com^
 ||aai07281mu.com^
+||aai07290mu.com^
 ||aaid.umeng.com^
 ||aaid.uyunad.com^
 ||aainfo.anz.co.nz^
@@ -48745,6 +48747,7 @@
 ||gio07271rp.com^
 ||gio07280rp.com^
 ||gio07281rp.com^
+||gio07290rp.com^
 ||giocointer.pro^
 ||giocomalaf.pro^
 ||gioiascarn.pro^
@@ -80060,6 +80063,7 @@
 ||o8zoz.icu^
 ||o9tt6h08li.execute-api.eu-west-1.amazonaws.com^
 ||oa80sl.dealdonkey.com^
+||oaatyq.icu^
 ||oabnmx.jewelryexchange.com^
 ||oaclrst.cn^
 ||oads.cracked.com^
@@ -88427,6 +88431,7 @@
 ||r5dfwjtb.icu^
 ||r5twojylmzsym.top^
 ||r6pt6kfz.com^
+||r6q4mtfno.com^
 ||r75tia.cn^
 ||r7tqkqrvuz.com^
 ||r82tmbfb7qgeawsf.oz8xhen.top^
@@ -104557,6 +104562,7 @@
 ||sncop.uioozpxq.com^
 ||snd.freshstartnews.com^
 ||sndqar.rajapack.es^
+||sneakersq5.com^
 ||sneetossi.pro^
 ||snervdesig.pro^
 ||snesenosi.pro^
@@ -161013,6 +161019,7 @@
 ||xps.huk24.de^
 ||xpu.samsungelectronics.com^
 ||xpxi.cn^
+||xpya.cn^
 ||xpygen.unger-fashion.com^
 ||xpzswr.shasa.com^
 ||xqblnei.cn^
