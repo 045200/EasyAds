@@ -127,7 +127,7 @@
 
 <p align='center'>
   <a href="https://github.com/045200/EasyAds/stargazers">
-    <img src="https://api.star-history.com/svg?repos=8680/GOODBYEADS&type=Date" alt="Star History Chart">
+    <img src="https://api.star-history.com/svg?repos=045200/EasyAds&type=Date" alt="Star History Chart">
   </a>
 </p>
 
