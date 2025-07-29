@@ -91,37 +91,35 @@ jobs:
           git pull --rebase
           git push origin HEAD:master
 
-      # 步骤13: 准备Release内容
-      - name: Extract Release Notes
-        if: |
-          (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) ||
-          (steps.changes.outputs.any_changed == 'true') ||
-          (github.event_name == 'workflow_dispatch') ||
-          (github.event_name == 'schedule')
-        id: extract-notes
-        run: |
-          RELEASE_NOTES=$(awk '/更新时间:/{getline; printf "%s\\n%s\\n%s\\n", $0, getline, getline}' README.md)
-          echo "::set-output name=notes::${RELEASE_NOTES}"
-          echo "Extracted release notes:"
-          echo "${RELEASE_NOTES}"
+      - name: Extract Release Info
+  id: extract-info
+  run: |
+    # 提取更新时间
+    UPDATE_TIME=$(grep -m1 "更新时间:" README.md | sed 's/更新时间: //')
+    # 提取规则统计（3行）
+    STATS=$(awk '/更新时间:/{getline; printf "%s\\n%s\\n%s", $0, getline, getline}' README.md)
+    # 转换为tag格式（v20250730）
+    TAG_VERSION=$(echo "$UPDATE_TIME" | awk '{gsub(/[-: ]/, "", $0); print "v"substr($0,1,8)}')
+    
+    echo "::set-output name=update_time::$UPDATE_TIME"
+    echo "::set-output name=stats::$STATS"
+    echo "::set-output name=tag_version::$TAG_VERSION"
 
-      # 步骤14: 创建Release（北京时间）
-      - name: Create Release
-        if: steps.extract-notes.outputs.notes != ''
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: "v$(TZ=Asia/Shanghai date +'%Y%m%d')"
-          name: "Release $(TZ=Asia/Shanghai date +'%Y-%m-%d %H:%M:%S 北京时间')"
-          body: |
-            🕒 生成时间: $(TZ=Asia/Shanghai date +'%Y-%m-%d %H:%M:%S %Z')
-            🔍 触发方式: ${{ github.event_name }}
-            📝 变更状态: ${{ steps.changes.outputs.any_changed }}
-            
-            ### 规则统计
-            ${{ steps.extract-notes.outputs.notes }}
-          draft: false
-          prerelease: false
-          generate_release_notes: false
+- name: Create Release
+  if: steps.extract-info.outputs.stats != ''
+  uses: softprops/action-gh-release@v1
+  with:
+    tag_name: ${{ steps.extract-info.outputs.tag_version }}
+    name: "Release ${{ steps.extract-info.outputs.update_time }}"
+    body: |
+      🔍 触发方式: ${{ github.event_name }}
+      📝 变更状态: ${{ steps.changes.outputs.any_changed }}
+
+      ### 规则统计
+      ${{ steps.extract-info.outputs.stats }}
+    draft: false
+    prerelease: false
+    generate_release_notes: false
 
       # 步骤15: 清理历史运行（保留最近3天）
       - name: Cleanup Workflows
