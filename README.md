@@ -6,16 +6,16 @@
   <a href="https://github.com/045200/EasyAds">
     <img src="https://img.shields.io/github/last-commit/045200/EasyAds?style=flat-square&color=blue" alt="last update" />
   </a>
-  <a href="https://github.com/045200/GOODBYEADS">
+  <a href="https://github.com/045200/EasyAds">
     <img src="https://img.shields.io/github/forks/045200/EasyAds?style=flat-square&color=brightgreen" alt="forks" />
   </a>
-  <a href="https://github.com/045200/GOODBYEADS">
+  <a href="https://github.com/045200/EasyAds">
     <img src="https://img.shields.io/github/stars/045200/EasyAds?style=flat-square&color=yellow" alt="stars" />
   </a>
-  <a href="https://github.com/045200/GOODBYEADS/issues/">
+  <a href="https://github.com/045200/EasyAds/issues/">
     <img src="https://img.shields.io/github/issues/045200/EasyAds?style=flat-square&color=red" alt="open issues" />
   </a>
-  <a href="https://github.com/045200/GOODBYEADS">
+  <a href="https://github.com/045200/EasyAds">
     <img src="https://img.shields.io/github/license/045200/EasyAds?style=flat-square&color=9cf" alt="license" />
   </a>
 </p>
