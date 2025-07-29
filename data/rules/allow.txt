@@ -2,9 +2,9 @@
 ! Title: GOODBYEADS
 ! Homepage: https://github.com/045200/GOODBYEADS
 ! Expires: 12 Hours
-! Version: 2025-07-29 20:00:38（北京时间）
+! Version: 2025-07-29 20:29:50（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 8958
+! Total count: 8960
 @@$cookie=__gads,domain=godstoryinfo.com|laweducationinfo.com|rsgames.xyz|vichitrainfo.com
 @@&http_referer=$domain=chaopx.com
 @@*.flyme.cn
@@ -2399,6 +2399,7 @@
 @@||configuration.apple.com^$important
 @@||connatix.com/min/connatix.renderer.infeed.min.js$domain=accuweather.com|collider.com|gamepress.gg|salon.com
 @@||connect-drcn.hispace.hicloud.com^
+@@||connect.facebook.net/*/fbevents.js$domain=smartstore.naver.com
 @@||connect.facebook.net^*/fbevents.js$domain=elinoi.com
 @@||connect.intl.rom.miui.com^
 @@||connect.rom.miui.com/generate_204^
@@ -3920,6 +3921,7 @@
 @@||googletagmanager.com/gtm.js$domain=jalan.net
 @@||googletagmanager.com/gtm.js$domain=jbc.be
 @@||googletagmanager.com/gtm.js$domain=jn.pt
+@@||googletagmanager.com/gtm.js$domain=jornaldocomercio.com
 @@||googletagmanager.com/gtm.js$domain=journaldemontreal.com
 @@||googletagmanager.com/gtm.js$domain=journaldequebec.com
 @@||googletagmanager.com/gtm.js$domain=journaldesfemmes.fr

@@ -1582,6 +1582,7 @@
 3q1lsj.cn
 3q3l.cn
 3rcld5y1dm.com
+3rre9r4t2.com
 3rsppty.cn
 3ryin2uj0x.com
 3sas.icu
@@ -6685,6 +6686,7 @@ aai-id-sentry.advai.net
 aai07280mu.com
 aai07281mu.com
 aai07290mu.com
+aai07291mu.com
 aaid.umeng.com
 aaid.uyunad.com
 aainfo.anz.co.nz
@@ -45648,6 +45650,7 @@ finansansc.pro
 finch.koronasporing.no
 finch.market.xyz
 find.api.micloud.xiaomi.net.iberostar.com
+finder.weixin.qq.com
 findjliquo.pro
 findthetruth.allergyai.com
 findyourdailyjoy.com
@@ -77150,6 +77153,7 @@ mp.imgur.com
 mp.pitchero.com
 mp.teads.tv
 mp.theepochtimes.com
+mp.weixin.qq.com/api/recommend
 mp.weixin.qq.com/mp/getappmsgad
 mp83fkx.cn
 mpakal.openapp.link
@@ -89371,6 +89375,7 @@ recoldiman.pro
 recomapost.pro
 recommend-drcn.hms.dbankcloud.cn
 recommend.union.39.net
+recommend.weread.qq.com
 recommended-now-detected-advanced.top
 recommended-secured-security-advanced.autos
 recommendedsecuredsecurityadvanced.autos
@@ -100323,6 +100328,7 @@ slavicache.pro
 slaviriapp.pro
 slb-p2p.vcloud.ks-live.com
 slbunz.casamundo.fr
+slc.commerce.naver.com
 slckg-2p3vy.ads.tremorhub.com
 slckg-4znyf.ads.tremorhub.com
 slckg-kqe2e.ads.tremorhub.com
@@ -115557,6 +115563,7 @@ szdaqi88.com
 szdki.shefit.com
 szdm.adspirit.de
 szebf270.com
+szextshort.weixin.qq.com
 szfhl99.com
 szgcnd.capfun.es
 szhgmd.com
@@ -116077,6 +116084,7 @@ t.okstate.com
 t.olemisssports.com
 t.onlinesavingshacks.com
 t.ophthalmica.gr
+t.optiwizehealth.com
 t.oralia.fr
 t.orion.fi
 t.orionkeraily.fi
@@ -125714,7 +125722,6 @@ tzipd.rockemsocks.com
 tzkaiywqphry-qjfsw-1327099954.ap-northeast-1.elb.amazonaws.com
 tzlit.cn
 tzlsm.reservebar.com
-tzm.px-cloud.net
 tzovkp.aboutyou.at
 tzovwj.treningspartner.no
 tzpiz.racecraftaus.com
@@ -131139,6 +131146,7 @@ weishi.baidu.com
 weiter.echte-gewinnspiele.com
 weitietl.com
 weixin.adx1.com
+weixin.qq.com/cgi-bin/recommend
 weixin.qq.hellocdn.top
 weixin.qq.huigun.top
 weixin.renrenying.com
@@ -131708,6 +131716,7 @@ wks.ero-advertising.com
 wkudly.realtruck.com
 wkuuuj.byther.kr
 wkympu.agnesb.co.jp
+wkzvf2658.com
 wkzw.me
 wl-analytics.tsp.li
 wl-pixel.index.digital
