@@ -103,9 +103,7 @@ jobs:
           echo "update_time=${UPDATE_TIME}" >> $GITHUB_OUTPUT
           echo "pretty_time=${PRETTY_TIME}" >> $GITHUB_OUTPUT
           echo "tag_version=${TAG_VERSION}" >> $GITHUB_OUTPUT
-          echo "stats<<EOF
-${STATS_BLOCK}
-EOF" >> $GITHUB_OUTPUT
+          echo "stats<<EOF ${STATS_BLOCK} EOF" >> $GITHUB_OUTPUT
 
       # Step 13: Verify extraction
       - name: Verify stats extraction
