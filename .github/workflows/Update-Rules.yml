@@ -20,7 +20,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      # 步骤2: 检查文件变更（关键调试点）
+      # 步骤2: 检查文件变更
       - name: Check for file changes
         id: changes
         uses: tj-actions/changed-files@v42
@@ -30,14 +30,13 @@ jobs:
             data/source/**
             data/mod/**
 
-      # 步骤3: 调试输出变更状态
+      # 步骤3: 调试输出
       - name: Debug Changes
         run: |
-          echo "是否检测到变更: ${{ steps.changes.outputs.any_changed }}"
-          echo "变更文件列表: ${{ steps.changes.outputs.all_changed_files }}"
-          echo "触发事件: ${{ github.event_name }}"
+          echo "变更状态: ${{ steps.changes.outputs.any_changed }}"
+          echo "变更文件: ${{ steps.changes.outputs.all_changed_files }}"
 
-      # 步骤4-11: 规则处理流程（仅在变更/手动/定时时运行）
+      # 步骤4-11: 规则处理流程
       - name: Download Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         continue-on-error: true
@@ -73,7 +72,7 @@ jobs:
           python ./data/python/title.py
           python ./data/python/clean-readme.py
 
-      # 步骤12: Git配置和提交
+      # 步骤12: Git操作
       - name: Configure Git
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
@@ -84,7 +83,7 @@ jobs:
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
           git add --all
-          git commit -m "Auto-update at $(date +'%Y-%m-%d %H:%M:%S UTC%z')" || echo "No changes to commit"
+          git commit -m "Auto-update at $(TZ=Asia/Shanghai date +'%Y-%m-%d %H:%M:%S')（北京时间）" || echo "No changes to commit"
 
       - name: Push Changes
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
@@ -92,9 +91,8 @@ jobs:
           git pull --rebase
           git push origin HEAD:master
 
-      # 步骤13: 创建Release（优化条件）
+      # 步骤13: 创建Release（北京时间）
       - name: Create Release
-        id: create-release
         if: |
           (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) ||
           (steps.changes.outputs.any_changed == 'true') ||
@@ -102,33 +100,16 @@ jobs:
           (github.event_name == 'schedule')
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: "v$(date +%Y%m%d.%H%M%S)"
-          release_name: "Release $(date +'%Y-%m-%d %H:%M:%S')"
+          tag_name: "v$(TZ=Asia/Shanghai date +'%Y%m%d')"
+          name: "Release $(TZ=Asia/Shanghai date +'%Y-%m-%d %H:%M:%S 北京时间')"
           body: |
-            📅 自动生成 Release
-            -------------------
-            ▶ 触发方式: ${{ github.event_name }}
-            ▶ 变更状态: ${{ steps.changes.outputs.any_changed }}
-            ▶ 提交哈希: [${{ github.sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})
+            🕒 生成时间: $(TZ=Asia/Shanghai date +'%Y-%m-%d %H:%M:%S %Z')
+            🔍 触发方式: ${{ github.event_name }}
+            📝 变更状态: ${{ steps.changes.outputs.any_changed }}
           draft: false
           prerelease: false
 
-      # 步骤14: 通知（始终执行，但区分场景）
-      - name: Notify Telegram
-        if: always()
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.TELEGRAM_CHAT_ID }}
-          token: ${{ secrets.TELEGRAM_TOKEN }}
-          message: |
-            🚀 [${{ github.repository }}] 工作流执行结果
-            ━━━━━━━━━━━━━━━━━
-            ▫ 事件类型: ${{ github.event_name }}
-            ▫ 变更状态: ${{ steps.changes.outputs.any_changed }}
-            ▫ Release 创建: ${{ steps.create-release.outputs.url || '未创建' }}
-            ▫ 查看详情: [${{ github.workflow }} Run #${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-
-      # 步骤15: 工作流清理（保留最近3天记录）
+      # 步骤14: 清理历史运行（保留最近3天）
       - name: Cleanup Workflows
         uses: Mattraks/delete-workflow-runs@main
         with:
