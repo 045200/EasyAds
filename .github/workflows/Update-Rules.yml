@@ -118,24 +118,23 @@ EOF" >> $GITHUB_OUTPUT
           echo "tag_version=$TAG_VERSION" >> $GITHUB_OUTPUT
 
       # 步骤15：创建发布
-      - name: 创建发布
-        if: steps.extract-info.outputs.stats != ''
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ steps.extract-info.outputs.tag_version }}
-          name: "规则更新 ${{ steps.extract-info.outputs.pretty_time }}"
-          body: |
-            📅 **更新时间**: ${{ steps.extract-info.outputs.pretty_time }}
+- name: 创建发布
+  if: steps.extract-info.outputs.stats != ''
+  uses: softprops/action-gh-release@v1
+  with:
+    tag_name: ${{ steps.extract-info.outputs.tag_version }}
+    name: "规则更新 ${{ steps.extract-info.outputs.pretty_time }}"
+    body: |
+      📅 **更新时间**: ${{ steps.extract-info.outputs.pretty_time }}
 
-            📊 **规则统计**:
-            ───────────────────────
-            ${{ steps.extract-info.outputs.stats }}
-            ───────────────────────
+      📊 **规则统计**:
+      ───────────────────────
+      ${{ steps.extract-info.outputs.stats }}
+      ───────────────────────
 
-            🔄 **更新状态**: ${{ steps.changes.outputs.any_changed == 'true' && '规则已更新' || '规则无变化' }}
-          draft: false
-          prerelease: false
-
+      🔄 **更新状态**: ${{ steps.changes.outputs.any_changed == 'true' && '规则已更新' || '规则无变化' }}
+    draft: false
+    prerelease: false
       # 步骤16：清理历史运行
       - name: 清理工作流运行记录
         uses: Mattraks/delete-workflow-runs@main
