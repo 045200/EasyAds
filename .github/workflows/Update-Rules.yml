@@ -86,14 +86,14 @@ jobs:
 
       - name: Create Release
         uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-           tag_name: $(jq -r .tag_name release_template.json)
-           release_name: $(jq -r .name release_template.json)
-           body: $(jq -r .body release_template.json)
-           draft: $(jq -r .draft release_template.json)
-           prerelease: $(jq -r .prerelease release_template.json)
-           env:
-             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: $(jq -r .tag_name release_template.json)
+          release_name: $(jq -r .name release_template.json)
+          body: $(jq -r .body release_template.json)
+          draft: $(jq -r .draft release_template.json)
+          prerelease: $(jq -r .prerelease release_template.json)
       
       - name: Sync and Push Changes
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
