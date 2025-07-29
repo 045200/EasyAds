@@ -98,16 +98,24 @@ jobs:
       - name: 提取发布信息
         id: extract-info
         run: |
-          # 提取更新时间
-          UPDATE_TIME=$(grep -m1 "更新时间:" README.md | sed 's/更新时间: //')
-          # 提取规则统计（3行）
-          STATS=$(awk '/更新时间:/{getline; printf "%s\\n%s\\n%s", $0, getline, getline}' README.md)
-          # 转换为tag格式（v20250730）
-          TAG_VERSION=$(echo "$UPDATE_TIME" | awk '{gsub(/[-: ]/, "", $0); print "v"substr($0,1,8)}')
-    
-          echo "::set-output name=update_time::$UPDATE_TIME"
-          echo "::set-output name=stats::$STATS"
-          echo "::set-output name=tag_version::$TAG_VERSION"
+          # 提取并格式化北京时间
+          UPDATE_TIME=$(TZ=Asia/Shanghai date '+%Y-%m-%d %H:%M:%S')
+          
+          # 精确提取三行规则统计（带千位分隔符格式）
+          STATS=$(grep -A 2 "📈 拦截规则数量:" README.md | sed -e 's/\([0-9]\+\)/printf "%'"'"'d" \1/ge' -e 's/\\/\\\\/g')
+          
+          # 生成标准化的tag版本号
+          TAG_VERSION=$(date -d "$UPDATE_TIME" +'v%Y%m%d')
+          
+          # 生成美观的中文时间格式
+          PRETTY_TIME=$(date -d "$UPDATE_TIME" +'%Y年%m月%d日 %H:%M:%S')
+          
+          echo "update_time=$UPDATE_TIME" >> $GITHUB_OUTPUT
+          echo "pretty_time=$PRETTY_TIME" >> $GITHUB_OUTPUT
+          echo "stats<<EOF
+$STATS
+EOF" >> $GITHUB_OUTPUT
+          echo "tag_version=$TAG_VERSION" >> $GITHUB_OUTPUT
 
       # 步骤15：创建发布
       - name: 创建发布
@@ -115,18 +123,20 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.extract-info.outputs.tag_version }}
-          name: "发布 ${{ steps.extract-info.outputs.update_time }}"
+          name: "规则更新 ${{ steps.extract-info.outputs.pretty_time }}"
           body: |
-            🔍 触发方式: ${{ github.event_name }}
-            📝 变更状态: ${{ steps.changes.outputs.any_changed }}
+            📅 **更新时间**: ${{ steps.extract-info.outputs.pretty_time }}
 
-            ### 规则统计
+            📊 **规则统计**:
+            ───────────────────────
             ${{ steps.extract-info.outputs.stats }}
+            ───────────────────────
+
+            🔄 **更新状态**: ${{ steps.changes.outputs.any_changed == 'true' && '规则已更新' || '规则无变化' }}
           draft: false
           prerelease: false
-          generate_release_notes: false
 
-      # 步骤16：清理历史运行（保留最近3天）
+      # 步骤16：清理历史运行
       - name: 清理工作流运行记录
         uses: Mattraks/delete-workflow-runs@main
         with:
