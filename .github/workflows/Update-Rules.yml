@@ -23,6 +23,16 @@ jobs:
         with:
           python-version: '3.10'
 
+      - name: Create necessary directories
+        run: |
+          mkdir -p ./data/tmp
+          mkdir -p ./data/rules
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytz
+
       - name: Check for file changes
         id: changes
         uses: tj-actions/changed-files@v42
@@ -41,7 +51,9 @@ jobs:
       - name: Merge Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
-          python ./data/python/merge.py
+          cd ./data/python
+          python merge.py
+          cd ../..
 
       - name: Generate dns Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
