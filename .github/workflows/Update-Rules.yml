@@ -8,15 +8,21 @@ on:
       - 'data/python/**'
       - 'data/source/**'
       - 'data/mod/**'
-    
+
 jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
       - name: Check for file changes
         id: changes
         uses: tj-actions/changed-files@v42
@@ -25,18 +31,18 @@ jobs:
             data/python/**
             data/source/**
             data/mod/**
-            
+
       - name: Download Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         continue-on-error: true
         run: |
           python ./data/python/dl.py
-          
+
       - name: Merge Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
           python ./data/python/merge.py
-          
+
       - name: Generate dns Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
@@ -46,7 +52,7 @@ jobs:
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
           python ./data/python/qx.py
-          
+
       - name: Generate mihomo Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
@@ -82,12 +88,13 @@ jobs:
           git commit -m "Updated at $(TZ=UTC-8 date +'%Y-%m-%d %H:%M:%S')（北京时间）" || echo "No changes to commit"
 
       - name: Generate Release Template
-        run: python ./data/python/release.py
-
-      - name: Show Release Template
-        run: cat release_template.json
+        id: generate-release
+        run: |
+          python ./data/python/release.py
+          cat release_template.json
 
       - name: Create Release
+        id: create-release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -95,10 +102,10 @@ jobs:
           tag_name: $(jq -r .tag_name release_template.json)
           release_name: $(jq -r .name release_template.json)
           body: $(jq -r .body release_template.json)
-          draft: $(jq -r .draft release_template.json)
-          prerelease: $(jq -r .prerelease release_template.json)
+          draft: false
+          prerelease: false
 
-      - name: Sync and Push Changes
+      - name: Push Changes
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
           for i in 1 2 3; do
@@ -106,7 +113,7 @@ jobs:
             git push origin master && break || sleep 5
           done
 
-      - name: Delete workflow runs 
+      - name: Cleanup workflow runs
         if: always()
         uses: Mattraks/delete-workflow-runs@main
         with:
