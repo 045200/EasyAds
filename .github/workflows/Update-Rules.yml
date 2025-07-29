@@ -12,21 +12,24 @@ on:
 jobs:
   update:
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Verify directory structure
+        run: |
+          echo "Current working directory: $(pwd)"
+          echo "Directory structure:"
+          ls -R
+          mkdir -p data/tmp  # 确保基础tmp目录存在
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-
-      - name: Create necessary directories
-        run: |
-          mkdir -p ./data/tmp
-          mkdir -p ./data/rules
 
       - name: Install dependencies
         run: |
@@ -46,45 +49,49 @@ jobs:
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         continue-on-error: true
         run: |
-          python ./data/python/dl.py
+          python data/python/dl.py
 
-      - name: Merge Rules
+      - name: Run merge script
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
-          cd ./data/python
-          python merge.py
+          echo "Current directory before merge: $(pwd)"
+          cd data/python && \
+          echo "Directory contents before merge:" && \
+          ls -l && \
+          python merge.py && \
           cd ../..
+          echo "Merge completed successfully"
 
-      - name: Generate dns Rules
+      - name: Generate DNS rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
-          python ./data/python/filter-dns.py
+          python data/python/filter-dns.py
 
-      - name: Generate qx Rules
+      - name: Generate Quantumult X rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
-          python ./data/python/qx.py
+          python data/python/qx.py
 
-      - name: Generate mihomo Rules
+      - name: Generate Mihomo rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
-          python ./data/python/mihomo.py
+          python data/python/mihomo.py
 
-      - name: Generate loon Rules
+      - name: Generate Loon rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
-          python ./data/python/loon.py
+          python data/python/loon.py
 
-      - name: Generate Domain List
+      - name: Generate domain list
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
-          python ./data/python/domain_list.py
+          python data/python/domain_list.py
 
-      - name: Update Title & ReadMe
+      - name: Update documentation
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
-          python ./data/python/title.py
-          python ./data/python/clean-readme.py
+          python data/python/title.py
+          python data/python/clean-readme.py
 
       - name: Configure Git
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
@@ -93,20 +100,18 @@ jobs:
           git config --local user.name "GitHub Action"
           git branch -m master
 
-      - name: Commit Changes
+      - name: Commit changes
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
           git add --all
-          git commit -m "Updated at $(TZ=UTC-8 date +'%Y-%m-%d %H:%M:%S')（北京时间）" || echo "No changes to commit"
+          git commit -m "Rules updated at $(TZ=UTC-8 date +'%Y-%m-%d %H:%M:%S') (Beijing Time)" || echo "No changes to commit"
 
-      - name: Generate Release Template
-        id: generate-release
+      - name: Generate release template
         run: |
-          python ./data/python/release.py
+          python data/python/release.py
           cat release_template.json
 
-      - name: Create Release
-        id: create-release
+      - name: Create GitHub release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -117,12 +122,13 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Push Changes
+      - name: Push changes
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
-          for i in 1 2 3; do
-            git pull --rebase origin master
-            git push origin master && break || sleep 5
+          for i in {1..3}; do
+            git pull --rebase origin master && \
+            git push origin master && break || \
+            sleep 5
           done
 
       - name: Cleanup workflow runs
