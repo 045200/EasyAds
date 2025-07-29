@@ -1,5 +1,5 @@
-name: Rules Update and Notification
-on:
+name: Update Rules
+on: 
   workflow_dispatch:
   schedule:
     - cron: '0 */12 * * *'
@@ -8,31 +8,16 @@ on:
       - 'data/python/**'
       - 'data/source/**'
       - 'data/mod/**'
-  release:
-    types: [published]
-
+    
 jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      # Step 1: Checkout repository
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-          persist-credentials: false
-
-      # Step 2: Setup UTF-8 environment
-      - name: Configure locale
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y locales
-          sudo locale-gen en_US.UTF-8
-          echo "LC_ALL=en_US.UTF-8" >> $GITHUB_ENV
-          echo "LANG=en_US.UTF-8" >> $GITHUB_ENV
-
-      # Step 3: Check file changes
-      - name: Check changed files
+          fetch-depth: 0  # 获取完整提交历史
+          
+      - name: Check for file changes
         id: changes
         uses: tj-actions/changed-files@v42
         with:
@@ -40,120 +25,74 @@ jobs:
             data/python/**
             data/source/**
             data/mod/**
-
-      # Step 4: Download rules
-      - name: Download rules
+            
+      - name: Download Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         continue-on-error: true
-        run: python ./data/python/dl.py
-
-      # Step 5: Merge rules
-      - name: Merge rules
+        run: |
+          python ./data/python/dl.py
+          
+      - name: Merge Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: python ./data/python/merge.py
-
-      # Step 6: Generate DNS rules
-      - name: Generate DNS rules
+        run: |
+          python ./data/python/merge.py
+          
+      - name: Generate dns Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: python ./data/python/filter-dns.py
+        run: |
+          python ./data/python/filter-dns.py
 
-      # Step 7: Generate Quantumult X rules
-      - name: Generate Quantumult X rules
+      - name: Generate qx Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: python ./data/python/qx.py
-
-      # Step 8: Generate Mihomo rules
-      - name: Generate Mihomo rules
+        run: |
+          python ./data/python/qx.py
+          
+      - name: Generate mihomo Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: python ./data/python/mihomo.py
+        run: |
+          python ./data/python/mihomo.py
 
-      # Step 9: Generate Loon rules
-      - name: Generate Loon rules
+      - name: Generate loon Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: python ./data/python/loon.py
+        run: |
+          python ./data/python/loon.py
 
-      # Step 10: Generate domain list
-      - name: Generate domain list
+      - name: Generate Domain List
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: python ./data/python/domain_list.py
+        run: |
+          python ./data/python/domain_list.py
 
-      # Step 11: Update title and README
-      - name: Update title and README
+      - name: Update Title&ReadMe
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
           python ./data/python/title.py
           python ./data/python/clean-readme.py
 
-      # Step 12: Extract release info (Optimized for your README format)
-      - name: Extract release information
-        id: extract-info
-        env:
-          LC_ALL: en_US.UTF-8
-          LANG: en_US.UTF-8
-        run: |
-          # Time information
-          UPDATE_TIME=$(TZ=Asia/Shanghai date '+%Y-%m-%d %H:%M:%S')
-          TAG_VERSION=$(date -d "$UPDATE_TIME" +'v%Y%m%d')
-          PRETTY_TIME=$(date -d "$UPDATE_TIME" +'%Y年%m月%d日 %H:%M:%S')
-
-          # Extract statistics from README (without text keyword)
-          STATS_BLOCK=$(grep -A 5 "## 📊 项目统计" README.md | sed -n '/```/,/```/p' | sed '1d;$d' | sed '/^$/d')
-          
-          # Output to GITHUB_OUTPUT
-          echo "update_time=${UPDATE_TIME}" >> $GITHUB_OUTPUT
-          echo "pretty_time=${PRETTY_TIME}" >> $GITHUB_OUTPUT
-          echo "tag_version=${TAG_VERSION}" >> $GITHUB_OUTPUT
-          echo "stats<<EOF ${STATS_BLOCK} EOF" >> $GITHUB_OUTPUT
-
-      # Step 13: Verify extraction
-      - name: Verify stats extraction
-        run: |
-          echo "=== Extracted Statistics ==="
-          echo "${{ steps.extract-info.outputs.stats }}"
-
-      # Step 14: Configure Git
       - name: Configure Git
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
-          git config --global user.email "action@github.com"
-          git config --global user.name "GitHub Action"
-          git config --global core.quotepath false
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git branch -m master
 
-      # Step 15: Commit changes
-      - name: Commit changes
+      - name: Commit Changes
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
           git add --all
-          git commit -m "Auto update at $(TZ=Asia/Shanghai date +'%Y-%m-%d %H:%M:%S') (Beijing Time)" || echo "No changes to commit"
+          git commit -m "Updated at $(TZ=UTC-8 date +'%Y-%m-%d %H:%M:%S')（北京时间）" || echo "No changes to commit"
 
-      # Step 16: Push changes
-      - name: Push changes
+      - name: Sync and Push Changes
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
-          git pull --rebase
-          git push origin HEAD:master
+          for i in 1 2 3; do
+            git pull --rebase origin master
+            git push origin master && break || sleep 5
+          done
 
-      # Step 17: Create release
-      - name: Create release
-        if: always() && steps.extract-info.outputs.stats
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ steps.extract-info.outputs.tag_version }}
-          name: "Rules Update ${{ steps.extract-info.outputs.pretty_time }}"
-          body: |
-            ## 📊 规则统计
-            ${{ steps.extract-info.outputs.stats }}
-
-            ## 🔄 更新状态
-            ${{ steps.changes.outputs.any_changed == 'true' && '检测到规则更新' || '规则无变化' }}
-          draft: false
-          prerelease: false
-
-      # Step 18: Cleanup workflow runs
-      - name: Cleanup workflow runs
+      - name: Delete workflow runs 
         uses: Mattraks/delete-workflow-runs@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository }}
-          retain_days: 3
-          keep_minimum_runs: 5
+          retain_days: 0
+          keep_minimum_runs: 0
