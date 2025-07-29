@@ -95,28 +95,28 @@ jobs:
           git pull --rebase
           git push origin HEAD:master
 
-      # Step 14: Extract release info
       - name: Extract release information
         id: extract-info
         run: |
-          # Extract and format Beijing time
-          UPDATE_TIME=$(TZ=Asia/Shanghai date '+%Y-%m-%d %H:%M:%S')
-          
-          # Precisely extract three lines of rule statistics (with thousand separators)
-          STATS=$(grep -A 2 "📈 拦截规则数量:" README.md | sed -e 's/\([0-9]\+\)/printf "%'"'"'d" \1/ge' -e 's/\\/\\\\/g')
-          
-          # Generate standardized tag version
-          TAG_VERSION=$(date -d "$UPDATE_TIME" +'v%Y%m%d')
-          
-          # Generate pretty Chinese time format
-          PRETTY_TIME=$(date -d "$UPDATE_TIME" +'%Y年%m月%d日 %H:%M:%S')
-          
-          echo "update_time=$UPDATE_TIME" >> $GITHUB_OUTPUT
-          echo "pretty_time=$PRETTY_TIME" >> $GITHUB_OUTPUT
-          echo "stats<<EOF
-$STATS
-EOF" >> $GITHUB_OUTPUT
-          echo "tag_version=$TAG_VERSION" >> $GITHUB_OUTPUT
+            # Extract and format Beijing time
+              UPDATE_TIME=$(TZ=Asia/Shanghai date '+%Y-%m-%d %H:%M:%S')
+    
+            # Extract rule statistics
+              STATS=$(grep -A 2 "📈 拦截规则数量:" README.md | sed -e 's/\([0-9]\+\)/printf "%'"'"'d" \1/ge')
+    
+            # Generate version info
+              TAG_VERSION=$(date -d "$UPDATE_TIME" +'v%Y%m%d')
+              PRETTY_TIME=$(date -d "$UPDATE_TIME" +'%Y年%m月%d日 %H:%M:%S')
+    
+            # 正确设置多行输出到GITHUB_OUTPUT
+              DELIMITER=$(openssl rand -hex 16)
+              echo "update_time=$UPDATE_TIME" >> $GITHUB_OUTPUT
+              echo "pretty_time=$PRETTY_TIME" >> $GITHUB_OUTPUT
+              echo "tag_version=$TAG_VERSION" >> $GITHUB_OUTPUT
+              echo "stats<<${DELIMITER}" >> $GITHUB_OUTPUT
+              echo "$STATS" >> $GITHUB_OUTPUT
+              echo "${DELIMITER}" >> $GITHUB_OUTPUT
+              echo "tag_version=$TAG_VERSION" >> $GITHUB_OUTPUT
 
       # Step 15: Create release
       - name: Create release
