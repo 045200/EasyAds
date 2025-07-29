@@ -4,8 +4,8 @@ from pathlib import Path
 from typing import Set
 
 HEADER_TEMPLATE = """[Adblock Plus 2.0]
-! Title: GOODBYEADS
-! Homepage: https://github.com/045200/GOODBYEADS
+! Title: EasyAds
+! Homepage: https://github.com/045200/EasyAds
 ! Expires: 12 Hours
 ! Version: {timestamp}（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
