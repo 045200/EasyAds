@@ -15,7 +15,7 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      # Step 1: Checkout code
+      # Step 1: Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -84,7 +84,7 @@ jobs:
           python ./data/python/title.py
           python ./data/python/clean-readme.py
 
-      # Step 12: Extract release info
+      # Step 12: Extract release info (Optimized for your README format)
       - name: Extract release information
         id: extract-info
         env:
@@ -96,22 +96,22 @@ jobs:
           TAG_VERSION=$(date -d "$UPDATE_TIME" +'v%Y%m%d')
           PRETTY_TIME=$(date -d "$UPDATE_TIME" +'%Y年%m月%d日 %H:%M:%S')
 
-          # Extract statistics (emoji-safe)
-          STATS=$(grep -a -A 2 "拦截规则数量:" README.md | sed -e 's/\([0-9]\+\)/printf "%'"'"'d" \1/ge' || echo "无法提取统计信息")
-
+          # Extract statistics from README (without text keyword)
+          STATS_BLOCK=$(grep -A 5 "## 📊 项目统计" README.md | sed -n '/```/,/```/p' | sed '1d;$d' | sed '/^$/d')
+          
           # Output to GITHUB_OUTPUT
           echo "update_time=${UPDATE_TIME}" >> $GITHUB_OUTPUT
           echo "pretty_time=${PRETTY_TIME}" >> $GITHUB_OUTPUT
           echo "tag_version=${TAG_VERSION}" >> $GITHUB_OUTPUT
-          echo "stats=${STATS}" >> $GITHUB_OUTPUT
+          echo "stats<<EOF
+${STATS_BLOCK}
+EOF" >> $GITHUB_OUTPUT
 
-      # Step 13: Debug output
-      - name: Debug extracted info
+      # Step 13: Verify extraction
+      - name: Verify stats extraction
         run: |
-          echo "Extracted stats:"
+          echo "=== Extracted Statistics ==="
           echo "${{ steps.extract-info.outputs.stats }}"
-          echo "Tag version: ${{ steps.extract-info.outputs.tag_version }}"
-          echo "Update time: ${{ steps.extract-info.outputs.pretty_time }}"
 
       # Step 14: Configure Git
       - name: Configure Git
@@ -119,6 +119,7 @@ jobs:
         run: |
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
+          git config --global core.quotepath false
 
       # Step 15: Commit changes
       - name: Commit changes
@@ -136,20 +137,17 @@ jobs:
 
       # Step 17: Create release
       - name: Create release
-        if: always() && steps.extract-info.outputs.stats && steps.extract-info.conclusion == 'success'
+        if: always() && steps.extract-info.outputs.stats
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.extract-info.outputs.tag_version }}
           name: "Rules Update ${{ steps.extract-info.outputs.pretty_time }}"
           body: |
-            📅 **Update Time**: ${{ steps.extract-info.outputs.pretty_time }}
-
-            📊 **Rules Statistics**:
-            ───────────────────────
+            ## 📊 规则统计
             ${{ steps.extract-info.outputs.stats }}
-            ───────────────────────
 
-            🔄 **Update Status**: ${{ steps.changes.outputs.any_changed == 'true' && 'Rules updated' || 'No changes detected' }}
+            ## 🔄 更新状态
+            ${{ steps.changes.outputs.any_changed == 'true' && '检测到规则更新' || '规则无变化' }}
           draft: false
           prerelease: false
 
@@ -159,5 +157,5 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository }}
-          retain_days: 0
-          keep_minimum_runs: 0
+          retain_days: 3
+          keep_minimum_runs: 5
