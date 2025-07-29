@@ -15,12 +15,12 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      # 步骤1: 检出代码（含完整提交历史）
+      # 步骤1: 检出代码
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # 步骤2: 检查文件变更
+      # 步骤2: 检查文件变更（关键调试点）
       - name: Check for file changes
         id: changes
         uses: tj-actions/changed-files@v42
@@ -30,125 +30,109 @@ jobs:
             data/source/**
             data/mod/**
 
-      # 步骤3: 下载规则（仅在变更/手动/定时时运行）
+      # 步骤3: 调试输出变更状态
+      - name: Debug Changes
+        run: |
+          echo "是否检测到变更: ${{ steps.changes.outputs.any_changed }}"
+          echo "变更文件列表: ${{ steps.changes.outputs.all_changed_files }}"
+          echo "触发事件: ${{ github.event_name }}"
+
+      # 步骤4-11: 规则处理流程（仅在变更/手动/定时时运行）
       - name: Download Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         continue-on-error: true
-        run: |
-          python ./data/python/dl.py
+        run: python ./data/python/dl.py
 
-      # 步骤4: 合并规则
       - name: Merge Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: |
-          python ./data/python/merge.py
+        run: python ./data/python/merge.py
 
-      # 步骤5: 生成DNS规则
       - name: Generate dns Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: |
-          python ./data/python/filter-dns.py
+        run: python ./data/python/filter-dns.py
 
-      # 步骤6: 生成Quantumult X规则
       - name: Generate qx Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: |
-          python ./data/python/qx.py
+        run: python ./data/python/qx.py
 
-      # 步骤7: 生成Mihomo规则
       - name: Generate mihomo Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: |
-          python ./data/python/mihomo.py
+        run: python ./data/python/mihomo.py
 
-      # 步骤8: 生成Loon规则
       - name: Generate loon Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: |
-          python ./data/python/loon.py
+        run: python ./data/python/loon.py
 
-      # 步骤9: 生成域名列表
       - name: Generate Domain List
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: |
-          python ./data/python/domain_list.py
+        run: python ./data/python/domain_list.py
 
-      # 步骤10: 更新标题和README
       - name: Update Title & ReadMe
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
           python ./data/python/title.py
           python ./data/python/clean-readme.py
 
-      # 步骤11: 配置Git
+      # 步骤12: Git配置和提交
       - name: Configure Git
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git branch -m master
 
-      # 步骤12: 提交变更
       - name: Commit Changes
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
           git add --all
-          git commit -m "Updated at $(TZ=UTC-8 date +'%Y-%m-%d %H:%M:%S')（北京时间）" || echo "No changes to commit"
+          git commit -m "Auto-update at $(date +'%Y-%m-%d %H:%M:%S UTC%z')" || echo "No changes to commit"
 
-      # 步骤13: 同步并推送变更
-      - name: Sync and Push Changes
+      - name: Push Changes
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
-          for i in 1 2 3; do
-            git pull --rebase origin master
-            git push origin master && break || sleep 5
-          done
+          git pull --rebase
+          git push origin HEAD:master
 
-      # 步骤14: 创建Release（标签推送/定时/手动触发时）
+      # 步骤13: 创建Release（优化条件）
       - name: Create Release
+        id: create-release
         if: |
           (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) ||
-          (github.event_name == 'schedule' && steps.changes.outputs.any_changed == 'true') ||
-          (github.event_name == 'workflow_dispatch' && steps.changes.outputs.any_changed == 'true')
+          (steps.changes.outputs.any_changed == 'true') ||
+          (github.event_name == 'workflow_dispatch') ||
+          (github.event_name == 'schedule')
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: "auto-release-$(date +%Y%m%d%H%M%S)"
-          release_name: "Auto Release $(date +'%Y-%m-%d %H:%M:%S')"
+          tag_name: "v$(date +%Y%m%d.%H%M%S)"
+          release_name: "Release $(date +'%Y-%m-%d %H:%M:%S')"
           body: |
-            🚀 自动生成的 Release
-            ====================
-            - 触发方式: ${{ github.event_name }}
-            - 变更文件: 
-            ${{ steps.changes.outputs.all_changed_files }}
-            - 提交哈希: ${{ github.sha }}
+            📅 自动生成 Release
+            -------------------
+            ▶ 触发方式: ${{ github.event_name }}
+            ▶ 变更状态: ${{ steps.changes.outputs.any_changed }}
+            ▶ 提交哈希: [${{ github.sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})
           draft: false
           prerelease: false
 
-      # 步骤15: 发送Telegram通知（变更/发布时）
+      # 步骤14: 通知（始终执行，但区分场景）
       - name: Notify Telegram
-        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'release'
+        if: always()
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
-            🚀 ${{ github.repository }} 更新通知
-            ====================
-            ${{ github.event_name == 'release' && '🎉 新版本发布!' || '🔄 规则已更新!' }}
-            
-            📌 仓库: ${{ github.repository }}
-            ${{ github.event_name == 'release' && format('🏷 版本: {0}', github.ref) || format('🔗 提交: {0}', github.sha) }}
-            
-            📝 ${{ github.event_name == 'release' && format('发布说明: {0}', github.event.release.body) || format('变更文件: {0}', steps.changes.outputs.all_changed_files) }}
-            
-            🔍 查看详情: 
-            ${{ github.event_name == 'release' && github.event.release.html_url || format('{0}/commit/{1}', github.server_url, github.sha) }}
+            🚀 [${{ github.repository }}] 工作流执行结果
+            ━━━━━━━━━━━━━━━━━
+            ▫ 事件类型: ${{ github.event_name }}
+            ▫ 变更状态: ${{ steps.changes.outputs.any_changed }}
+            ▫ Release 创建: ${{ steps.create-release.outputs.url || '未创建' }}
+            ▫ 查看详情: [${{ github.workflow }} Run #${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
-      # 步骤16: 清理历史工作流运行（可选）
-      - name: Cleanup workflow runs
+      # 步骤15: 工作流清理（保留最近3天记录）
+      - name: Cleanup Workflows
         uses: Mattraks/delete-workflow-runs@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository }}
-          retain_days: 3      # 保留最近3天的记录
-          keep_minimum_runs: 5 # 至少保留5次运行记录
+          retain_days: 3
+          keep_minimum_runs: 5
