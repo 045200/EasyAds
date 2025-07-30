@@ -14254,6 +14254,7 @@
 +.aeiysj.lowrance.com
 +.aeletheacd.com
 +.aem-collector.daumkakao.io
++.aem-kakao-collector.onkakao.net
 +.aem.dentsuchina.cn
 +.aem.dickssportinggoods.com
 +.aem.goinggoinggone.com
