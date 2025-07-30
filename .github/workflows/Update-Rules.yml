@@ -1,5 +1,5 @@
 name: Update Rules
-on:
+on: 
   workflow_dispatch:
   schedule:
     - cron: '0 */12 * * *'
@@ -8,138 +8,91 @@ on:
       - 'data/python/**'
       - 'data/source/**'
       - 'data/mod/**'
-
+    
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
     steps:
-      # ================= 初始化阶段 =================
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-          persist-credentials: false
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-          cache: 'pip'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pytz
-
-      # ================= 目录准备阶段 =================
-      - name: Prepare directories
-        run: |
-          mkdir -p ./data/{rules,tmp,python/tmp}
-          echo "目录结构创建完成:"
-          tree -d ./data || ls -R ./data
-
-      # ================= 文件变更检查 =================
-      - name: Check changed files
-        id: changed-files
+          fetch-depth: 0  # 获取完整提交历史
+          
+      - name: Check for file changes
+        id: changes
         uses: tj-actions/changed-files@v42
         with:
           files: |
             data/python/**
             data/source/**
             data/mod/**
-
-      # ================= 规则处理阶段 =================
-      - name: Download rules (条件执行)
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+            
+      - name: Download Rules
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         continue-on-error: true
-        run: python ./data/python/dl.py
-
-      - name: Merge rules (增强错误处理)
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
-          echo "当前工作目录: $(pwd)"
-          echo "准备执行 merge.py..."
-          cd ./data/python && \
-          python merge.py || \
-          { echo "merge.py 执行失败，继续流程"; exit 0; }
-          cd ../..
-
-      # ================= 规则生成阶段 =================
-      - name: Generate DNS rules
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: python ./data/python/filter-dns.py
-
-      - name: Generate QuantumultX rules
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: python ./data/python/qx.py
-
-      - name: Generate Clash rules
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: python ./data/python/mihomo.py
-
-      - name: Generate Loon rules
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: python ./data/python/loon.py
-
-      - name: Generate domain list
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: python ./data/python/domain_list.py
-
-      # ================= 发布准备阶段 =================
-      - name: Generate release template (终极容错版)
-        id: generate-release
+          python ./data/python/dl.py
+          
+      - name: Merge Rules
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
-          echo "=== 规则文件预览 ==="
-          for f in ./data/rules/*.txt; do
-            echo "[$f]"
-            head -n5 "$f" && echo "..."
+          python ./data/python/merge.py
+          
+      - name: Generate dns Rules
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        run: |
+          python ./data/python/filter-dns.py
+
+      - name: Generate qx Rules
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        run: |
+          python ./data/python/qx.py
+          
+      - name: Generate mihomo Rules
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        run: |
+          python ./data/python/mihomo.py
+
+      - name: Generate loon Rules
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        run: |
+          python ./data/python/loon.py
+
+      - name: Generate Domain List
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        run: |
+          python ./data/python/domain_list.py
+
+      - name: Update Title&ReadMe
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        run: |
+          python ./data/python/title.py
+          python ./data/python/clean-readme.py
+
+      - name: Configure Git
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git branch -m master
+
+      - name: Commit Changes
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        run: |
+          git add --all
+          git commit -m "Updated at $(TZ=UTC-8 date +'%Y-%m-%d %H:%M:%S')（北京时间）" || echo "No changes to commit"
+      
+      - name: Sync and Push Changes
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        run: |
+          for i in 1 2 3; do
+            git pull --rebase origin master
+            git push origin master && break || sleep 5
           done
 
-          echo "=== 执行 release.py ==="
-          if python ./data/python/release.py; then
-            echo "✅ 模板生成成功"
-            echo "生成内容:"
-            cat release_template.json
-          else
-            echo "⚠️ 生成失败，创建应急模板"
-            echo '{
-              "tag_name": "release-fallback-$(date +%Y%m%d)",
-              "name": "规则更新失败",
-              "body": "自动生成失败，请检查工作流日志",
-              "draft": false,
-              "prerelease": false
-            }' > release_template.json
-          fi
-
-      # ================= 发布阶段 =================
-      - name: Create GitHub release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: $(jq -r '.tag_name' release_template.json)
-          release_name: $(jq -r '.name' release_template.json)
-          body: $(jq -r '.body' release_template.json)
-          draft: false
-          prerelease: false
-
-      # ================= 收尾阶段 =================
-      - name: Commit and push changes
-        if: steps.changed-files.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: |
-          git config --global user.email "action@github.com"
-          git config --global user.name "GitHub Action"
-          git add -A
-          git commit -m "自动更新: $(date +'%Y-%m-%d %H:%M:%S')" || true
-          git pull --rebase
-          git push origin master
-
-      - name: Cleanup old runs
-        if: always()
+      - name: Delete workflow runs 
         uses: Mattraks/delete-workflow-runs@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository }}
           retain_days: 0
-          keep_minimum_runs:  
+          keep_minimum_runs: 0
