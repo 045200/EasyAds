@@ -1413,6 +1413,7 @@
 34.215.155.61
 3400.org
 34e278e.ed4d3uu.nl
+34mede82hj.com
 35.194.26.233
 35.220.176.132
 35.220.226.25
@@ -1878,6 +1879,7 @@
 5e00.pandasuite.io
 5ew8d-b3mmu.ads.tremorhub.com
 5fm.985fm.ca
+5fyme6x6uy.com
 5gg17gm.com
 5ggj5cp.com
 5gtest.bj2cu.u3.ucweb.com
@@ -2292,6 +2294,7 @@
 8gp4wjq3.com
 8gra3.icu
 8gtest.bj2cu.u3.ucweb.com
+8inhjmd.usefathom.com
 8jkx.com
 8le8le.com
 8live.mobi
@@ -17234,6 +17237,7 @@ analytics.washingtoncountybank.com
 analytics.wavebox.io
 analytics.wayland.app
 analytics.webads.eu
+analytics.webanalytics.op.europa.eu
 analytics.webflow.com
 analytics.webgains.io
 analytics.webpushr.com
@@ -22544,6 +22548,7 @@ b73c.pandasuite.io
 b79e4u3hz7.com
 b7sw62.pingshu8.xyz
 b7tp47v2nb3x-a.akamaihd.net
+b82q168jgj.com
 b8888y831.vip
 b8b4ix7bj.com
 b8ss09ab.slt.sched.tdnsv8.com
@@ -28469,6 +28474,7 @@ cimmzr.koleimports.com
 cinchvergh.pro
 cincinnati-content.cresa.com
 cinctepizo.pro
+cinemaup.top
 cinempresb.pro
 cinemsiren.pro
 cinesimbri.pro
@@ -43623,6 +43629,7 @@ eu.sharpmarketing.eu
 eu.spgo.io
 eu.thtk.temu.com
 eu.track.digitaladsystems.com
+eu.usefathom.com
 eu.xapads.com
 eu.yads.tech
 eu2.madsone.com
@@ -44553,6 +44560,7 @@ f793.inc.com
 f7ds.liberation.fr
 f7j.icu
 f7tkpjw6v.com
+f7ugx6b863.com
 f80.programa-de-ayuda.com
 f866.troyrecord.com
 f8ejqxp.cn
@@ -48526,6 +48534,8 @@ gio07271rp.com
 gio07280rp.com
 gio07281rp.com
 gio07290rp.com
+gio07300rp.com
+gio07301rp.com
 giocointer.pro
 giocomalaf.pro
 gioiascarn.pro
@@ -79487,6 +79497,8 @@ nucoraa6.pro
 nudpqt.com
 nufa.nufarannaghor.com.bd
 nufirya9.pro
+nug07300lu.com
+nug07301lu.com
 nuggamonop.pro
 nugjb.bescher.com.au
 nuguqou3.pro
@@ -111439,6 +111451,7 @@ starlitstroll.pro
 starlitvoyage.pro
 starman.fathomdns.com
 starman.floorcleanse.co.uk
+starman.usefathom.com
 starmount.alwayscarebenefits.com
 starnadden.pro
 starnfumet.pro
@@ -120714,6 +120727,7 @@ track.bekhtir.com
 track.bemestardavida.com
 track.bemestarharmonia.com
 track.bemmefiz.com.br
+track.bentonow.com
 track.berliner-kurier.de
 track.bestbuy.ca
 track.bestpornsites.tv
@@ -125477,6 +125491,7 @@ udrzitelny-nakup.tierraverde.cz
 udsgty.alkosto.com
 udswai.xyz
 udszpipk.bospanien.dk
+udwlki.icu
 udxi.cn
 udxsuy.helline.fr
 udyi.cn
@@ -126736,7 +126751,6 @@ use2direct.adsrvr.org
 useactiveleads.org
 usebc.vertellis.nl
 usedirect.adsrvr.org
-usefathom.com
 usefulfeednews.pro
 usejj.makepolo.cn
 usejj.wangkl.com
@@ -127283,6 +127297,7 @@ utsssl.auction.co.kr
 utt.impactcdn.com
 uttaanthr.pro
 uttlinediv.top
+utve.cn
 utxokv.emp.co.uk
 uty.micocc.com
 utywsi.cn
