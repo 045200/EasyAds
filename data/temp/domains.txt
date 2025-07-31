@@ -22121,6 +22121,7 @@
 +.awowwo.forever21.com
 +.awppcivuse1.advanced-web-analytics.com
 +.awrgkd.1000farmacie.it
++.aws-analytics.nmg.com.hk
 +.aws-api.sail-personalize.com
 +.aws-br-cdn.kwai.net.iberostar.com
 +.aws-br-pic.kwai.net.iberostar.com
@@ -42920,6 +42921,7 @@
 +.ensightenone.danskespil.dk
 +.ensina.maiconmelo.com.br
 +.enssd.silverpawdog.com
++.enstoolpart.com
 +.ensurvibri.pro
 +.ent.djlacgc.top
 +.ent.lpvbupak.shop
@@ -82530,6 +82532,7 @@
 +.parasviste.pro
 +.paratargin.pro
 +.parawabita.pro
++.parazoamirks.com
 +.parcebeekno.pro
 +.parcediosm.pro
 +.parcel-check.com
@@ -89222,6 +89225,7 @@
 +.registry.api.cnn.io
 +.registrycleaner.onlinedownloads.org
 +.regmdr.pref.ims.dialog-direct.com
++.regodipylon.com
 +.regolaggiu.pro
 +.regolderma.pro
 +.regolrechi.pro
