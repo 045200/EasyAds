@@ -2,9 +2,9 @@
 ! Title: EasyAds
 ! Homepage: https://github.com/045200/EasyAds
 ! Expires: 12 Hours
-! Version: 2025-08-01 09:26:32（北京时间）
+! Version: 2025-08-01 20:33:08（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 8828
+! Total count: 8826
 @@$cookie=__gads,domain=godstoryinfo.com|laweducationinfo.com|rsgames.xyz|vichitrainfo.com
 @@&http_referer=$domain=chaopx.com
 @@*.flyme.cn
@@ -3138,10 +3138,8 @@
 @@||feedback.userreport.com/*/*.csb.app$domain=csb.app
 @@||feentry.zhuanzhuan.com^
 @@||feilusw.com/search.html$genericblock,generichide
-@@||feliz-web.data.tm-awx.com/smile-web.min.js$domain=dailystar.co.uk
-@@||feliz-web.data.tm-awx.com/smile-web.min.js$domain=liverpoolecho.co.uk|mirror.co.uk|birminghammail.co.uk
-@@||feliz.data.tm-awx.com/smile-web-v2/rootEvent$domain=dailystar.co.uk
-@@||feliz.data.tm-awx.com/smile-web-v2/rootEvent$domain=liverpoolecho.co.uk|mirror.co.uk|birminghammail.co.uk
+@@||feliz-web.data.tm-awx.com/smile-web.min.js$domain=liverpoolecho.co.uk|mirror.co.uk|birminghammail.co.uk|dailystar.co.uk|manchestereveningnews.co.uk
+@@||feliz.data.tm-awx.com/smile-web-v2/rootEvent$domain=liverpoolecho.co.uk|mirror.co.uk|birminghammail.co.uk|dailystar.co.uk|manchestereveningnews.co.uk
 @@||feliz.data.tm-awx.com/smile-web-v2/rootEvent$domain=mirror.co.uk
 @@||fengduxiaoshuo.com^
 @@||fengkongcloud.com/fpv2.js
