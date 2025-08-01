@@ -2,11 +2,11 @@
 ! Title: EasyAds
 ! Homepage: https://github.com/045200/EasyAds
 ! Expires: 12 Hours
-! Version: 2025-07-31 20:32:26（北京时间）
+! Version: 2025-08-01 09:26:32（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 162605
+! Total count: 162616
 # DNS rules extracted from adblock.txt
-# Generated on 2025-07-31 12:32:24.706399
+# Generated on 2025-08-01 01:26:30.123917
 
 ||*-*-*-lrycfv.vip^
 ||*-*.ap-east-1.elb.amazonaws.com^
@@ -23419,6 +23419,7 @@
 ||bedlasfruc.pro^
 ||bedmz.mercimamanboutique.com^
 ||bedokiy8.pro^
+||bedralhector.com^
 ||bedrapiona.com^
 ||bedrop.marketing-tech.io^
 ||bedzbu.xyz^
@@ -29187,6 +29188,7 @@
 ||clog.lghv.net^
 ||clog.miguvideo.com^
 ||clog.mirrativ.com^
+||clog.tanshudata.com^
 ||clog.weverse.io^
 ||clohzp.hifi.lu^
 ||clonaalliv.pro^
@@ -32810,6 +32812,7 @@
 ||d1miwkthq39xj8.cloudfront.net^
 ||d1n00d49gkbray.cloudfront.net^
 ||d1pc1a0g34.com^
+||d1pk6uu6wqrpce.cloudfront.net^
 ||d1pmhihatyvp1k.cloudfront.net^
 ||d1q4x2p7t0gq14.cloudfront.net^
 ||d1qnmu4nrib73p.cloudfront.net^
@@ -39396,6 +39399,7 @@
 ||dklvhfrnvr.com^
 ||dklwddl.cn^
 ||dkmvyl.kidsahoi.ch^
+||dkngfkgbc.com^
 ||dkno.netpartnering.com^
 ||dkno.on-channel.com^
 ||dko.vente-unique.nl^
@@ -44903,6 +44907,7 @@
 ||favorgraci.pro^
 ||favorrisvo.pro^
 ||favoudimag.pro^
+||favourvermix.com^
 ||favucay4.pro^
 ||favusesporret.com^
 ||fawagey3.pro^
@@ -47535,6 +47540,7 @@
 ||gamekdiplo.pro^
 ||gameleads.ru^
 ||gameplanfinancial.actonservice.com^
+||games-sdk.yandex.ru/games/api/sdk/v1/player/stats^
 ||games.cityads.com^
 ||games95.com^
 ||gamesiteads.com^
@@ -47590,6 +47596,7 @@
 ||garnettoucan.pro^
 ||garnetturtle.pro^
 ||garnetwallaby.pro^
+||garotemuruxi.com^
 ||garowu-dahizu.pro^
 ||garrafaspotted.com^
 ||garraimpre.pro^
@@ -60445,6 +60452,7 @@
 ||iwmjsk.jw.com.au^
 ||iwpkp.xyz^
 ||iwpneu.eneba.com^
+||iws2.io.naver.com^
 ||iwuaym.icu^
 ||iwursero.top^
 ||ix4.icu^
@@ -87244,6 +87252,7 @@
 ||qgvmfmu.crm.mijn.host^
 ||qh3ws6xr53zy.integ.partsavatar.ca^
 ||qhaarkie.com^
+||qhaazaduez.com^
 ||qhaccid.com^
 ||qhanphietd.com^
 ||qhatarsl.com^
@@ -117451,6 +117460,7 @@
 ||teefiksummin.visma.fi^
 ||teen.zubie.com^
 ||teenaperfe.pro^
+||teenerdormer.com^
 ||teeniaole.com^
 ||teetecereb.pro^
 ||teetoscana.pro^
@@ -160893,6 +160903,7 @@
 ||yadtbk.blacks.co.uk^
 ||yagoqv.smartbuyglasses.ca^
 ||yahekby.cn^
+||yaigy.com^
 ||yajkhd.supersports.com^
 ||yajnadipre.pro^
 ||yak.auclantis.com^
