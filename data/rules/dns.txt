@@ -2,11 +2,11 @@
 ! Title: EasyAds
 ! Homepage: https://github.com/045200/EasyAds
 ! Expires: 12 Hours
-! Version: 2025-08-01 20:33:08（北京时间）
+! Version: 2025-08-02 09:15:40（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 162667
+! Total count: 162672
 # DNS rules extracted from adblock.txt
-# Generated on 2025-08-01 12:33:05.394909
+# Generated on 2025-08-02 01:15:37.460820
 
 ||*-*-*-lrycfv.vip^
 ||*-*.ap-east-1.elb.amazonaws.com^
@@ -22031,6 +22031,7 @@
 ||ave-caesar-mas.modivo.io^
 ||avenueroadadvertising.com^
 ||avertium.actonservice.com^
+||aveuglediking.com^
 ||avhmf.toms.com^
 ||avi-gads88000c.pubmatic.com^
 ||avi-showads77000.pubmatic.com^
@@ -22159,6 +22160,7 @@
 ||awsmads.com^
 ||awst.aviationweek.com^
 ||awsync.yandex.ru^
+||awtguzoxc.com^
 ||awuapj.landwatch.com^
 ||awuse1.advanced-web-analytics.com^
 ||awuse4.advanced-web-analytics.com^
@@ -31880,6 +31882,7 @@
 ||cspb1.5w5w.com^
 ||csplog.kwai-pro.com^
 ||cspmkl.gruppal.com^
+||csqqgc90u.com^
 ||csr.onet.pl^
 ||csr11.net.asambeauty.com^
 ||csr12.net.jumia.com.ng^
@@ -79591,6 +79594,7 @@
 ||nug07310lu.com^
 ||nug07311lu.com^
 ||nug08010lu.com^
+||nug08011lu.com^
 ||nuggamonop.pro^
 ||nugjb.bescher.com.au^
 ||nuguqou3.pro^
@@ -131111,6 +131115,7 @@
 ||wildwist.com^
 ||wildwulates.pro^
 ||wiley.met.vgwort.de^
+||wiliestreacher.com^
 ||willidisgr.pro^
 ||willowrk.pro^
 ||willowtreegracious.pro^
