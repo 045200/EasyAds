@@ -2,11 +2,11 @@
 ! Title: EasyAds
 ! Homepage: https://github.com/045200/EasyAds
 ! Expires: 12 Hours
-! Version: 2025-08-02 20:30:12（北京时间）
+! Version: 2025-08-03 09:25:45（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 162761
+! Total count: 162771
 # DNS rules extracted from adblock.txt
-# Generated on 2025-08-02 12:30:09.954144
+# Generated on 2025-08-03 01:25:42.330106
 
 ||*-*-*-lrycfv.vip^
 ||*-*.ap-east-1.elb.amazonaws.com^
@@ -988,6 +988,7 @@
 ||1qfxm8hgqd.com^
 ||1qv.fun^
 ||1rer.hummel.net^
+||1rtb.com^
 ||1sb.illusionsplasticsurgery.com^
 ||1stparty.equifax.co.uk^
 ||1to1.bbva.com^
@@ -9591,6 +9592,7 @@
 ||adimpression.startappservice.com^
 ||adinfo.ra1.xlmc.sec.miui.com^
 ||adinivibio.pro^
+||adintl.cn^
 ||aditibelen.com^
 ||aditude.cloud^
 ||adixkr.culturekings.com.au^
@@ -22140,6 +22142,7 @@
 ||aweucn1.advanced-web-analytics.com^
 ||aweuw3.advanced-web-analytics.com^
 ||aweuwv.advanced-web-analytics.com^
+||awfyuqoidy.com^
 ||awfzfs.kwantum.nl^
 ||awggij.wplay.co^
 ||awin.consogame.com^
@@ -32077,6 +32080,7 @@
 ||cuetreejam.pro^
 ||cufojio6.pro^
 ||cufroa.aboutyou.be^
+||cui3875.xyz^
 ||cuinageaquilid.com^
 ||cuino.boironusa.com^
 ||cuioxbqi.com^
@@ -36333,6 +36337,7 @@
 ||data.hello.consumercellular.com^
 ||data.helloarchie.com^
 ||data.henrychenmd.com^
+||data.hicloud.com^
 ||data.hinweis.alditalk-kundenbetreuung.de^
 ||data.hinweis.nettokom.de^
 ||data.hinweis.whatsappsim.de^
@@ -68656,6 +68661,7 @@
 ||log.aimtell.com^
 ||log.aispeech.com^
 ||log.ajunews.com^
+||log.aliyuncs.com^
 ||log.amemv.com^
 ||log.api.useinsider.com^
 ||log.api.zaloapp.com^
@@ -115132,6 +115138,7 @@
 ||sylleseggi.pro^
 ||symantec.ecs.arrow.com^
 ||symbio.actonservice.com^
+||symjgg.icu^
 ||symphdefer.pro^
 ||symplipocr.pro^
 ||synacast.com^
@@ -125596,6 +125603,7 @@
 ||ubiquitousharrier.pro^
 ||ubiquitousibis.pro^
 ||ubiquitousroadrunner.pro^
+||ubixioe.com^
 ||ublfkm.trendhim.no^
 ||ubm.docu.info^
 ||ubmcvideo.baidustatic.com^
@@ -128971,6 +128979,7 @@
 ||vlgaj.ogee.com^
 ||vlgkotr.cn^
 ||vlhde.com^
+||vlion.cn^
 ||vlive.qqvideo.tc.qq.com^
 ||vljfo.lanimal.co^
 ||vljkjx.top^
@@ -162228,6 +162237,7 @@
 ||zhangjiaqi.top^
 ||zhangqifeng12.top^
 ||zhangyumo.top^
+||zhangyuyidong.cn^
 ||zhanzhang.net^
 ||zhanzhang.toutiao.com^
 ||zhaozongqq.com^
