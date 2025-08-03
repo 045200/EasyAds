@@ -2,11 +2,11 @@
 ! Title: EasyAds
 ! Homepage: https://github.com/045200/EasyAds
 ! Expires: 12 Hours
-! Version: 2025-08-03 09:25:45（北京时间）
+! Version: 2025-08-03 20:31:29（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 162771
+! Total count: 162780
 # DNS rules extracted from adblock.txt
-# Generated on 2025-08-03 01:25:42.330106
+# Generated on 2025-08-03 12:31:26.146600
 
 ||*-*-*-lrycfv.vip^
 ||*-*.ap-east-1.elb.amazonaws.com^
@@ -28190,6 +28190,7 @@
 ||cheeryvibes.pro^
 ||cheese.guac.live^
 ||cheese.slickcity.com^
+||cheesevp.com^
 ||cheetah.gaptry.com^
 ||cheetah.songrender.com^
 ||cheetah.stolenboats.info^
@@ -61752,6 +61753,7 @@
 ||junglevinesgrowing.pro^
 ||junior-a8cv.techacademy.jp^
 ||junior.cursoauxiliardeveterinario.com.br^
+||junpjmg96.com^
 ||junqk.rockemsocks.com^
 ||junshi8181.com^
 ||junta.academiadocriador.com^
@@ -62738,6 +62740,7 @@
 ||ks42zt.spec.fm^
 ||ks66666661.com^
 ||ksadrewrty.com^
+||ksaef6idy.com^
 ||ksamarketing.sedgwick.com^
 ||ksasd.eshopygo.bg^
 ||kscly.com^
@@ -62841,6 +62844,7 @@
 ||kv-analytics.kiotviet.vn^
 ||kv.joinads.me^
 ||kv8899.com^
+||kvbh.cn^
 ||kvfumh.fairwaystyles.com^
 ||kvfunf.factorydirect.ca^
 ||kvfvd.alicelanehome.com^
@@ -77282,6 +77286,7 @@
 ||mtt.str.mdt.qq.com^
 ||mttpsy6666.cc^
 ||mtuqnl.roomys-webstore.jp^
+||mtuvpoyfy.com^
 ||mtuwxh.inmod.com^
 ||mtvgxt.partirpascher.com^
 ||mtvnbq.infopraca.pl^
@@ -79631,6 +79636,8 @@
 ||nug08011lu.com^
 ||nug08020lu.com^
 ||nug08021lu.com^
+||nug08030lu.com^
+||nug08031lu.com^
 ||nuggamonop.pro^
 ||nugjb.bescher.com.au^
 ||nuguqou3.pro^
@@ -87176,6 +87183,7 @@
 ||qbermy.daxon.fr^
 ||qbgii.curiouselixirs.com^
 ||qbhmz3.com^
+||qbibsy.icu^
 ||qbjit.circalasvegas.com^
 ||qbl4.ecetech.fr^
 ||qblkeu.vamvelosiped.ru^
@@ -91038,6 +91046,7 @@
 ||rjpvnl.icu^
 ||rjqit.easycanvasprints.com^
 ||rjsouj.clubd.co.jp^
+||rjsq7ljyp.com^
 ||rjtoo.stewmac.com^
 ||rjtuu.inergytek.com^
 ||rjvzjn.top^
