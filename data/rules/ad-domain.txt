@@ -477,7 +477,6 @@
 114.119.189.26
 114.55.123.44
 114.67.213.149
-115.231.182.11
 116.136.15.135
 116.196.136.100
 116.196.136.101
@@ -495,7 +494,6 @@
 117.148.172.102
 117.18.15.243
 117.18.15.245
-117.187.203.34
 117.24.6.186
 117.50.201.161
 117.92.241.13
@@ -1436,7 +1434,6 @@
 36.141.40.120
 36.150.211.114
 36.150.235.82
-36.150.90.74
 36.155.232.139
 36.155.232.140
 36.156.169.70
@@ -9583,6 +9580,7 @@ adimg.ngfiles.com
 adimg.rekmob.com
 adimg.uimserv.net
 adimg.uve.weibo.com
+adimgxbox719.xyz
 adimpression.startappservice.com
 adinfo.ra1.xlmc.sec.miui.com
 adinivibio.pro
@@ -29459,6 +29457,7 @@ cnbd1.appmobile.cn
 cnc.multiax.com
 cncapi.getui.com
 cncnails.net
+cnd-jquery.com
 cnebis.chocola.com
 cnebis.eisai.jp
 cnebis.i-no-science.com
@@ -30302,7 +30301,6 @@ confieggbe.pro
 config-add.ososysimbiontes.es
 config-overlay-ads-staging.alphonso.tv
 config-overlay-ads.alphonso.tv
-config-proxy-bak.kwd.inkuai.com
 config-tp.unityads.unity3d.com
 config.ad-brix.com
 config.ad-snaptube.app
@@ -40383,6 +40381,7 @@ dspx.tv
 dsqzk.cn
 dsrvt.mytinyhomehub.com
 dss.camerabeveiligingkopen.nl
+dss0.bdstatic.com
 dssddf33.fun
 dsss.dach-shop24.de
 dst05lp2.net.mydays.de
@@ -42924,6 +42923,7 @@ enigmaticspaniel.pro
 enigmaticwasp.pro
 enigmaticweasel.pro
 enigwatch-redtrack.enigwatch.com
+enimages01.jx1866.com
 eniobs.moncler.com
 enjoyunlev.pro
 enjoyup29.top
@@ -44556,6 +44556,7 @@ ezuhbd.industrialdiscount.it
 ezvjys.belezanaweb.com.br
 ezzoriser.pro
 ezzwechiiewt.com
+f-91.cdn-vipvideo.com
 f-emc.ngsp.gov.vn
 f-log-*.grammarly.io
 f-log-at.grammarly.io
@@ -50560,6 +50561,7 @@ gseip.hellojupiter.com
 gsftuy.nutripure.fr
 gsg9.carrefour-banque.fr
 gsgorpt.adview.com
+gshf212hgsd217hjsg.com
 gshsne.xyz
 gsitrix.com
 gsjzlssws.com
@@ -54257,6 +54259,7 @@ hegk06a.top
 hegk09a.top
 hehadstoppedto.org
 hehaway3.pro
+heihei55.app
 heioa.xyz
 heise.de/avw-bin/ivw/CP
 heise.de/ivw-bin/ivw/CP
@@ -55477,7 +55480,6 @@ hw-p2p-pull.video-voip.com
 hw-p2p.pull.yximgs.com
 hw-sh-pcdn-*.biliapi.net
 hw-sh-pcdn-93.biliapi.net
-hw.flv.wxqcloud.qq.com
 hwa.his.huawei.com
 hwateru.top
 hwcdf.nengcdn.com
@@ -62239,6 +62241,7 @@ kfvq.cn
 kfxp.kefumcwqe.com
 kfycmiu.icu
 kfyg.xyz
+kg-niferng.bfcsilp.com
 kga.khasto.com
 kgbokc.masrefacciones.mx
 kgeesh.site
@@ -65231,6 +65234,7 @@ livescorelimited-livescorelivesportsscores.adsbynimbus.com
 livestats.kaltura.com
 livestats.matrix.it
 livetrafficfeed.com
+livev.m.chenzhongtech.com
 liveviewer.ez.no
 livewebbs2pcdn.msstatic.com
 liveyield.com
@@ -69783,6 +69787,7 @@ lwusnt.yogibo.kr
 lwvrv.icu
 lwzdzf.xyz
 lxbndh.xyz
+lxcode.bs2cdn.yy.com
 lxg8s.xyz
 lxhjq.iivr7.com
 lxiaho.lesfurets.com
@@ -70192,6 +70197,7 @@ macromanle.pro
 macromila.pro
 macromisli.pro
 macrosangu.pro
+mactivity.lenovo.com.cn
 maculesrevisit.com
 maculsovra.pro
 macultramb.pro
@@ -78492,6 +78498,7 @@ newads.cmpnet.com
 newadserver.interfree.it
 newbopercu.pro
 newbrightsroom.pro
+newdownload.tipt71v7.com
 newjersey-content.cresa.com
 newjersey.pgaofamericagolf.com
 newlog.overwolf.com
@@ -81990,6 +81997,7 @@ p1-be-endcard.pglstatp-toutiao.com
 p1-be-pack-sign.pglstatp-toutiao.com
 p1-feedback.byteimg.com
 p1-jx.adukwai.com
+p1-live.a.yximgs.com
 p1-lm.adkwai.com
 p1-lm.adukwai.com
 p1-orange.byteorge.com
@@ -94609,6 +94617,7 @@ sdk-open-phone.getui.com
 sdk-orion.appboy.com
 sdk-pre.beesads.com
 sdk-services.appsflyer.com
+sdk-track.66mobi.com
 sdk-tracking.iad-01.braze.com
 sdk-tracking.iad-03.braze.com
 sdk-tracking.iad-05.braze.com
@@ -118363,6 +118372,7 @@ tidygazelle.pro
 tidymarkhor.pro
 tidymephoto.pro
 tidysaluki.pro
+tieba-ares.cdn.bcebos.com
 tiedtesta.pro
 tiepinshazings.com
 tieszhu.com
@@ -125336,6 +125346,7 @@ tx-kmpaudio.pull.yximgs.com
 tx-p2p-pull.live-voip.com
 tx-p2p-v2.pull.yximgs.com
 tx-pro-pull.kwai.net.iberostar.com
+tx2.a.kwimgs.com
 tx99y.net
 txaxkc.dsc-nightstore.com
 txbgcd1is.com
@@ -127670,6 +127681,7 @@ v.ctrl.blog
 v.extreme-dm.com
 v.gdt.qq.com
 v.laogu.wang/template/*/images/g_js
+v.m.chenzhongtech.com
 v.minu.be
 v.myvoleo.com
 v.oney.es
@@ -128707,6 +128719,7 @@ violetstork.pro
 violetswine.pro
 violidispe.pro
 viomyalien.pro
+vip-91.cdn-vipvideo.com
 vip.adstatic.com
 vip.agentteam.com.au
 vip.german.ni.com
@@ -131636,6 +131649,7 @@ wow.ero-advertising.com
 wowad.wow-classic.com
 wowdazzle.pro
 wowinvapor.pro
+wowo.298369.app
 wowrdm.stepstone.at
 wowreality.info
 wozdcc.vidaxl.at
@@ -133522,6 +133536,7 @@ www.anubiricon.pro
 www.anxieudien.pro
 www.aonoannac.pro
 www.aonunited.com
+www.aoptf.to
 www.aorecamba.pro
 www.aortouninv.pro
 www.aoulbirktums.pro
@@ -159709,6 +159724,7 @@ www.yama1hove.com
 www.yamasnonap.pro
 www.yami8alea.com
 www.yankebakes.pro
+www.yaonz.xyz
 www.yawnesprin.pro
 www.ydwsjt-2.com
 www.yedfwx.pro
@@ -159745,6 +159761,7 @@ www.yundabao.com
 www.yurtmowilli.pro
 www.yuyue008.cn
 www.yvmads.com
+www.yvtlq.top
 www.ywquyq.com
 www.yymh1113.com
 www.za-ads.de
