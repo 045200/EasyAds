@@ -2,11 +2,11 @@
 ! Title: EasyAds
 ! Homepage: https://github.com/045200/EasyAds
 ! Expires: 12 Hours
-! Version: 2025-08-04 20:35:34（北京时间）
+! Version: 2025-08-04 23:08:41（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
 ! Total count: 164067
 # DNS rules extracted from adblock.txt
-# Generated on 2025-08-04 12:35:31.774985
+# Generated on 2025-08-04 15:08:38.709928
 
 ||*-*-*-lrycfv.vip^
 ||*-*.ap-east-1.elb.amazonaws.com^
