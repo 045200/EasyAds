@@ -2,11 +2,11 @@
 ! Title: EasyAds
 ! Homepage: https://github.com/045200/EasyAds
 ! Expires: 12 Hours
-! Version: 2025-08-04 23:08:41（北京时间）
+! Version: 2025-08-05 09:21:09（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 164067
+! Total count: 164070
 # DNS rules extracted from adblock.txt
-# Generated on 2025-08-04 15:08:38.709928
+# Generated on 2025-08-05 01:21:05.892957
 
 ||*-*-*-lrycfv.vip^
 ||*-*.ap-east-1.elb.amazonaws.com^
@@ -7146,7 +7146,6 @@
 ||abovede6.com^
 ||abox.simpleshop.cz^
 ||abpwqf.lolaflora.com.mx^
-||abr.ge^
 ||abracon.actonservice.com^
 ||abradeiacu.pro^
 ||abram.xin^
@@ -40374,6 +40373,7 @@
 ||dqfre.helloadorn.com^
 ||dqif5bl25s0bf.cloudfront.net^
 ||dqjojx.xyz^
+||dqjrxj.icu^
 ||dqkovz.patatam.co.uk^
 ||dqlrfmwp.icu^
 ||dqntra.home-to-go.ca^
@@ -86118,6 +86118,7 @@
 ||pops.mayads.store^
 ||popsads.net^
 ||popsvg.xyz^
+||popularr3.top^
 ||populconcr.pro^
 ||populghiai.pro^
 ||populrappr.pro^
@@ -87389,6 +87390,7 @@
 ||ptfxh.com^
 ||ptgdb.cn^
 ||ptgxwo.toolstoday.com^
+||ptju.cn^
 ||ptk-ks7-cn-beijing.funchat168668vv1.com^
 ||ptkjr.simplynootropics.com^
 ||ptkzkx.drpauhls.com^
@@ -119723,6 +119725,7 @@
 ||tjqwb.cn^
 ||tjtxd.xoabmkhp.com^
 ||tjumv.mindgamesfragrance.com^
+||tjv250730ads.com^
 ||tjvcffap.icu^
 ||tjwpfr.unitrailer.de^
 ||tjwzyjx.icu^
