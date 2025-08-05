@@ -2,11 +2,11 @@
 ! Title: EasyAds
 ! Homepage: https://github.com/045200/EasyAds
 ! Expires: 12 Hours
-! Version: 2025-08-05 09:21:09（北京时间）
+! Version: 2025-08-05 20:35:11（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 164070
+! Total count: 164079
 # DNS rules extracted from adblock.txt
-# Generated on 2025-08-05 01:21:05.892957
+# Generated on 2025-08-05 12:35:09.177804
 
 ||*-*-*-lrycfv.vip^
 ||*-*.ap-east-1.elb.amazonaws.com^
@@ -15379,6 +15379,7 @@
 ||alexa-hybrid-interaction-log-config-prod-na.s3.amazonaws.com^
 ||alexa-mobile-analytics-configuration-prod.s3.amazonaws.com^
 ||alexa.dev.intecular.com^
+||alexametrics.com^
 ||alexanbelen.com^
 ||alexandria.marfeelcdn.com^
 ||alexfj.elten-store.de^
@@ -16472,6 +16473,7 @@
 ||analytics.fisiocomputer.com^
 ||analytics.fitnessfirst.fi^
 ||analytics.fletcherliving.co.nz^
+||analytics.flexclip.com^
 ||analytics.flexpay.io^
 ||analytics.float-in.pt^
 ||analytics.floorsbv.nl^
@@ -16859,6 +16861,7 @@
 ||analytics.ngs55.ru^
 ||analytics.nhattao.com^
 ||analytics.nianticlabs.com^
+||analytics.nianticspatial.com^
 ||analytics.nidi.it^
 ||analytics.nike.com^
 ||analytics.nixsolutions.com^
@@ -16892,6 +16895,7 @@
 ||analytics.ooyala.com^
 ||analytics.optilead.co.uk^
 ||analytics.orenshmu.com^
+||analytics.org.coveo.com^
 ||analytics.ostr.io^
 ||analytics.ouc.ac.cy^
 ||analytics.ovative.com^
@@ -17398,6 +17402,7 @@
 ||analytics.zapps.me^
 ||analytics.zapps.vn^
 ||analytics.zatomac.vn^
+||analytics.zdassets.com^
 ||analytics.zdbb.net^
 ||analytics.zendesk.com^
 ||analytics.zenleven.nl^
@@ -17440,6 +17445,7 @@
 ||analyze.bluntumbrellas.de^
 ||analyze.fitforlife.com.bd^
 ||analyze.lemurbrowser.com^
+||analyzer*.fc2.com^
 ||analyzer.fc2.com^
 ||analyzer2.fc2.com^
 ||anamnsbrin.pro^
@@ -75439,6 +75445,7 @@
 ||metrics.kaercher.com^
 ||metrics.kangojango.com.br^
 ||metrics.kao.com^
+||metrics.kapa.ai^
 ||metrics.kataloge.dertouristik.info^
 ||metrics.kawai-juku.ac.jp^
 ||metrics.kay.com^
@@ -118816,6 +118823,7 @@
 ||telemetry.sentara.com^
 ||telemetry.sentarahealthplans.com^
 ||telemetry.services.yofi.ai^
+||telemetry.sgp.pvp.net^
 ||telemetry.smartframe.io^
 ||telemetry.soundcloud.com^
 ||telemetry.stryker.com^
@@ -122979,6 +122987,7 @@
 ||tracker-rec.smart-bdash.com^
 ||tracker-server.high-cdn.com^
 ||tracker-v4.gamedock.io^
+||tracker.3dissue.com^
 ||tracker.520call.me^
 ||tracker.acelerashot.com.br^
 ||tracker.adbinead.com^

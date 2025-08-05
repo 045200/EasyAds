@@ -2,9 +2,9 @@
 ! Title: EasyAds
 ! Homepage: https://github.com/045200/EasyAds
 ! Expires: 12 Hours
-! Version: 2025-08-05 09:21:09（北京时间）
+! Version: 2025-08-05 20:35:11（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 8827
+! Total count: 8829
 @@$cookie=__gads,domain=godstoryinfo.com|laweducationinfo.com|rsgames.xyz|vichitrainfo.com
 @@&http_referer=$domain=chaopx.com
 @@*.flyme.cn
@@ -1101,6 +1101,7 @@
 @@||api-h5.ads66.com^
 @@||api-js.datadome.co/js/$domain=account.samsung.com
 @@||api-js.datadome.co/js/$domain=sso.garena.com
+@@||api-ks.wtzw.com^
 @@||api-mg2.db-ip.com^$xmlhttprequest,domain=journal-news.com
 @@||api-n0vadp-static.hoyoverse.com^
 @@||api-pda.jdl.com^
@@ -1772,6 +1773,7 @@
 @@||cdc.gov/jscript/metrics/adobe/launch/$script,~third-party
 @@||cdi.ofiii.com^
 @@||cdn-apple.com^$important
+@@||cdn-audio.qimao.com^
 @@||cdn-chateva.zhhainiao.com^
 @@||cdn-f1.assistant.miui.com^
 @@||cdn-gl.imrworldwide.com/conf/*.js#name=nlsnInstance$domain=joyn.de

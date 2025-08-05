@@ -15373,6 +15373,7 @@ alex.coatdefense.com
 alexa-hybrid-interaction-log-config-prod-na.s3.amazonaws.com
 alexa-mobile-analytics-configuration-prod.s3.amazonaws.com
 alexa.dev.intecular.com
+alexametrics.com
 alexanbelen.com
 alexandria.marfeelcdn.com
 alexfj.elten-store.de
@@ -16466,6 +16467,7 @@ analytics.fishtrack.com
 analytics.fisiocomputer.com
 analytics.fitnessfirst.fi
 analytics.fletcherliving.co.nz
+analytics.flexclip.com
 analytics.flexpay.io
 analytics.float-in.pt
 analytics.floorsbv.nl
@@ -16853,6 +16855,7 @@ analytics.nextopia.net
 analytics.ngs55.ru
 analytics.nhattao.com
 analytics.nianticlabs.com
+analytics.nianticspatial.com
 analytics.nidi.it
 analytics.nike.com
 analytics.nixsolutions.com
@@ -16886,6 +16889,7 @@ analytics.onlyonlinemarketing.com
 analytics.ooyala.com
 analytics.optilead.co.uk
 analytics.orenshmu.com
+analytics.org.coveo.com
 analytics.ostr.io
 analytics.ouc.ac.cy
 analytics.ovative.com
@@ -17392,6 +17396,7 @@ analytics.zagg.com
 analytics.zapps.me
 analytics.zapps.vn
 analytics.zatomac.vn
+analytics.zdassets.com
 analytics.zdbb.net
 analytics.zendesk.com
 analytics.zenleven.nl
@@ -17434,6 +17439,7 @@ analytiikka.yrittajat.fi
 analyze.bluntumbrellas.de
 analyze.fitforlife.com.bd
 analyze.lemurbrowser.com
+analyzer*.fc2.com
 analyzer.fc2.com
 analyzer2.fc2.com
 anamnsbrin.pro
@@ -75433,6 +75439,7 @@ metrics.kadcyla.com
 metrics.kaercher.com
 metrics.kangojango.com.br
 metrics.kao.com
+metrics.kapa.ai
 metrics.kataloge.dertouristik.info
 metrics.kawai-juku.ac.jp
 metrics.kay.com
@@ -118810,6 +118817,7 @@ telemetry.sdk.inmobi.com
 telemetry.sentara.com
 telemetry.sentarahealthplans.com
 telemetry.services.yofi.ai
+telemetry.sgp.pvp.net
 telemetry.smartframe.io
 telemetry.soundcloud.com
 telemetry.stryker.com
@@ -122973,6 +122981,7 @@ tracker-dot-optimeeze.appspot.com
 tracker-rec.smart-bdash.com
 tracker-server.high-cdn.com
 tracker-v4.gamedock.io
+tracker.3dissue.com
 tracker.520call.me
 tracker.acelerashot.com.br
 tracker.adbinead.com
