@@ -2,11 +2,11 @@
 ! Title: EasyAds
 ! Homepage: https://github.com/045200/EasyAds
 ! Expires: 12 Hours
-! Version: 2025-08-05 20:35:11（北京时间）
+! Version: 2025-08-06 09:19:27（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 164079
+! Total count: 164093
 # DNS rules extracted from adblock.txt
-# Generated on 2025-08-05 12:35:09.177804
+# Generated on 2025-08-06 01:19:24.193740
 
 ||*-*-*-lrycfv.vip^
 ||*-*.ap-east-1.elb.amazonaws.com^
@@ -17183,6 +17183,7 @@
 ||analytics.tedium.co^
 ||analytics.teespring.com^
 ||analytics.teko.vn^
+||analytics.tempmail100.com^
 ||analytics.tenson.com^
 ||analytics.test.cheggnet.com^
 ||analytics.thegroupbuyexperiment.com^
@@ -41599,6 +41600,7 @@
 ||ecom5-normal-lf.ecombdapi.com^
 ||ecomadserver.com^
 ||ecomm.events^
+||ecommerce-events*.adscale.com^
 ||ecommerce-events.adscale.com^
 ||ecommhpi.ext.hp.com^
 ||ecommstats.s3.amazonaws.com^
@@ -43577,6 +43579,7 @@
 ||ergiekszra.com^
 ||ergoncaric.pro^
 ||ergrbp.hobidunya.com^
+||ericasfz.com^
 ||erinominis.pro^
 ||eriopwraxl.pro^
 ||eritrblast.pro^
@@ -47776,7 +47779,6 @@
 ||ga.collecte.com.au^
 ||ga.dehangmat.be^
 ||ga.dehangmat.nl^
-||ga.finam.ru^
 ||ga.getresponse.com^
 ||ga.groc.press^
 ||ga.haengekojebutik.dk^
@@ -56486,6 +56488,7 @@
 ||ibdoz.trilogyaviationgroup.com^
 ||ibeat.indiatimes.com^
 ||iber07yk9.com^
+||iberismnuntius.com^
 ||ibernimper.pro^
 ||ibernspere.pro^
 ||ibex.nki.no^
@@ -69342,6 +69345,7 @@
 ||log-api.huxiu.com^
 ||log-api.pangolin-sdk-toutiao-b.com^
 ||log-api.pangolin-sdk-toutiao.com^
+||log-api.sooplive.com^
 ||log-auth.flysleep.cn^
 ||log-auth.zztfly.com^
 ||log-gateway.zoom.us^
@@ -69563,6 +69567,7 @@
 ||logapi.kt.com^
 ||logapi.misa.com.vn^
 ||logapi.nchamet.com^
+||logapi.sooplive.com^
 ||logapi.tv.naver.com^
 ||logapi.zhipin.com^
 ||logbak.hicloud.com^
@@ -77635,6 +77640,7 @@
 ||mozzispla.pro^
 ||mp.adverts.itv.com^
 ||mp.cmllw.iego.net^
+||mp.cwtv.com^
 ||mp.imgur.com^
 ||mp.pitchero.com^
 ||mp.teads.tv^
@@ -78910,6 +78916,7 @@
 ||ndlwtl.icu^
 ||ndmot.sideout.com^
 ||ndqcz0e.xyz^
+||ndrimmers.com^
 ||ndroyp.gettingpersonal.co.uk^
 ||ndsosf.rent2ownusa.com^
 ||ndysxhs.icu^
@@ -96599,6 +96606,7 @@
 ||serbaimpag.pro^
 ||serboantir.pro^
 ||serdaautor.pro^
+||serenadislive.com^
 ||serenavista.pro^
 ||serendatti.pro^
 ||serendipitouschance.pro^
@@ -118815,6 +118823,7 @@
 ||telemetry.otsuka-us.com^
 ||telemetry.owenscorning.com^
 ||telemetry.phenixrts.com^
+||telemetry.proton.me^
 ||telemetry.reembed.com^
 ||telemetry.ruthschris.com^
 ||telemetry.schwinnfitness.com^
@@ -127329,6 +127338,7 @@
 ||unclestrop.pro^
 ||unclupinke.pro^
 ||uncmbg.timberland.de^
+||uncodedsmoothy.com^
 ||uncodlychn.pro^
 ||uncoiserri.pro^
 ||uncomriban.pro^
@@ -127607,6 +127617,7 @@
 ||unproarauc.pro^
 ||unpronomin.pro^
 ||unprostop.pro^
+||unpufframpler.com^
 ||unpurreinv.pro^
 ||unqhsd.onkyodirect.jp^
 ||unquaricep.pro^
@@ -127861,6 +127872,7 @@
 ||uperitrigo.pro^
 ||upfile-drcn.platform.hicloud.com^
 ||upfile-drcn.platform.hihonorcloud.com^
+||upfleeacraze.com^
 ||upflosplen.pro^
 ||upfmqr.carmensteffens.com.br^
 ||upgazsoffi.pro^
@@ -132886,6 +132898,7 @@
 ||wpgobx.hamnen.se^
 ||wpgobx.marcusoscarsson.se^
 ||wph2.destinia.us^
+||wphlvzycf5.execute-api.eu-west-2.amazonaws.com^
 ||wpkfti.1300k.com^
 ||wpmdeo.xyz^
 ||wpnwax.oberbayerischer-jobanzeiger.de^
@@ -162712,6 +162725,7 @@
 ||yofprpv.cn^
 ||yogi.gustavotait.com^
 ||yogi.snuffland.de^
+||yogisgeishas.com^
 ||yogolp.beststl.com^
 ||yoi05.youthorganizing.net.jumia.ci^
 ||yoifwi.levi.com.ph^
