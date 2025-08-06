@@ -2,11 +2,11 @@
 ! Title: EasyAds
 ! Homepage: https://github.com/045200/EasyAds
 ! Expires: 12 Hours
-! Version: 2025-08-06 09:19:27（北京时间）
+! Version: 2025-08-06 20:34:58（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 164093
+! Total count: 164095
 # DNS rules extracted from adblock.txt
-# Generated on 2025-08-06 01:19:24.193740
+# Generated on 2025-08-06 12:34:55.969422
 
 ||*-*-*-lrycfv.vip^
 ||*-*.ap-east-1.elb.amazonaws.com^
@@ -30073,6 +30073,7 @@
 ||collector.lunalabs.io^
 ||collector.mazeberry.com^
 ||collector.megaxh.com^
+||collector.net-logger.com^
 ||collector.pi.spectrum.net^
 ||collector.plarium.com^
 ||collector.prod.expedia.com^
@@ -43609,6 +43610,7 @@
 ||errandsracket.com^
 ||errlog.umeng.com^
 ||errnewlog.umeng.com^
+||error-analytics-production.shopifysvc.com^
 ||error-analytics-sessions-production.shopifysvc.com^
 ||error-collector.ted.com^
 ||error-tracking.reddit.com^

@@ -30067,6 +30067,7 @@ collector.leaddyno.com
 collector.lunalabs.io
 collector.mazeberry.com
 collector.megaxh.com
+collector.net-logger.com
 collector.pi.spectrum.net
 collector.plarium.com
 collector.prod.expedia.com
@@ -43603,6 +43604,7 @@ err.ifengcloud.ifeng.com
 errandsracket.com
 errlog.umeng.com
 errnewlog.umeng.com
+error-analytics-production.shopifysvc.com
 error-analytics-sessions-production.shopifysvc.com
 error-collector.ted.com
 error-tracking.reddit.com
