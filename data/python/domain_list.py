@@ -35,9 +35,9 @@ def extract_domains(input_file, output_file):
         output_path.parent.mkdir(parents=True, exist_ok=True)
         
         with output_path.open('w', encoding='utf-8') as outfile:
-            outfile.write("# GOODBYEADS Domain List\n")
-            outfile.write("# Homepage: https://github.com/045200/GOODBYEADS\n")
-            outfile.write("# Generated from GOODBYEADS DNS rules\n\n")
+            outfile.write("# EasyAds Domain List\n")
+            outfile.write("# Homepage: https://github.com/045200/EasyAds\n")
+            outfile.write("# Generated from EasyAds DNS rules\n\n")
             outfile.write("\n".join(domains))
             
         print(f"Extracted {len(domains)} domains to domain list")
