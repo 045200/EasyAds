@@ -1,85 +1,57 @@
-import os
-import subprocess
-import glob
-import re
 from pathlib import Path
+import re
 
-os.chdir('tmp')
+def normalize_rule(rule: str) -> str:
+    """标准化规则格式（保持大小写敏感）"""
+    rule = rule.strip()
+    # 处理特殊规则语法
+    if rule.startswith("||") and rule.endswith("^"):
+        return rule[2:-1]  # 移除通配符标记
+    return rule
 
-print("合并上游拦截规则")
-file_list = glob.glob('adblock*.txt')
-with open('combined_adblock.txt', 'w') as outfile:
-    for file in file_list:
-        with open(file, 'r') as infile:
-            outfile.write(infile.read())
-            outfile.write('\n')
-            
-with open('combined_adblock.txt', 'r') as f:
-    content = f.read()
-content = re.sub(r'^[!].*$\n', '', content, flags=re.MULTILINE)
-content = re.sub(r'^#(?!\s*#).*\n?', '', content, flags=re.MULTILINE)
+def process_rules():
+    # 路径设置
+    base_dir = Path(__file__).parent
+    tmp_dir = base_dir / "tmp"
+    output_dir = base_dir / "data" / "rules"
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-with open('cleaned_adblock.txt', 'w') as f:
-    f.write(content)
-print("拦截规则合并完成")
+    # 1. 优先处理白名单
+    print("🔄 处理白名单规则...")
+    allow_rules = set()
+    for file in sorted(tmp_dir.glob("allow*.txt")):
+        with open(file, "r", encoding="utf-8", errors="ignore") as f:
+            for line in f:
+                line = normalize_rule(line)
+                if line and not line.startswith(("#", "!", "//")) and "##" not in line:
+                    if line.startswith("@@"):
+                        allow_rules.add(line[2:])  # 提取白名单域名
+                    else:
+                        allow_rules.add(line)
 
-print("合并上游白名单规则")
-allow_file_list = glob.glob('allow*.txt')
-with open('combined_allow.txt', 'w') as outfile:
-    for file in allow_file_list:
-        with open(file, 'r') as infile:
-            outfile.write(infile.read())
-            outfile.write('\n')
+    # 2. 处理黑名单并过滤冲突规则
+    print("🔄 处理拦截规则...")
+    final_rules = set()
+    for file in sorted(tmp_dir.glob("adblock*.txt")):
+        with open(file, "r", encoding="utf-8", errors="ignore") as f:
+            for line in f:
+                line = normalize_rule(line)
+                if line and not line.startswith(("#", "!", "@@", "//")) and "##" not in line:
+                    if line not in allow_rules:  # 关键过滤逻辑
+                        final_rules.add(line)
 
-with open('combined_allow.txt', 'r') as f:
-    content = f.read()
-content = re.sub(r'^[!].*$\n', '', content, flags=re.MULTILINE)
-content = re.sub(r'^#(?!\s*#).*\n?', '', content, flags=re.MULTILINE)
+    # 3. 写入最终文件
+    print("💾 生成最终规则文件...")
+    with open(output_dir / "adblock.txt", "w", encoding="utf-8") as f:
+        f.write("! 由AdGuard规则处理器生成\n")
+        f.write("! 白名单优先处理，已自动过滤冲突规则\n")
+        f.writelines(sorted(rule + "\n" for rule in final_rules))
 
-with open('cleaned_allow.txt', 'w') as f:
-    f.write(content)
-print("白名单规则合并完成")
+    with open(output_dir / "allow.txt", "w", encoding="utf-8") as f:
+        f.write("! 白名单规则（优先级最高）\n")
+        f.writelines(sorted("@@" + rule + "\n" for rule in allow_rules))
 
-print("过滤白名单规则")
-with open('cleaned_allow.txt', 'r') as f:
-    allow_lines = f.readlines()
+    print(f"✅ 处理完成！生成 {len(final_rules)}条拦截规则 + {len(allow_rules)}条白名单规则")
 
-with open('combined_adblock.txt', 'a') as outfile:
-    outfile.writelines(allow_lines)
-
-with open('combined_adblock.txt', 'r') as f:
-    lines = f.readlines()
-with open('allow.txt', 'w') as f:
-    for line in lines:
-        if line.startswith('@'):
-            f.write(line)
-            
-current_dir = os.getcwd()
-adblock_file = os.path.join(current_dir, 'cleaned_adblock.txt')
-allow_file = os.path.join(current_dir, 'allow.txt')
-target_dir = os.path.join(current_dir, '.././data/rules/')
-Path(target_dir).mkdir(parents=True, exist_ok=True)
-adblock_file_new = os.path.join(target_dir, 'adblock.txt')
-allow_file_new = os.path.join(target_dir, 'allow.txt')
-os.rename(adblock_file, adblock_file_new) 
-os.rename(allow_file, allow_file_new) 
-
-print("规则去重中")
-os.chdir(".././data/rules/")  # 更改当前目录
-files = os.listdir()  # 得到文件夹下的所有文件名称
-result = []
-for file in files:  # 遍历文件夹
-    if not os.path.isdir(file):  # 判断是否是文件夹，不是文件夹才打开
-        if os.path.splitext(file)[1] == '.txt':
-            # print('开始去重'+(file))
-            f = open(file, encoding="utf8")  # 打开文件
-            result = list(set(f.readlines()))
-            result.sort()
-            fo = open('test' + (file), "w", encoding="utf8")
-            fo.writelines(result)
-            f.close()
-            fo.close()
-            os.remove(file)
-            os.rename('test' + (file), (file))
-            # print((file) + '去重完成')
-print("规则去重完成")
+if __name__ == "__main__":
+    process_rules()
