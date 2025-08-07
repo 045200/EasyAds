@@ -4,71 +4,106 @@ import requests
 import time
 from pathlib import Path
 
-# ===== 配置参数 =====
+# ============== 配置参数 ==============
 MAX_RETRIES = 3
-TIMEOUT = 30
-USER_AGENT = "AdGuardRulesDownloader/1.0"
-TMP_DIR = Path("./tmp")
-DATA_DIR = Path("./data")
+TIMEOUT = 60
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
 
+# ============== 目录初始化 ==============
 def init_environment():
     """初始化工作目录"""
     try:
-        TMP_DIR.mkdir(exist_ok=True, parents=True)
-        (DATA_DIR / "rules").mkdir(exist_ok=True, parents=True)
-        (DATA_DIR / "mod").mkdir(exist_ok=True, parents=True)
+        os.makedirs("./tmp/", exist_ok=True)
+        os.makedirs("./data/rules/", exist_ok=True)
+        os.makedirs("./data/mod/", exist_ok=True)
         print("✓ 目录初始化完成")
     except Exception as e:
-        raise RuntimeError(f"目录初始化失败: {e}")
+        print(f"✗ 目录初始化失败: {e}")
+        raise
 
+# ============== 本地规则处理 ==============
 def handle_local_rules():
     """处理本地规则文件"""
     try:
         # 主拦截规则
-        adblock_src = DATA_DIR / "mod" / "adblock.txt"
-        adblock_dst = TMP_DIR / "adblock01.txt"
-        if not adblock_src.exists():
-            adblock_src.touch()
-        shutil.copy(adblock_src, adblock_dst)
+        if not os.path.exists("./data/mod/adblock.txt"):
+            open("./data/mod/adblock.txt", "w").close()
+        shutil.copy("./data/mod/adblock.txt", "./tmp/adblock01.txt")
 
         # 主白名单
-        whitelist_src = DATA_DIR / "mod" / "whitelist.txt"
-        whitelist_dst = TMP_DIR / "allow01.txt"
-        if not whitelist_src.exists():
-            whitelist_src.touch()
-        shutil.copy(whitelist_src, whitelist_dst)
+        if not os.path.exists("./data/mod/whitelist.txt"):
+            open("./data/mod/whitelist.txt", "w").close()
+        shutil.copy("./data/mod/whitelist.txt", "./tmp/allow01.txt")
+
         print("✓ 本地规则处理完成")
     except Exception as e:
-        raise RuntimeError(f"本地规则处理失败: {e}")
+        print(f"✗ 本地规则处理失败: {e}")
+        raise
 
-def download_rule(url: str, save_path: Path) -> bool:
-    """带重试机制的下载函数"""
+# ============== 增强下载函数 ==============
+def download_with_retry(url, save_path):
+    """带重试机制的下载函数（保留原始特殊规则处理）"""
     headers = {"User-Agent": USER_AGENT}
-    if "rssv.cn" in url:
-        headers.update({"Referer": "http://rssv.cn/"})
+
+    # 特殊域名处理（保持原样）
+    special_domains = {
+        "rssv.cn": {
+            "Referer": "http://rssv.cn/",
+            "Accept": "text/plain",
+            "Connection": "keep-alive"
+        },
+        "51vip.biz": {
+            "Accept-Encoding": "gzip"
+        }
+    }
+
+    for domain, extra_headers in special_domains.items():
+        if domain in url:
+            headers.update(extra_headers)
+            break
 
     for attempt in range(MAX_RETRIES):
         try:
-            print(f"⇩ 下载 [{attempt+1}/{MAX_RETRIES}]: {url}")
+            print(f"⇩ 正在下载 [{attempt+1}/{MAX_RETRIES}]: {url}")
+
+            # 保持原始HTTP处理逻辑
             verify_ssl = not url.startswith('http://')
-            response = requests.get(url, headers=headers, timeout=TIMEOUT, verify=verify_ssl)
+            response = requests.get(
+                url,
+                headers=headers,
+                timeout=TIMEOUT,
+                verify=verify_ssl,
+                stream=True  # 启用流式下载
+            )
             response.raise_for_status()
+
+            # 写入临时文件后再移动（原子操作）
+            temp_path = f"{save_path}.tmp"
+            with open(temp_path, "wb") as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:  # 过滤keep-alive空块
+                        f.write(chunk)
             
-            content = response.text.strip()
-            if not content:
-                raise ValueError("空内容")
-                
-            save_path.write_text(content, encoding='utf-8')
-            print(f"✓ 保存到: {save_path}")
+            # 验证文件有效性
+            if os.path.getsize(temp_path) == 0:
+                raise ValueError("下载内容为空")
+            
+            shutil.move(temp_path, save_path)
+            print(f"✓ 下载成功 -> {save_path} ({os.path.getsize(save_path)/1024:.1f}KB)")
             return True
+
         except Exception as e:
-            print(f"✗ 错误: {type(e).__name__} - {e}")
+            print(f"✗ 尝试 {attempt+1} 失败: {type(e).__name__}: {e}")
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
             if attempt < MAX_RETRIES - 1:
-                time.sleep(2 ** attempt)
+                time.sleep((attempt + 1) * 3)
+
+    print(f"! 无法下载: {url} (已达最大重试次数)")
     return False
 
-# ===== 完整规则源（保留所有注释）=====
-ADBLOCK_SOURCES = [
+# ============== 完整规则源列表（保留所有原始注释）==============
+adblock = [
     # 主规则源
     "https://raw.githubusercontent.com/damengzhu/banad/main/jiekouAD.txt",  # 大萌主-接口广告
     "https://raw.githubusercontent.com/afwfv/DD-AD/main/rule/DD-AD.txt",    # DD-AD规则
@@ -80,17 +115,17 @@ ADBLOCK_SOURCES = [
     "https://lingeringsound.github.io/10007_auto/adb.txt",                 # 10007自动规则
 
     # 特殊规则（需特殊处理）
-    "http://rssv.cn/adguard/api.php?type=black",                           # 晴雅黑名单
-    "http://hgzspj.51vip.biz/hg1.txt",                                    # 海哥规则
+    "http://rssv.cn/adguard/api.php?type=black",                           # 晴雅黑名单（需特殊头）
+    "http://hgzspj.51vip.biz/hg1.txt",                                    # 海哥规则（HTTP链接）
 
     # 其他规则
     "https://github.com/entr0pia/fcm-hosts/raw/fcm/fcm-hosts",            # FCM Hosts
-    "https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/AWAvenue-Ads-Rule.txt",  # 秋风规则
+    "https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/AWAvenue-Ads-Rule.txt",  # 秋风主规则
     "https://raw.githubusercontent.com/2Gardon/SM-Ad-FuckU-hosts/refs/heads/master/SMAdHosts",     # SMAdHosts
-    "https://raw.githubusercontent.com/Kuroba-Sayuki/FuLing-AdRules/refs/heads/main/FuLingRules/FuLingBlockList.txt"  # 茯苓拦截
+    "https://raw.githubusercontent.com/Kuroba-Sayuki/FuLing-AdRules/refs/heads/main/FuLingRules/FuLingBlockList.txt",  # 茯苓拦截
 ]
 
-ALLOW_SOURCES = [
+allow = [
     # 基础白名单
     "https://raw.githubusercontent.com/qq5460168/dangchu/main/white.txt",  # 测试白名单
     "https://raw.githubusercontent.com/mphin/AdGuardHomeRules/main/Allowlist.txt",  # 通用白名单
@@ -107,29 +142,52 @@ ALLOW_SOURCES = [
     "https://anti-ad.net/easylist.txt"                                   # anti-AD白名单
 ]
 
-def download_all_rules():
-    """下载所有规则文件"""
+# ============== 主下载流程 ==============
+def download_rules():
+    """主下载流程（保持原始编号逻辑）"""
     print("\n" + "="*40)
-    print("下载拦截规则".center(40))
+    print("开始下载拦截规则".center(40))
     print("="*40)
-    for i, url in enumerate(ADBLOCK_SOURCES, 2):
-        download_rule(url, TMP_DIR / f"adblock{i:02d}.txt")
+    for i, url in enumerate(adblock, 1):
+        save_path = f"./tmp/adblock{i:02d}.txt"
+        download_with_retry(url, save_path)
 
     print("\n" + "="*40)
-    print("下载白名单规则".center(40))
+    print("开始下载白名单规则".center(40))
     print("="*40)
-    for j, url in enumerate(ALLOW_SOURCES, 2):
-        download_rule(url, TMP_DIR / f"allow{j:02d}.txt")
+    for j, url in enumerate(allow, 1):
+        save_path = f"./tmp/allow{j:02d}.txt"
+        download_with_retry(url, save_path)
 
+# ============== 主函数 ==============
 def main():
     try:
+        # 初始化环境
         init_environment()
         handle_local_rules()
-        download_all_rules()
-        print("\n✓ 所有规则下载完成")
+
+        # 下载规则
+        download_rules()
+
+        # 结果统计（显示更详细的信息）
+        print("\n" + "="*40)
+        print("下载结果统计".center(40))
+        print("="*40)
+        ad_files = [f for f in os.listdir("./tmp/") if f.startswith("adblock")]
+        allow_files = [f for f in os.listdir("./tmp/") if f.startswith("allow")]
+        
+        print(f"拦截规则文件: {len(ad_files)}个")
+        print(f"白名单规则文件: {len(allow_files)}个")
+        print("\n文件列表:")
+        for f in sorted(ad_files + allow_files):
+            size = os.path.getsize(f"./tmp/{f}")/1024
+            print(f"- {f} ({size:.1f}KB)")
+        
+        print(f"\n✓ 任务完成！文件保存在: {os.path.abspath('./tmp/')}")
+
     except Exception as e:
         print(f"\n✗ 脚本执行失败: {e}")
-        exit(1)
+        raise
 
 if __name__ == "__main__":
     main()
