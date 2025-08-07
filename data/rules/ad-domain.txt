@@ -1,6 +1,6 @@
-# GOODBYEADS Domain List
-# Homepage: https://github.com/045200/GOODBYEADS
-# Generated from GOODBYEADS DNS rules
+# EasyAds Domain List
+# Homepage: https://github.com/045200/EasyAds
+# Generated from EasyAds DNS rules
 
 *-*-*-lrycfv.vip
 *-*.ap-east-1.elb.amazonaws.com
