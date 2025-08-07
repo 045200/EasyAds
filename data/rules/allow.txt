@@ -2,9 +2,9 @@
 ! Title: EasyAds
 ! Homepage: https://github.com/045200/EasyAds
 ! Expires: 12 Hours
-! Version: 2025-08-06 20:34:58（北京时间）
+! Version: 2025-08-07 09:19:59（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 8831
+! Total count: 8833
 @@$cookie=__gads,domain=godstoryinfo.com|laweducationinfo.com|rsgames.xyz|vichitrainfo.com
 @@&http_referer=$domain=chaopx.com
 @@*.flyme.cn
@@ -2951,6 +2951,7 @@
 @@||edgesuite.net^*/ad.css?
 @@||edgesuite.net^*/frontend_webtrekk.js$domain=goertz.de
 @@||edith.xiaohongshu.com/api/sns/web/v1/user/hover_card$removeparam
+@@||edith.xiaohongshu.com^
 @@||editor.wix.com/_api/wix-laboratory-server/laboratory/conductAllInScope?scope=add-panel-data$domain=editor.wix.com
 @@||edmondpoon.com^$generichide
 @@||edu-image.nosdn.127.net^
@@ -3287,7 +3288,6 @@
 @@||g.us.sinaimg.cn^
 @@||g58.update.netease.com^
 @@||g79.update.netease.com^
-@@||gaanacdn.com/*_social_tracking.js$domain=gaana.com
 @@||gahu.hit.gemius.pl/gplayer.js$domain=mafab.hu
 @@||gaijin.at/ads/advertising.js$script
 @@||galleries.bz/intermission/loadTargetUrl$xmlhttprequest
@@ -4063,6 +4063,7 @@
 @@||googletagmanager.com/gtm.js?$domain=vseinstrumenti.ru
 @@||googletagmanager.com/gtm.js?id=GTM$domain=bglab.briangavindiamonds.com
 @@||googletagmanager.com/gtm.js?id=GTM$domain=spiegel.de
+@@||googletagmanager.com/gtm.js?id=GTM-56WSR2$domain=victorinox.com
 @@||googletagmanager.com/gtm.js?id=GTM-TSHZLHD$domain=cyclingnews.com
 @@||googletagmanager.com/gtm.js?id=GTM-WMQ82P6$domain=excite.co.jp
 @@||googletagmanager.com/gtm.js^$domain=asus.com
@@ -7270,6 +7271,7 @@
 @@||soutiapi.quark.cn^
 @@||sovrn.com^$domain=mens1069.com
 @@||sozi.cn/images/ad/tj
+@@||sp.ele.me^
 @@||sp0.baidu.com
 @@||sp0.baidu.com/*/finance.pae.baidu.com/vapi/async$domain=baidu.com
 @@||sp0.baidu.com^

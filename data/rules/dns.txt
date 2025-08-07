@@ -2,11 +2,11 @@
 ! Title: EasyAds
 ! Homepage: https://github.com/045200/EasyAds
 ! Expires: 12 Hours
-! Version: 2025-08-06 20:34:58（北京时间）
+! Version: 2025-08-07 09:19:59（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 164095
+! Total count: 164098
 # DNS rules extracted from adblock.txt
-# Generated on 2025-08-06 12:34:55.969422
+# Generated on 2025-08-07 01:19:57.071184
 
 ||*-*-*-lrycfv.vip^
 ||*-*.ap-east-1.elb.amazonaws.com^
@@ -22732,6 +22732,7 @@
 ||b9c4jxz1xkrstc57.eyecarebeautytips.com^
 ||ba.buyfi.com.au^
 ||baahnj.bezokularow.pl^
+||baalshousal.com^
 ||babanetwork.adk2x.com^
 ||babilswans.pro^
 ||bablace.com^
@@ -43595,6 +43596,7 @@
 ||eroadvertising.com^
 ||eroadvertising.net^
 ||eroar.lionsclubs.org^
+||erodiumvodums.com^
 ||erogavapor.pro^
 ||eroiccircu.pro^
 ||eroinattec.pro^
@@ -164053,6 +164055,7 @@
 ||zygehty.cn^
 ||zygkzytb.cn^
 ||zygomcrois.pro^
+||zygousgauby.com^
 ||zygscl.cn^
 ||zyhinue4.pro^
 ||zykwnj.cn^
