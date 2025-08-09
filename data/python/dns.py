@@ -63,6 +63,7 @@ class DNSChecker:
             conn.execute(
                 'INSERT OR REPLACE INTO domains VALUES (?, ?, ?, ?)',
                 (domain, domain_type, int(valid), int(time.time()))
+            )
         
         return valid
 
