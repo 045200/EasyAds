@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import re
 import time
 import sqlite3
@@ -54,14 +53,14 @@ class DNSValidator:
         """验证单个域名的有效性（国内外DNS）"""
         if domain in CONFIG['whitelist']:
             return True  # 白名单直接通过
-        
+
         # 检查缓存
         with sqlite3.connect(CONFIG['cache_db']) as conn:
             row = conn.execute(
                 'SELECT valid_domestic, valid_overseas FROM domains WHERE domain=? AND expires_at>=?',
                 (domain, int(time.time()))
             ).fetchone()
-            
+
             if row:
                 self.stats['cached'] += 1
                 return any(row)  # 只要任一组DNS能解析就保留
@@ -70,7 +69,7 @@ class DNSValidator:
         self.stats['checked'] += 1
         domestic_ok = self._check_with_servers(domain, CONFIG['dns_servers']['domestic'])
         overseas_ok = self._check_with_servers(domain, CONFIG['dns_servers']['overseas'])
-        
+
         # 更新缓存
         with sqlite3.connect(CONFIG['cache_db']) as conn:
             conn.execute(
@@ -78,7 +77,7 @@ class DNSValidator:
                 (domain, int(domestic_ok), int(overseas_ok), 
                 int(time.time()), int(time.time()) + CONFIG['cache_ttl'])
             )
-        
+
         return domestic_ok or overseas_ok
 
     def _check_with_servers(self, domain, servers):
@@ -111,43 +110,43 @@ class DNSValidator:
         """处理单个规则文件"""
         print(f"🔍 Processing {file.name}...")
         tmp_file = file.with_suffix('.tmp')
-        
+
         with open(file, 'r', encoding='utf-8', errors='ignore') as fin:
             lines = fin.readlines()
-        
+
         valid_lines = []
         batch = []
-        
+
         for line in lines:
             line = line.strip()
             if not line or line[0] in ('!', '#', '@'):
                 valid_lines.append(line)
                 continue
-            
+
             domain = self._extract_domain(line)
             if not re.match(r'^([a-z0-9-]+\.)+[a-z]{2,}$', domain):
                 valid_lines.append(line)
                 continue
-            
+
             self.stats['total'] += 1
             batch.append((line, domain))
-            
+
             # 批量处理
             if len(batch) >= CONFIG['batch_size']:
                 self._process_batch(batch, valid_lines)
                 batch = []
-        
+
         # 处理剩余批次
         if batch:
             self._process_batch(batch, valid_lines)
-        
+
         # 写入临时文件
         with open(tmp_file, 'w', encoding='utf-8') as fout:
             fout.write('\n'.join(valid_lines) + '\n')
-        
+
         # 替换原文件
         tmp_file.replace(file)
-        
+
         # 打印统计信息
         removed = self.stats['total'] - len([l for l in valid_lines if l and l[0] not in ('!', '#', '@')])
         print(f"✅ Finished {file.name}")
@@ -157,10 +156,10 @@ class DNSValidator:
     def _process_batch(self, batch, valid_lines):
         """处理一批规则"""
         domains = [item[1] for item in batch]
-        with ThreadPoolExecutor(max_workers=CONFIG['max_workers'])) as executor:
+        with ThreadPoolExecutor(max_workers=CONFIG['max_workers']) as executor:
             # 并行验证域名
             results = list(executor.map(self.validate_domain, domains))
-        
+
         # 保留有效的规则
         for (line, _), is_valid in zip(batch, results):
             if is_valid:
@@ -168,14 +167,14 @@ class DNSValidator:
 
 def main():
     validator = DNSValidator()
-    
+
     # 清理过期缓存
     validator._clean_cache()
-    
+
     # 处理所有规则文件
     for file in CONFIG['input_dir'].glob('*.txt'):
         validator.process_file(file)
-        
+
         # 重置统计计数
         validator.stats = {'total': 0, 'cached': 0, 'checked': 0, 'removed': 0}
 
