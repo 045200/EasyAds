@@ -25,15 +25,15 @@ jobs:
             data/mod/**
 
       - name: Install dependencies
-  if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-  run: |
-    sudo apt-get update -q
-    sudo apt-get install -y -q --no-install-recommends \
-      dnsutils  # 提供dig命令
-    pip install --no-cache-dir \
-      tldextract==3.4.1  # 确保SQLite支持
-  env:
-    PIP_NO_CACHE_DIR: "true"  # 禁用pip缓存
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends \
+            dnsutils  # 提供dig命令
+          pip install --no-cache-dir \
+            tldextract==3.4.1  # 确保SQLite支持
+        env:
+          PIP_NO_CACHE_DIR: "true"  # 禁用pip缓存
 
       - name: Download Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
@@ -44,21 +44,21 @@ jobs:
       - name: Smart DNS Filter
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
-        # 确保缓存目录存在
-        mkdir -p ./tmp
-    
-        # 执行DNS验证脚本
-        python ./data/python/dns.py \
-      --input-dir ./tmp \
-      --timeout 2 \
-      --workers 6 \
-      --cache-file ./tmp/dns_cache.db \
-      --batch-size 500 2>&1 | tee -a dns_validation.log
-    
-    # 上传日志供调试
-       echo "===== DNS VALIDATION LOG ====="
-    cat dns_validation.log
-       timeout-minutes: 30  # 防止长时间挂起
+          # 确保缓存目录存在
+          mkdir -p ./tmp
+          
+          # 执行DNS验证脚本
+          python ./data/python/dns.py \
+            --input-dir ./tmp \
+            --timeout 2 \
+            --workers 6 \
+            --cache-file ./tmp/dns_cache.db \
+            --batch-size 500 2>&1 | tee -a dns_validation.log
+          
+          # 上传日志供调试
+          echo "===== DNS VALIDATION LOG ====="
+          cat dns_validation.log
+        timeout-minutes: 30  # 防止长时间挂起
 
       - name: Merge Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
