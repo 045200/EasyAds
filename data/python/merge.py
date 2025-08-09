@@ -1,92 +1,85 @@
+import os
+import subprocess
+import glob
+import re
 from pathlib import Path
 
-def is_valid_rule(line: str) -> bool:
-    """宽松的规则验证逻辑"""
-    line = line.strip()
-    if not line:
-        return False
-    if line.startswith(("#", "!", "//")):  # 跳过注释行
-        return False
-    return True
+os.chdir('tmp')
 
-def normalize_rule(rule: str) -> str:
-    """标准化规则格式（保留原始大小写）"""
-    rule = rule.strip()
-    if rule.startswith("||") and rule.endswith("^"):
-        return rule[2:-1]
-    if rule.startswith("@@"):
-        return rule[2:]
-    return rule
+print("合并上游拦截规则")
+file_list = glob.glob('adblock*.txt')
+with open('combined_adblock.txt', 'w') as outfile:
+    for file in file_list:
+        with open(file, 'r') as infile:
+            outfile.write(infile.read())
+            outfile.write('\n')
 
-def process_rules():
-    # 设置路径
-    tmp_dir = Path("/home/runner/work/EasyAds/EasyAds/tmp")
-    output_dir = tmp_dir.parent / "data" / "rules"
-    output_dir.mkdir(parents=True, exist_ok=True)
+with open('combined_adblock.txt', 'r') as f:
+    content = f.read()
+content = re.sub(r'^[!].*$\n', '', content, flags=re.MULTILINE)
+content = re.sub(r'^#(?!\s*#).*\n?', '', content, flags=re.MULTILINE)
 
-    # 1. 加载白名单
-    allow_rules = set()
-    for file in sorted(tmp_dir.glob("allow*.txt")):
-        if file.stat().st_size == 0:
-            print(f"⚠️ 空文件跳过: {file.name}")
-            continue
-        try:
-            print(f"📄 正在处理白名单文件: {file.name}")
-            with open(file, "r", encoding="utf-8", errors="ignore") as f:
-                lines = f.readlines()
-                print(f"文件 {file.name} 总行数: {len(lines)}")
-                for line in lines[:5]:  # 打印前5行内容
-                    print(f"预览: {line.strip()}")
-                for line in lines:
-                    if is_valid_rule(line):
-                        rule = normalize_rule(line)
-                        if rule:
-                            allow_rules.add(rule)
-            print(f"✅ 读取完成: {file.name}，白名单规则数量: {len(allow_rules)}")
-        except Exception as e:
-            print(f"⚠️ 跳过损坏文件 {file.name}: {str(e)}")
+with open('cleaned_adblock.txt', 'w') as f:
+    f.write(content)
+print("拦截规则合并完成")
 
-    # 2. 处理拦截规则
-    final_rules = set()
-    for file in sorted(tmp_dir.glob("adblock*.txt")):
-        if file.stat().st_size == 0:
-            print(f"⚠️ 空文件跳过: {file.name}")
-            continue
-        try:
-            print(f"📄 正在处理拦截规则文件: {file.name}")
-            with open(file, "r", encoding="utf-8", errors="ignore") as f:
-                lines = f.readlines()
-                print(f"文件 {file.name} 总行数: {len(lines)}")
-                for line in lines[:5]:  # 打印前5行内容
-                    print(f"预览: {line.strip()}")
-                for line in lines:
-                    if is_valid_rule(line):
-                        rule = normalize_rule(line)
-                        if rule and rule not in allow_rules:
-                            final_rules.add(rule)
-            print(f"✅ 读取完成: {file.name}，当前拦截规则数量: {len(final_rules)}")
-        except Exception as e:
-            print(f"⚠️ 跳过损坏文件 {file.name}: {str(e)}")
+print("合并上游白名单规则")
+allow_file_list = glob.glob('allow*.txt')
+with open('combined_allow.txt', 'w') as outfile:
+    for file in allow_file_list:
+        with open(file, 'r') as infile:
+            outfile.write(infile.read())
+            outfile.write('\n')
 
-    # 3. 检查冲突
-    conflict_count = sum(1 for rule in final_rules if rule in allow_rules)
-    print(f"⚠️ 冲突规则数量: {conflict_count}")
+with open('combined_allow.txt', 'r') as f:
+    content = f.read()
+content = re.sub(r'^[!].*$\n', '', content, flags=re.MULTILINE)
+content = re.sub(r'^#(?!\s*#).*\n?', '', content, flags=re.MULTILINE)
 
-    # 4. 写入最终文件
-    try:
-        with open(output_dir / "adblock.txt", "w", encoding="utf-8") as f:
-            f.write("! 最终拦截规则（已过滤白名单冲突）\n")
-            f.writelines(line + "\n" for line in sorted(final_rules))
-        print(f"✅ 写入完成: {output_dir / 'adblock.txt'}")
+with open('cleaned_allow.txt', 'w') as f:
+    f.write(content)
+print("白名单规则合并完成")
 
-        with open(output_dir / "allow.txt", "w", encoding="utf-8") as f:
-            f.write("! 最终白名单规则\n")
-            f.writelines("@@" + line + "\n" for line in sorted(allow_rules))
-        print(f"✅ 写入完成: {output_dir / 'allow.txt'}")
-    except Exception as e:
-        print(f"✗ 写入最终文件失败: {str(e)}")
+print("过滤白名单规则")
+with open('cleaned_allow.txt', 'r') as f:
+    allow_lines = f.readlines()
 
-    print(f"✅ 处理完成！生成 {len(final_rules)} 条拦截规则 + {len(allow_rules)} 条白名单规则")
+with open('combined_adblock.txt', 'a') as outfile:
+    outfile.writelines(allow_lines)
 
-if __name__ == "__main__":
-    process_rules()
+with open('combined_adblock.txt', 'r') as f:
+    lines = f.readlines()
+with open('allow.txt', 'w') as f:
+    for line in lines:
+        if line.startswith('@'):
+            f.write(line)
+
+current_dir = os.getcwd()
+adblock_file = os.path.join(current_dir, 'cleaned_adblock.txt')
+allow_file = os.path.join(current_dir, 'allow.txt')
+target_dir = os.path.join(current_dir, '.././data/rules/')
+Path(target_dir).mkdir(parents=True, exist_ok=True)
+adblock_file_new = os.path.join(target_dir, 'adblock.txt')
+allow_file_new = os.path.join(target_dir, 'allow.txt')
+os.rename(adblock_file, adblock_file_new) 
+os.rename(allow_file, allow_file_new) 
+
+print("规则去重中")
+os.chdir(".././data/rules/")  # 更改当前目录
+files = os.listdir()  # 得到文件夹下的所有文件名称
+result = []
+for file in files:  # 遍历文件夹
+    if not os.path.isdir(file):  # 判断是否是文件夹，不是文件夹才打开
+        if os.path.splitext(file)[1] == '.txt':
+            # print('开始去重'+(file))
+            f = open(file, encoding="utf8")  # 打开文件
+            result = list(set(f.readlines()))
+            result.sort()
+            fo = open('test' + (file), "w", encoding="utf8")
+            fo.writelines(result)
+            f.close()
+            fo.close()
+            os.remove(file)
+            os.rename('test' + (file), (file))
+            # print((file) + '去重完成')
+print("规则去重完成")
