@@ -59,6 +59,7 @@ def download_with_retry(url, save_path):
             headers.update(extra_headers)
             break
 
+    temp_path = None  # 修复关键：提前定义变量
     for attempt in range(MAX_RETRIES):
         try:
             print(f"⇩ 正在下载 [{attempt+1}/{MAX_RETRIES}]: {url}")
@@ -69,20 +70,7 @@ def download_with_retry(url, save_path):
                 url,
                 headers=headers,
                 timeout=TIMEOUT,
-                verify=verify_ssl,
-                stream=True
-            )
-            response.raise_for_status()
-
-            # 写入临时文件后再移动（原子操作）
-            temp_path = f"{save_path}.tmp"
-            with open(temp_path, "wb") as f:
-                for chunk in response.iter_content(chunk_size=8192):
-                    if chunk:
-                        f.write(chunk)
-            
-            # 验证文件有效性
-            if os.path.getsize(temp_path) == 0:
+                verify=verify            if os.path.getsize(temp_path) == 0:
                 raise ValueError("下载内容为空")
             
             shutil.move(temp_path, save_path)
@@ -91,7 +79,8 @@ def download_with_retry(url, save_path):
 
         except Exception as e:
             print(f"✗ 尝试 {attempt+1} 失败: {type(e).__name__}: {e}")
-            if os.path.exists(temp_path):
+            # 修复关键：只有 temp_path 不为 None 且文件存在时才删除
+            if temp_path and os.path.exists(temp_path):
                 os.remove(temp_path)
             if attempt < MAX_RETRIES - 1:
                 time.sleep((attempt + 1) * 3)
@@ -182,7 +171,6 @@ def main():
             print(f"- {f} ({size:.1f}KB)")
         
         print(f"\n✓ 任务完成！文件保存在: {os.path.abspath('./tmp/')}")
-
     except Exception as e:
         print(f"\n✗ 脚本执行失败: {e}")
         raise
