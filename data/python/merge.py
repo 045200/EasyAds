@@ -19,9 +19,12 @@ def clean_rules(input_file, output_file):
         f.write(content)
 
 def extract_allow_lines(allow_file, adblock_combined_file, allow_output_file):
+    # 把 allow_file 的内容追加到 adblock_combined_file
     with open(allow_file, 'r', encoding='utf8') as f:
         allow_lines = f.readlines()
-    with open(adblock_combined_file, '        out.writelines(allow_lines)
+    with open(adblock_combined_file, 'a', encoding='utf8') as out:
+        out.writelines(allow_lines)
+    # 筛选出 adblock_combined_file 中以 @ 开头的行，写入 allow_output_file
     with open(adblock_combined_file, 'r', encoding='utf8') as f:
         lines = f.readlines()
     with open(allow_output_file, 'w', encoding='utf8') as f:
@@ -30,19 +33,17 @@ def extract_allow_lines(allow_file, adblock_combined_file, allow_output_file):
                 f.write(line)
 
 def move_files_to_target(adblock_file, allow_file, target_dir):
-    Path(target_dir).mkdir(parents=True, exist_ok=True)
+    target_dir = Path(target_dir)
+    target_dir.mkdir(parents=True, exist_ok=True)
     adblock_target = target_dir / 'adblock.txt'
     allow_target = target_dir / 'allow.txt'
-    adblock_file.rename(adblock_target)
-    allow_file.rename(allow_target)
+    Path(adblock_file).rename(adblock_target)
+    Path(allow_file).rename(allow_target)
 
 def deduplicate_txt_files(target_dir):
+    target_dir = Path(target_dir)
     for file in target_dir.glob('*.txt'):
-        with open(file, 'r', encoding='utf8') as f:
-            lines = set(f.readlines())
-        with open(file, 'w', encoding='utf8') as f:
-            for line in sorted(lines):
-                f.write(line)
+        with open(file, 'r', encoding='utf8') as f(line)
 
 def main():
     tmp_dir = Path('tmp')
