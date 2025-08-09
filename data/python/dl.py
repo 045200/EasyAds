@@ -2,19 +2,19 @@ import os
 import shutil
 import requests
 import time
-from pathlib import Path
+from urllib.parse import urlparse
 
 # ============== 配置参数 ==============
-MAX_RETRIES = 3
-TIMEOUT = 60
-USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+MAX_RETRIES = 3       # 最大重试次数
+TIMEOUT = 15          # 请求超时时间(秒)
+GITHUB_CDN = "https://cdn.jsdelivr.net/gh"  # GitHub CDN镜像地址
 
 # ============== 目录初始化 ==============
 def init_environment():
-    """初始化工作目录"""
+    """初始化工作目录结构"""
     try:
-        os.makedirs("./tmp/", exist_ok=True)
-        os.makedirs("./data/mod/", exist_ok=True)
+        os.makedirs("./tmp/", exist_ok=True)      # 临时下载目录
+        os.makedirs("./data/mod/", exist_ok=True) # 规则存储目录
         print("✓ 目录初始化完成")
     except Exception as e:
         print(f"✗ 目录初始化失败: {e}")
@@ -22,14 +22,14 @@ def init_environment():
 
 # ============== 本地规则处理 ==============
 def handle_local_rules():
-    """处理本地规则文件"""
+    """处理本地已有规则文件"""
     try:
-        # 主拦截规则
+        # 主拦截规则 (本地自定义规则)
         if not os.path.exists("./data/mod/adblock.txt"):
             open("./data/mod/adblock.txt", "w").close()
         shutil.copy("./data/mod/adblock.txt", "./tmp/adblock01.txt")
 
-        # 主白名单
+        # 主白名单 (本地自定义白名单)
         if not os.path.exists("./data/mod/whitelist.txt"):
             open("./data/mod/whitelist.txt", "w").close()
         shutil.copy("./data/mod/whitelist.txt", "./tmp/allow01.txt")
@@ -39,29 +39,50 @@ def handle_local_rules():
         print(f"✗ 本地规则处理失败: {e}")
         raise
 
-# ============== 增强下载函数 ==============
+# ============== 优化的下载函数 ==============
 def download_with_retry(url, save_path):
-    """带重试机制的下载函数"""
-    headers = {"User-Agent": USER_AGENT}
+    """
+    带CDN加速和智能回退的下载函数
+    :param url: 下载地址
+    :param save_path: 保存路径
+    :return: 是否成功
+    """
+    original_url = url  # 保存原始URL用于回退
     
-    temp_path = f"{save_path}.tmp"
+    # 自动转换GitHub原始URL为CDN加速URL
+    if "raw.githubusercontent.com" in url:
+        try:
+            parsed = urlparse(url)
+            path_parts = parsed.path.split('/')
+            user_repo = f"{path_parts[1]}/{path_parts[2]}"
+            branch = path_parts[3]
+            file_path = '/'.join(path_parts[4:])
+            cdn_url = f"{GITHUB_CDN}/{user_repo}@{branch}/{file_path}"
+            print(f"🔧 转换GitHub URL为CDN镜像: {cdn_url}")
+            url = cdn_url
+        except Exception as e:
+            print(f"⚠ URL转换失败，使用原始URL: {str(e)}")
+
+    session = requests.Session()
+    temp_path = f"{save_path}.tmp"  # 临时下载路径
+    
     for attempt in range(MAX_RETRIES):
         try:
-            print(f"⇩ 正在下载 [{attempt+1}/{MAX_RETRIES}]: {url}")
-
-            # 强制HTTPS验证（除非明确是HTTP）
-            verify_ssl = not url.startswith('http://')
-            response = requests.get(
+            print(f"⇩ 正在尝试 [{attempt+1}/{MAX_RETRIES}]: {url}")
+            
+            response = session.get(
                 url,
-                headers=headers,
                 timeout=TIMEOUT,
-                verify=verify_ssl,
-                stream=True
+                stream=True,
+                headers={
+                    "Accept": "text/plain",
+                    "Accept-Encoding": "identity"  # 禁用压缩编码
+                }
             )
-
+            
             response.raise_for_status()
 
-            # 写入临时文件
+            # 流式写入文件 (避免大文件内存占用)
             with open(temp_path, "wb") as f:
                 for chunk in response.iter_content(chunk_size=8192):
                     if chunk:
@@ -76,47 +97,95 @@ def download_with_retry(url, save_path):
             return True
 
         except Exception as e:
-            print(f"✗ 尝试 {attempt+1} 失败: {type(e).__name__}: {e}")
+            print(f"✗ 尝试 {attempt+1} 失败: {type(e).__name__}: {str(e)[:100]}")
             if os.path.exists(temp_path):
                 os.remove(temp_path)
             if attempt < MAX_RETRIES - 1:
-                time.sleep((attempt + 1) * 3)
+                wait_time = 2 ** attempt  # 指数退避策略
+                print(f"⏳ 等待 {wait_time}秒后重试...")
+                time.sleep(wait_time)
 
-    print(f"! 无法下载: {url} (已达最大重试次数)")
+    # CDN下载失败时回退到原始GitHub URL
+    if url != original_url:
+        print(f"🔄 CDN下载失败，尝试回退到原始URL: {original_url}")
+        return download_with_retry(original_url, save_path)
+        
     return False
 
-# ============== 规则源列表 ==============
+# ============== 规则源列表 (带详细注释) ==============
 adblock = [
-    "https://raw.githubusercontent.com/damengzhu/banad/main/jiekouAD.txt",  # 大萌主-接口广告
-    "https://raw.githubusercontent.com/afwfv/DD-AD/main/rule/DD-AD.txt",    # DD-AD规则
-    "https://raw.hellogithub.com/hosts",                                   # GitHub加速hosts
-    "https://anti-ad.net/easylist.txt",                                    # anti-AD
-    "https://raw.githubusercontent.com/Cats-Team/AdRules/main/adblock.txt", # cat规则
-    "https://raw.githubusercontent.com/qq5460168/dangchu/main/adhosts.txt", # 测试hosts
-    "https://lingeringsound.github.io/10007_auto/adb.txt",                 # 10007自动规则
-    "https://raw.githubusercontent.com/790953214/qy-Ads-Rule/refs/heads/main/black.txt", # 晴雅黑名单
-    "https://raw.githubusercontent.com/2771936993/HG/main/hg1.txt",        # 海哥规则
-    "https://github.com/entr0pia/fcm-hosts/raw/fcm/fcm-hosts",            # FCM Hosts
-    "https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/AWAvenue-Ads-Rule.txt",  # 秋风主规则
-    "https://raw.githubusercontent.com/2Gardon/SM-Ad-FuckU-hosts/refs/heads/master/SMAdHosts",     # SMAdHosts
-    "https://raw.githubusercontent.com/Kuroba-Sayuki/FuLing-AdRules/refs/heads/main/FuLingRules/FuLingBlockList.txt",  # 茯苓拦截
+    # 大萌主-接口广告规则
+    "https://raw.githubusercontent.com/damengzhu/banad/main/jiekouAD.txt",
+    
+    # DD-AD去广告规则
+    "https://raw.githubusercontent.com/afwfv/DD-AD/main/rule/DD-AD.txt",
+    
+    # GitHub加速hosts (HelloGitHub提供)
+    "https://raw.hellogithub.com/hosts",
+    
+    # Anti-AD通用规则
+    "https://anti-ad.net/easylist.txt",
+    
+    # Cats-Team广告规则
+    "https://raw.githubusercontent.com/Cats-Team/AdRules/main/adblock.txt",
+    
+    # 挡广告hosts规则
+    "https://raw.githubusercontent.com/qq5460168/dangchu/main/adhosts.txt",
+    
+    # 10007自动规则
+    "https://lingeringsound.github.io/10007_auto/adb.txt",
+    
+    # 晴雅去广告规则
+    "https://raw.githubusercontent.com/790953214/qy-Ads-Rule/main/black.txt",
+    
+    # 海哥广告规则
+    "https://raw.githubusercontent.com/2771936993/HG/main/hg1.txt",
+    
+    # FCM hosts规则
+    "https://github.com/entr0pia/fcm-hosts/raw/fcm/fcm-hosts",
+    
+    # 秋风广告规则
+    "https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/AWAvenue-Ads-Rule.txt",
+    
+    # SMAdHosts规则
+    "https://raw.githubusercontent.com/2Gardon/SM-Ad-FuckU-hosts/master/SMAdHosts",
+    
+    # 茯苓拦截规则
+    "https://raw.githubusercontent.com/Kuroba-Sayuki/FuLing-AdRules/main/FuLingRules/FuLingBlockList.txt"
 ]
 
 allow = [
-    "https://raw.githubusercontent.com/qq5460168/dangchu/main/white.txt",  # 测试白名单
-    "https://raw.githubusercontent.com/mphin/AdGuardHomeRules/main/Allowlist.txt",  # 通用白名单
-    "https://file-git.trli.club/file-hosts/allow/Domains",                # 冷漠域名白名单
-    "https://raw.githubusercontent.com/jhsvip/ADRuls/main/white.txt",     # jhsvip白名单
-    "https://raw.githubusercontent.com/liwenjie119/adg-rules/master/white.txt",  # liwenjie119
-    "https://raw.githubusercontent.com/miaoermua/AdguardFilter/main/whitelist.txt",  # 喵二白名单
-    "https://raw.githubusercontent.com/Kuroba-Sayuki/FuLing-AdRules/refs/heads/main/FuLingRules/FuLingAllowList.txt",  # 茯苓白名单
-    "https://raw.githubusercontent.com/Cats-Team/AdRules/refs/heads/script/script/allowlist.txt",  # cat白名单
-    "https://anti-ad.net/easylist.txt"                                   # anti-AD白名单
+    # 挡广告白名单
+    "https://raw.githubusercontent.com/qq5460168/dangchu/main/white.txt",
+    
+    # AdGuardHome通用白名单
+    "https://raw.githubusercontent.com/mphin/AdGuardHomeRules/main/Allowlist.txt",
+    
+    # 冷漠域名白名单
+    "https://file-git.trli.club/file-hosts/allow/Domains",
+    
+    # jhsvip白名单
+    "https://raw.githubusercontent.com/jhsvip/ADRuls/main/white.txt",
+    
+    # liwenjie119白名单
+    "https://raw.githubusercontent.com/liwenjie119/adg-rules/master/white.txt",
+    
+    # 喵二白名单
+    "https://raw.githubusercontent.com/miaoermua/AdguardFilter/main/whitelist.txt",
+    
+    # 茯苓白名单
+    "https://raw.githubusercontent.com/Kuroba-Sayuki/FuLing-AdRules/main/FuLingRules/FuLingAllowList.txt",
+    
+    # Cats-Team白名单
+    "https://raw.githubusercontent.com/Cats-Team/AdRules/script/allowlist.txt",
+    
+    # Anti-AD白名单
+    "https://anti-ad.net/easylist.txt"
 ]
 
 # ============== 主下载流程 ==============
 def download_rules():
-    """主下载流程"""
+    """执行规则下载任务"""
     print("\n" + "="*40)
     print("开始下载拦截规则".center(40))
     print("="*40)
