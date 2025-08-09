@@ -30,7 +30,7 @@ def handle_local_rules():
             open("./data/mod/adblock.txt", "w").close()
         shutil.copy("./data/mod/adblock.txt", "./tmp/adblock01.txt")
 
-        # 主白名单
+        主白名单
         if not os.path.exists("./data/mod/whitelist.txt"):
             open("./data/mod/whitelist.txt", "w").close()
         shutil.copy("./data/mod/whitelist.txt", "./tmp/allow01.txt")
@@ -70,9 +70,23 @@ def download_with_retry(url, save_path):
                 url,
                 headers=headers,
                 timeout=TIMEOUT,
-                verify=verify            if os.path.getsize(temp_path) == 0:
+                verify=verify_ssl,
+                stream=True
+            )
+
+            response.raise_for_status()
+
+            # 写入临时文件后再移动（原子操作）
+            temp_path = f"{save_path}.tmp"
+            with open(temp_path, "wb") as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+
+            # 验证文件有效性
+            if os.path.getsize(temp_path) == 0:
                 raise ValueError("下载内容为空")
-            
+
             shutil.move(temp_path, save_path)
             print(f"✓ 下载成功 -> {save_path} ({os.path.getsize(save_path)/1024:.1f}KB)")
             return True
