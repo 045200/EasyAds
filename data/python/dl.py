@@ -109,6 +109,8 @@ adblock = [
     "https://raw.githubusercontent.com/afwfv/DD-AD/main/rule/DD-AD.txt",    # DD-AD规则
     "https://raw.hellogithub.com/hosts",                                   # GitHub加速hosts
 
+"https://anti-ad.net/easylist.txt",  # anti-AD
+
     # 补充规则
     "https://raw.githubusercontent.com/Cats-Team/AdRules/main/adblock.txt", # cat规则
     "https://raw.githubusercontent.com/qq5460168/dangchu/main/adhosts.txt", # 测试hosts
