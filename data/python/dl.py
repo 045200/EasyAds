@@ -14,7 +14,6 @@ def init_environment():
     """初始化工作目录"""
     try:
         os.makedirs("./tmp/", exist_ok=True)
-        os.makedirs("./data/rules/", exist_ok=True)
         os.makedirs("./data/mod/", exist_ok=True)
         print("✓ 目录初始化完成")
     except Exception as e:
@@ -44,22 +43,8 @@ def handle_local_rules():
 def download_with_retry(url, save_path):
     """带重试机制的下载函数"""
     headers = {"User-Agent": USER_AGENT}
-
-    # 特殊域名处理（仅保留rssv.cn）
-    special_domains = {
-        "rssv.cn": {
-            "Referer": "http://rssv.cn/",
-            "Accept": "text/plain",
-            "Connection": "keep-alive"
-        }
-    }
-
-    for domain, extra_headers in special_domains.items():
-        if domain in url:
-            headers.update(extra_headers)
-            break
-
-    temp_path = None  # 修复关键：提前定义变量
+    
+    temp_path = f"{save_path}.tmp"
     for attempt in range(MAX_RETRIES):
         try:
             print(f"⇩ 正在下载 [{attempt+1}/{MAX_RETRIES}]: {url}")
@@ -76,8 +61,7 @@ def download_with_retry(url, save_path):
 
             response.raise_for_status()
 
-            # 写入临时文件后再移动（原子操作）
-            temp_path = f"{save_path}.tmp"
+            # 写入临时文件
             with open(temp_path, "wb") as f:
                 for chunk in response.iter_content(chunk_size=8192):
                     if chunk:
@@ -93,8 +77,7 @@ def download_with_retry(url, save_path):
 
         except Exception as e:
             print(f"✗ 尝试 {attempt+1} 失败: {type(e).__name__}: {e}")
-            # 修复关键：只有 temp_path 不为 None 且文件存在时才删除
-            if temp_path and os.path.exists(temp_path):
+            if os.path.exists(temp_path):
                 os.remove(temp_path)
             if attempt < MAX_RETRIES - 1:
                 time.sleep((attempt + 1) * 3)
@@ -102,24 +85,17 @@ def download_with_retry(url, save_path):
     print(f"! 无法下载: {url} (已达最大重试次数)")
     return False
 
-# ============== 完整规则源列表 ==============
+# ============== 规则源列表 ==============
 adblock = [
-    # 主规则源
     "https://raw.githubusercontent.com/damengzhu/banad/main/jiekouAD.txt",  # 大萌主-接口广告
     "https://raw.githubusercontent.com/afwfv/DD-AD/main/rule/DD-AD.txt",    # DD-AD规则
     "https://raw.hellogithub.com/hosts",                                   # GitHub加速hosts
     "https://anti-ad.net/easylist.txt",                                    # anti-AD
-
-    # 补充规则
     "https://raw.githubusercontent.com/Cats-Team/AdRules/main/adblock.txt", # cat规则
     "https://raw.githubusercontent.com/qq5460168/dangchu/main/adhosts.txt", # 测试hosts
     "https://lingeringsound.github.io/10007_auto/adb.txt",                 # 10007自动规则
-
-    # 特殊规则（需特殊处理）
-    "http://rssv.cn/adguard/api.php?type=black",                           # 晴雅黑名单（需特殊头）
-    "https://raw.githubusercontent.com/2771936993/HG/main/hg1.txt",        # 海哥规则（更新为GitHub源）
-
-    # 其他规则
+    "https://raw.githubusercontent.com/790953214/qy-Ads-Rule/refs/heads/main/black.txt", # 晴雅黑名单
+    "https://raw.githubusercontent.com/2771936993/HG/main/hg1.txt",        # 海哥规则
     "https://github.com/entr0pia/fcm-hosts/raw/fcm/fcm-hosts",            # FCM Hosts
     "https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/AWAvenue-Ads-Rule.txt",  # 秋风主规则
     "https://raw.githubusercontent.com/2Gardon/SM-Ad-FuckU-hosts/refs/heads/master/SMAdHosts",     # SMAdHosts
@@ -127,15 +103,10 @@ adblock = [
 ]
 
 allow = [
-    # 基础白名单
     "https://raw.githubusercontent.com/qq5460168/dangchu/main/white.txt",  # 测试白名单
     "https://raw.githubusercontent.com/mphin/AdGuardHomeRules/main/Allowlist.txt",  # 通用白名单
-
-    # 域名白名单
     "https://file-git.trli.club/file-hosts/allow/Domains",                # 冷漠域名白名单
     "https://raw.githubusercontent.com/jhsvip/ADRuls/main/white.txt",     # jhsvip白名单
-
-    # 其他白名单
     "https://raw.githubusercontent.com/liwenjie119/adg-rules/master/white.txt",  # liwenjie119
     "https://raw.githubusercontent.com/miaoermua/AdguardFilter/main/whitelist.txt",  # 喵二白名单
     "https://raw.githubusercontent.com/Kuroba-Sayuki/FuLing-AdRules/refs/heads/main/FuLingRules/FuLingAllowList.txt",  # 茯苓白名单
