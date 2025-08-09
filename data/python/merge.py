@@ -1,5 +1,4 @@
 from pathlib import Path
-import re
 
 def is_valid_rule(line: str) -> bool:
     """宽松的规则验证逻辑"""
@@ -28,13 +27,16 @@ def process_rules():
 
     # 1. 加载白名单
     allow_rules = set()
-    for file in(tmp_dir.glob("allow*.txt")):
+    for file in sorted(tmp_dir.glob("allow*.txt")):
         if file.stat().st_size == 0:
             print(f"⚠️ 空文件跳过: {file.name}")
             continue
         try:
             print(f"📄 正在处理白名单文件: {file.name}")
-            with open(file, "r normalize_rule(line)
+            with open(file, "r", encoding="utf-8", errors="ignore") as f:
+                for line in f:
+                    if is_valid_rule(line):
+                        rule = normalize_rule(line)
                         if rule:  # 空规则检查
                             allow_rules.add(rule)
             print(f"✅ 读取完成: {file.name}，白名单规则数量: {len(allow_rules)}")
@@ -66,7 +68,8 @@ def process_rules():
             f.writelines(line + "\n" for line in sorted(final_rules))
         print(f"✅ 写入完成: {output_dir / 'adblock.txt'}")
 
-        with open(output_dir / "allow.txt", "w", encoding="utf-8") as f白名单规则\n")
+        with open(output_dir / "allow.txt", "w", encoding="utf-8") as f:
+            f.write("! 最终白名单规则\n")
             f.writelines("@@" + line + "\n" for line in sorted(allow_rules))
         print(f"✅ 写入完成: {output_dir / 'allow.txt'}")
     except Exception as e:
