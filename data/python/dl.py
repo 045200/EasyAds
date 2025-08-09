@@ -30,7 +30,7 @@ def handle_local_rules():
             open("./data/mod/adblock.txt", "w").close()
         shutil.copy("./data/mod/adblock.txt", "./tmp/adblock01.txt")
 
-        主白名单
+        # 主白名单
         if not os.path.exists("./data/mod/whitelist.txt"):
             open("./data/mod/whitelist.txt", "w").close()
         shutil.copy("./data/mod/whitelist.txt", "./tmp/allow01.txt")
