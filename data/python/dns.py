@@ -2,11 +2,17 @@
 import os
 import re
 import time
-import sqlite3
-import platform
+import sqlite3  # Python 内置模块，无需安装
 import subprocess
-from pathlib import Path
+from pathlib import Path  # 优先使用标准库
+from typing import Set, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
+# 兼容旧版Python（若无pathlib则尝试pathlib2）
+try:
+    from pathlib import Path
+except ImportError:
+    from pathlib2 import Path  # type: ignore
 
 # DNS服务器配置
 DOMESTIC_DNS = [
