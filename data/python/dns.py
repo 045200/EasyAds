@@ -2,17 +2,12 @@
 import os
 import re
 import time
-import sqlite3  # Python 内置模块，无需安装
+import sqlite3
+import platform
 import subprocess
-from pathlib import Path  # 优先使用标准库
-from typing import Set, Optional
+from pathlib import Path
+from typing import Set, Dict, Optional, List
 from concurrent.futures import ThreadPoolExecutor, as_completed
-
-# 兼容旧版Python（若无pathlib则尝试pathlib2）
-try:
-    from pathlib import Path
-except ImportError:
-    from pathlib2 import Path  # type: ignore
 
 # DNS服务器配置
 DOMESTIC_DNS = [
@@ -52,7 +47,7 @@ class DNSChecker:
                 timestamp INTEGER
             )''')
 
-    def check_cache(self, domain):
+    def check_cache(self, domain: str) -> Optional[bool]:
         """检查缓存结果"""
         with sqlite3.connect(self.cache_db) as conn:
             cursor = conn.cursor()
@@ -60,13 +55,13 @@ class DNSChecker:
             result = cursor.fetchone()
             return bool(result[0]) if result else None
 
-    def update_cache(self, domain, resolvable):
+    def update_cache(self, domain: str, resolvable: bool) -> None:
         """更新缓存"""
         with sqlite3.connect(self.cache_db) as conn:
             conn.execute('INSERT OR REPLACE INTO dns_cache VALUES (?, ?, ?)',
                          (domain, int(resolvable), int(time.time())))
 
-    def start_smartdns(self):
+    def start_smartdns(self) -> None:
         """启动SmartDNS服务"""
         config_path = Path('/tmp/smartdns.conf')
         with open(config_path, 'w') as f:
@@ -80,12 +75,12 @@ class DNSChecker:
         )
         time.sleep(2)  # 等待服务启动
 
-    def stop_smartdns(self):
+    def stop_smartdns(self) -> None:
         """停止SmartDNS服务"""
         if self.smartdns_process:
             self.smartdns_process.terminate()
 
-    def query_dns(self, domain, dns_server):
+    def query_dns(self, domain: str, dns_server: str) -> bool:
         """执行DNS查询（多平台兼容）"""
         try:
             if self.dns_tool == 'dig':
@@ -99,12 +94,12 @@ class DNSChecker:
         except:
             return False
 
-    def is_domain_resolvable(self, domain):
+    def is_domain_resolvable(self, domain: str) -> bool:
         """检查域名是否可解析（带缓存和重试）"""
         # 检查缓存
         cached = self.check_cache(domain)
         if cached is not None:
-            print(f"::debug::Using cached result for {domain}")  # GitHub Actions日志
+            print(f"::debug::Using cached result for {domain}")
             return cached
 
         # 并发查询DNS
@@ -122,7 +117,7 @@ class DNSChecker:
         self.update_cache(domain, False)
         return False
 
-def extract_domains(file_path):
+def extract_domains(file_path: Path) -> Set[str]:
     """从规则文件提取域名"""
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
@@ -144,11 +139,11 @@ def extract_domains(file_path):
     
     return domains
 
-def filter_rules(input_file, output_file, checker):
+def filter_rules(input_file: Path, output_file: Path, checker: DNSChecker) -> None:
     """过滤无法解析的域名"""
     domains = extract_domains(input_file)
     total = len(domains)
-    print(f"::group::Processing {input_file} ({total} domains)")  # GitHub Actions分组日志
+    print(f"::group::Processing {input_file} ({total} domains)")
     
     resolvable_rules = set()
     start_time = time.time()
@@ -170,7 +165,7 @@ def filter_rules(input_file, output_file, checker):
     
     print(f"::endgroup::Finished. Kept {len(resolvable_rules)}/{total} rules")
 
-def main():
+def main() -> None:
     checker = DNSChecker()
     try:
         checker.start_smartdns()
