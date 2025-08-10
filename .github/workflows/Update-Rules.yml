@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 350
     steps:
-      # ==================== 初始化 ====================
+      # ==================== 初始化阶段 ====================
       - uses: actions/checkout@v4
 
       - name: Setup Python
@@ -21,21 +21,26 @@ jobs:
         with:
           python-version: '3.10'
 
-      # ==================== 下载阶段 ====================
-      - name: Download Rules (dl.py)
-        id: download
+      - name: Install Dependencies
         run: |
-          mkdir -p ./tmp
-          python ./data/python/dl.py
-          echo "下载文件列表："
-          ls -lh ./tmp/
-        continue-on-error: true  # 允许部分规则下载失败
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends dnsutils
+          pip install --no-cache-dir uvloop tldextract==3.4.1 aiodns pyyaml requests
+        env:
+          PIP_NO_CACHE_DIR: "true"
 
-      # ==================== 验证阶段 ====================
-      - name: SmartDNS Validation
-        if: steps.download.outcome == 'success'
+      # ==================== 核心处理阶段 ====================
+      - name: Download and Process Rules
+        id: process
         run: |
-          echo "::group::🔍 DNS验证开始"
+          # 下载规则
+          mkdir -p ./tmp
+          echo "::group::📥 Downloading Rules"
+          python ./data/python/dl.py || echo "部分规则下载失败"
+          echo "::endgroup::"
+
+          # DNS验证
+          echo "::group::🔍 DNS Validation"
           python -m uvloop ./data/python/dns.py \
             --input ./tmp \
             --output ./data/rules \
@@ -43,30 +48,29 @@ jobs:
             --workers ${{ github.runner.os == 'Linux' && '8' || '4' }} \
             --cache ./tmp/dns_cache.json
           echo "::endgroup::"
-        env:
-          PYTHONUNBUFFERED: 1
 
-      # ==================== 规则生成 ====================
-      - name: Generate All Rules
-        if: steps.download.outcome == 'success'
-        run: |
+          # 生成各类规则
+          echo "::group::🛠️ Generating Rules"
           parallel ::: \
             "python ./data/python/merge.py" \
             "python ./data/python/qx.py" \
             "python ./data/python/mihomo.py" \
             "python ./data/python/loon.py"
+          echo "::endgroup::"
 
-      # ==================== 元数据更新 ====================
-      - name: Update Metadata
-        if: steps.download.outcome == 'success'
-        run: |
+          # 更新元数据
+          echo "::group::📝 Updating Metadata"
           python ./data/python/domain_list.py
           python ./data/python/title.py
           python ./data/python/clean-readme.py
+          echo "::endgroup::"
+        continue-on-error: true
+        env:
+          PYTHONUNBUFFERED: 1
 
-      # ==================== 结果提交 ====================
+      # ==================== 提交阶段 ====================
       - name: Commit Changes
-        if: steps.download.outcome == 'success'
+        if: steps.process.outcome == 'success'
         run: |
           git config --local user.name "GitHub Actions"
           git config --local user.email "actions@github.com"
@@ -74,7 +78,7 @@ jobs:
           git commit -m "Auto-update: $(date +'%Y-%m-%d %H:%M:%S UTC%z')" || echo "No changes"
           for i in {1..3}; do git pull --rebase && git push && break || sleep 10; done
 
-      # ==================== 异常处理 ====================
+      # ==================== 后处理阶段 ====================
       - name: Upload Error Logs
         if: failure()
         uses: actions/upload-artifact@v4
@@ -86,8 +90,7 @@ jobs:
 
       - name: Cleanup
         if: always()
-        run: |
-          rm -rf ./tmp/dns_cache.json  # 保留目录但清除缓存
+        run: rm -rf ./tmp/dns_cache.json
 
       - name: Delete workflow runs 
         uses: Mattraks/delete-workflow-runs@main
