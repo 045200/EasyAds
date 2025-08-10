@@ -44,7 +44,7 @@ adblock = [
     "https://raw.hellogithub.com/hosts",
 
     # Anti-AD通用规则
-    "https://anti-ad.net/easylist.txt",
+    #"https://anti-ad.net/easylist.txt",
 
     # Cats-Team广告规则
     "https://raw.githubusercontent.com/Cats-Team/AdRules/main/adblock.txt",
