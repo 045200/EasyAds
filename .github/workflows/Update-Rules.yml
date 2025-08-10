@@ -24,8 +24,12 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update -q
-          sudo apt-get install -y -q --no-install-recommends dnsutils parallel
-          pip install --no-cache-dir uvloop==0.17.0 tldextract==3.4.1 aiodns pyyaml requests
+          sudo apt-get install -y -q --no-install-recommends dnsutils
+          pip install --no-cache-dir \
+            uvloop==0.17.0 \
+            aiodns==3.1.1 \
+            pycares==4.3.0 \
+            idna==3.4
         env:
           PIP_NO_CACHE_DIR: "true"
 
@@ -33,36 +37,37 @@ jobs:
       - name: Download and Process Rules
         id: process
         run: |
-          # 下载规则
           mkdir -p ./tmp
-          echo "::group::📥 Downloading Rules"
-          python ./data/python/dl.py || echo "部分规则下载失败"
+          
+          # 下载规则（保留原始格式）
+          echo "::group::📥 下载规则"
+          python ./data/python/dl.py --format raw || echo "部分规则下载失败"
           echo "::endgroup::"
 
-          # DNS验证
-          echo "::group::🔍 DNS Validation"
+          # 智能DNS验证（三组DNS轮询）
+          echo "::group::🔍 DNS验证"
           python ./data/python/dns.py \
             --input ./tmp \
             --output ./data/rules \
-            --timeout 1.5 \
-            --workers ${{ github.runner.os == 'Linux' && '8' || '4' }} \
-            --cache ./tmp/dns_cache.json
+            --strategy intelligent \
+            --timeout 2.0 \
+            --max-retries 2 \
+            --workers ${{ github.runner.os == 'Linux' && '8' || '4' }}
           echo "::endgroup::"
 
-          # 生成各类规则
-          echo "::group::🛠️ Generating Rules"
-          parallel ::: \
-            "python ./data/python/merge.py" \
-            "python ./data/python/qx.py" \
-            "python ./data/python/mihomo.py" \
-            "python ./data/python/loon.py"
+          # 规则转换（保持原有功能）
+          echo "::group::🛠️ 生成规则"
+          python ./data/python/merge.py --source ./data/rules --target ./data
+          python ./data/python/qx.py --input ./data/rules --output ./data/quanx
+          python ./data/python/mihomo.py --dir ./data/rules
+          python ./data/python/loon.py --source ./data --target ./data/loon
           echo "::endgroup::"
 
-          # 更新元数据
-          echo "::group::📝 Updating Metadata"
-          python ./data/python/domain_list.py
-          python ./data/python/title.py
-          python ./data/python/clean-readme.py
+          # 元数据更新
+          echo "::group::📝 更新元数据"
+          python ./data/python/domain_list.py --input ./data/rules --output ./data
+          python ./data/python/title.py --update
+          python ./data/python/clean-readme.py --verify
           echo "::endgroup::"
         continue-on-error: true
         env:
@@ -75,7 +80,7 @@ jobs:
           git config --local user.name "GitHub Actions"
           git config --local user.email "actions@github.com"
           git add --all
-          git commit -m "Auto-update: $(date +'%Y-%m-%d %H:%M:%S UTC%z')" || echo "No changes"
+          git commit -m "Auto-update: $(date +'%Y-%m-%d %H:%M:%S')" || echo "无变更"
           for i in {1..3}; do git pull --rebase && git push && break || sleep 10; done
 
       # ==================== 后处理阶段 ====================
@@ -86,11 +91,13 @@ jobs:
           name: error-logs-${{ github.run_id }}
           path: |
             ./tmp/*.log
-            ./data/python/debug.log
+            ./data/python/*.log
 
       - name: Cleanup
         if: always()
-        run: rm -rf ./tmp/dns_cache.json
+        run: |
+          rm -rf ./tmp/dns_cache.*
+          find ./data/python -name "*.pyc" -delete
 
       - name: Delete workflow runs 
         uses: Mattraks/delete-workflow-runs@main
