@@ -117,8 +117,8 @@ def main():
     BASE_DIR = Path(__file__).parent.parent
     config = {
         "input": BASE_DIR / "rules" / "adblock-filtered.txt",  # 输入文件
-        "temp": BASE_DIR / "temp" / "mihomo-temp.txt",        # 临时文件
-        "output": BASE_DIR / "rules" / "mihomo-adblock.mrs",  # 输出文件
+        "temp": BASE_DIR / "temp" / "mihomo.txt",        # 临时文件
+        "output": BASE_DIR / "rules" / "adb.mrs",  # 输出文件
         "tool_dir": BASE_DIR / "tools"                       # 工具目录
     }
 
