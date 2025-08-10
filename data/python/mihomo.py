@@ -103,100 +103,80 @@ def convert_to_mrs(input_file, output_file, mihomo_tool_path):
         error(f"Conversion error: {str(e)}")
         return False
 
-def process_domain_file(file_path, is_allow_list=False):
-    """Process a single domain file and return cleaned domains"""
-    domains = set()
+def prepare_blacklist(input_file, output_file):
+    """Prepare pre-filtered blacklist for Mihomo"""
     try:
-        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-            for line in f:
+        with open(input_file, 'r', encoding='utf-8', errors='ignore') as f_in, \
+             open(output_file, 'w', encoding='utf-8') as f_out:
+
+            for line in f_in:
                 line = line.strip()
-                if not line or line.startswith('#'):
-                    continue
+                if not line or line.startswith(('!', '#')):
+                    continue  # Skip comments and empty lines
 
-                # Handle different rule formats
+                # Handle pure blacklist rules (no whitelist entries)
                 if line.startswith("||") and line.endswith("^"):
+                    # Convert ||domain^ to +.domain
                     domain = line[2:-1]
-                elif line.startswith("."):
-                    domain = line[1:]
+                    f_out.write(f"+.{domain}\n")
                 elif line.startswith("0.0.0.0 "):
+                    # Convert 0.0.0.0 domain to +.domain
                     domain = line[8:]
-                elif line.startswith("@@||") and line.endswith("^"):
-                    domain = line[4:-1]
+                    if not domain.startswith((' ', '#')):  # Skip malformed lines
+                        f_out.write(f"+.{domain}\n")
+                elif line.startswith("||"):
+                    # Convert ||domain.com to +.domain.com
+                    domain = line[2:]
+                    f_out.write(f"+.{domain}\n")
+                elif line.startswith("."):
+                    # Convert .domain.com to +.domain.com
+                    domain = line[1:]
+                    f_out.write(f"+.{domain}\n")
                 else:
-                    domain = line
+                    # Plain domain, add +. prefix if not already present
+                    if not line.startswith('+.'):
+                        f_out.write(f"+.{line}\n")
+                    else:
+                        f_out.write(f"{line}\n")
 
-                # For allow list, we don't add the +. prefix yet
-                domains.add(domain)
-
-        log(f"Processed {len(domains)} domains from {file_path}")
-        return domains
-
-    except Exception as e:
-        error(f"Error processing {file_path}: {str(e)}")
-        return set()
-
-def merge_domain_lists(block_domains, allow_domains, output_file):
-    """Merge and deduplicate domain lists, applying allow list rules"""
-    try:
-        # Remove allowed domains from block list
-        final_domains = block_domains - allow_domains
-
-        # Prepare the output with +. prefix
-        with open(output_file, 'w', encoding='utf-8') as f:
-            f.write("\n".join(f"+.{domain}" for domain in sorted(final_domains)))
-
-        log(f"Merged domain list created at {output_file}")
-        log(f"Total domains: {len(final_domains)} (Blocked: {len(block_domains)}, Allowed: {len(allow_domains)})")
+        log(f"Blacklist prepared and saved to {output_file}")
         return True
 
     except Exception as e:
-        error(f"Error merging domain lists: {str(e)}")
+        error(f"Error preparing blacklist: {str(e)}")
         return False
 
 def main():
-    # Configuration - adjust these paths as needed
+    # Configuration
     SCRIPT_DIR = Path(__file__).parent
     MI_HOME = SCRIPT_DIR.parent  # Assuming script is in a subdirectory
 
     # Path configuration
     config = {
-        "block_file": MI_HOME / "rules" / "adblock-filtered.txt",          # Block list file
-        "merged_file": MI_HOME / "temp" / "domains.txt",      # Merged domain list
-        "output_file": MI_HOME / "rules" / "mihomo.mrs",      # Final output file
-        "tool_dir": MI_HOME / "tools"                        # Directory for Mihomo tool
+        "input_file": MI_HOME / "rules" / "adblock-filtered.txt",  # Pre-filtered blacklist
+        "processed_file": MI_HOME / "temp" / "mihomo-ready.txt",   # Processed file
+        "output_file": MI_HOME / "rules" / "mihomo.mrs",          # Final output
+        "tool_dir": MI_HOME / "tools"                            # Mihomo tool dir
     }
 
     # Create necessary directories
-    for path in [config["merged_file"].parent, config["tool_dir"]]:
+    for path in [config["processed_file"].parent, config["tool_dir"]]:
         path.mkdir(parents=True, exist_ok=True)
 
-    # Step 1: Process block list
-    block_domains = process_domain_file(config["block_file"])
-    if not block_domains:
-        error("No domains found in block list")
+    # Step 1: Prepare the pre-filtered blacklist
+    if not prepare_blacklist(config["input_file"], config["processed_file"]):
         sys.exit(1)
 
-    # Step 2: Process allow list (if exists)
-    allow_domains = set()
-    if config["allow_file"].exists():
-        allow_domains = process_domain_file(config["allow_file"], is_allow_list=True)
-    else:
-        log("No allow list found, proceeding without it")
-
-    # Step 3: Merge and deduplicate domain lists
-    if not merge_domain_lists(block_domains, allow_domains, config["merged_file"]):
-        sys.exit(1)
-
-    # Step 4: Download Mihomo tool if needed
+    # Step 2: Download Mihomo tool if needed
     mihomo_tool = download_mihomo_tool(config["tool_dir"])
     if not mihomo_tool:
         sys.exit(1)
 
-    # Step 5: Convert to mrs format
-    if not convert_to_mrs(config["merged_file"], config["output_file"], mihomo_tool):
+    # Step 3: Convert to mrs format
+    if not convert_to_mrs(config["processed_file"], config["output_file"], mihomo_tool):
         sys.exit(1)
 
-    log("Mihomo rules generation completed successfully")
+    log("Blacklist conversion completed successfully")
 
 if __name__ == "__main__":
     main()
