@@ -83,7 +83,7 @@ def main():
     
     print("根据白名单过滤黑名单规则...")
     filter_blocked_rules(
-        rules_dir / 'adblock.txt',
+        rules_dir / 'dns.txt',
         rules_dir / 'allow.txt',
         rules_dir / 'adblock-filtered.txt'  # 输出到新文件，不覆盖原文件
     )
