@@ -127,10 +127,10 @@ def process_adguard_rules(input_path, output_path):
 
 def main():
     try:
-        # 配置路径 - 使用系统临时目录存放临时文件
+        # 配置路径 - 适配前一个脚本的输出路径
         BASE_DIR = Path(__file__).parent.parent
         config = {
-            "input": BASE_DIR / "rules" / "adblock-filtered.txt",  # 输入文件
+            "input": Path(tempfile.gettempdir()) / "adblock-filtered.txt",  # 从临时目录读取
             "temp": Path(tempfile.gettempdir()) / "mihomo.txt",    # 临时文件
             "output": BASE_DIR / "rules" / "adb.mrs",              # 输出文件
             "tool_dir": Path(tempfile.gettempdir()) / "mihomo_tools"  # 工具目录
@@ -143,6 +143,11 @@ def main():
         log(f"输出文件: {config['output']}")
         log(f"工具目录: {config['tool_dir']}")
         log("="*50)
+
+        # 检查输入文件是否存在
+        if not config["input"].exists():
+            error(f"输入文件不存在: {config['input']}")
+            sys.exit(1)
 
         # 1. 处理 AdGuard 规则
         if not process_adguard_rules(config["input"], config["temp"]):
