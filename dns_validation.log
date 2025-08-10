@@ -1,8 +1,0 @@
-  File "/home/runner/work/EasyAds/EasyAds/./data/python/dns.py", line 160
-    with ThreadPoolExecutor(max_workers=CONFIG['max_workers'])) as executor:
-                                                              ^
-SyntaxError: unmatched ')'
-  File "/home/runner/work/EasyAds/EasyAds/./data/python/dns.py", line 160
-    with ThreadPoolExecutor(max_workers=CONFIG['max_workers'])) as executor:
-                                                              ^
-SyntaxError: unmatched ')'
