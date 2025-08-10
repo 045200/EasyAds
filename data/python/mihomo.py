@@ -15,168 +15,131 @@ def error(message):
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} [ERROR] {message}", file=sys.stderr)
 
 def download_mihomo_tool(tool_dir):
-    """Download and extract the latest Mihomo tool"""
+    """下载最新版 Mihomo 转换工具"""
     try:
         tool_dir = Path(tool_dir)
         tool_dir.mkdir(parents=True, exist_ok=True)
 
-        # Get latest version
-        version_url = "https://github.com/MetaCubeX/mihomo/releases/download/Prerelease-Alpha/version.txt"
+        version_url = "https://github.com/MetaCubeX/mihomo/releases/latest/download/version.txt"
         version_file = tool_dir / "version.txt"
-
-        log("Downloading Mihomo version info...")
+        
+        log("获取 Mihomo 最新版本...")
         urllib.request.urlretrieve(version_url, version_file)
 
         with open(version_file, 'r') as f:
             version = f.read().strip()
 
-        # Construct download URL
         tool_name = f"mihomo-linux-amd64-{version}"
-        tool_gz = f"{tool_name}.gz"
-        tool_url = f"https://github.com/MetaCubeX/mihomo/releases/download/Prerelease-Alpha/{tool_gz}"
+        tool_url = f"https://github.com/MetaCubeX/mihomo/releases/latest/download/{tool_name}.gz"
+        tool_gz_path = tool_dir / f"{tool_name}.gz"
 
-        # Download the tool
-        log(f"Downloading Mihomo tool {version}...")
-        tool_gz_path = tool_dir / tool_gz
+        log(f"下载 Mihomo 工具 v{version}...")
         urllib.request.urlretrieve(tool_url, tool_gz_path)
 
-        # Extract the tool
         tool_path = tool_dir / tool_name
         with gzip.open(tool_gz_path, 'rb') as f_in:
             with open(tool_path, 'wb') as f_out:
                 shutil.copyfileobj(f_in, f_out)
-
-        # Make executable
+        
         tool_path.chmod(0o755)
-
-        # Clean up
         version_file.unlink()
         tool_gz_path.unlink()
 
-        log(f"Mihomo tool downloaded to {tool_path}")
+        log(f"工具已下载到: {tool_path}")
         return tool_path
 
     except Exception as e:
-        error(f"Failed to download Mihomo tool: {str(e)}")
+        error(f"工具下载失败: {str(e)}")
         return None
 
-def convert_to_mrs(input_file, output_file, mihomo_tool_path):
-    """Convert domain list to Mihomo .mrs format"""
+def convert_to_mrs(input_file, output_file, tool_path):
+    """转换为 Mihomo 的 .mrs 格式"""
     try:
-        input_path = Path(input_file)
-        output_path = Path(output_file)
-        mihomo_tool = Path(mihomo_tool_path)
-
-        # Validate files
-        if not input_path.exists():
-            raise FileNotFoundError(f"Input file not found: {input_path}")
-        if not mihomo_tool.exists():
-            raise FileNotFoundError(f"Mihomo tool not found: {mihomo_tool}")
-
-        # Prepare the output directory
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-
-        # Execute the conversion command
         cmd = [
-            str(mihomo_tool),
+            str(tool_path),
             "convert-ruleset",
             "domain",
             "text",
-            str(input_path),
-            str(output_path)
+            str(input_file),
+            str(output_file)
         ]
-
-        log(f"Converting {input_path} to {output_path}")
+        
+        log(f"正在转换: {input_file} → {output_file}")
         result = subprocess.run(cmd, check=True, capture_output=True, text=True)
-
+        
         if result.returncode == 0:
-            log(f"Successfully created {output_path}")
+            log(f"成功生成: {output_file}")
             return True
-        else:
-            error(f"Conversion failed: {result.stderr}")
-            return False
-
-    except subprocess.CalledProcessError as e:
-        error(f"Mihomo conversion error: {e.stderr}")
+        error(f"转换失败: {result.stderr}")
         return False
+
     except Exception as e:
-        error(f"Conversion error: {str(e)}")
+        error(f"转换出错: {str(e)}")
         return False
 
-def prepare_blacklist(input_file, output_file):
-    """Prepare pre-filtered blacklist for Mihomo"""
+def process_adguard_rules(input_path, output_path):
+    """处理纯 AdGuard Home 黑名单语法"""
     try:
-        with open(input_file, 'r', encoding='utf-8', errors='ignore') as f_in, \
-             open(output_file, 'w', encoding='utf-8') as f_out:
+        with open(input_path, 'r', encoding='utf-8', errors='ignore') as f_in, \
+             open(output_path, 'w', encoding='utf-8') as f_out:
 
             for line in f_in:
                 line = line.strip()
-                if not line or line.startswith(('!', '#')):
-                    continue  # Skip comments and empty lines
+                if not line or line.startswith('!'):
+                    continue
 
-                # Handle pure blacklist rules (no whitelist entries)
+                # 处理 AdGuard Home 专有黑名单语法
                 if line.startswith("||") and line.endswith("^"):
-                    # Convert ||domain^ to +.domain
-                    domain = line[2:-1]
-                    f_out.write(f"+.{domain}\n")
+                    # 处理: ||domain^ → +.domain
+                    f_out.write(f"+.{line[2:-1]}\n")
                 elif line.startswith("0.0.0.0 "):
-                    # Convert 0.0.0.0 domain to +.domain
-                    domain = line[8:]
-                    if not domain.startswith((' ', '#')):  # Skip malformed lines
-                        f_out.write(f"+.{domain}\n")
+                    # 处理: 0.0.0.0 domain → +.domain
+                    f_out.write(f"+.{line[8:]}\n")
                 elif line.startswith("||"):
-                    # Convert ||domain.com to +.domain.com
-                    domain = line[2:]
-                    f_out.write(f"+.{domain}\n")
+                    # 处理: ||domain.com → +.domain.com
+                    f_out.write(f"+.{line[2:]}\n")
                 elif line.startswith("."):
-                    # Convert .domain.com to +.domain.com
-                    domain = line[1:]
-                    f_out.write(f"+.{domain}\n")
+                    # 处理: .domain.com → +.domain.com
+                    f_out.write(f"+.{line[1:]}\n")
                 else:
-                    # Plain domain, add +. prefix if not already present
-                    if not line.startswith('+.'):
-                        f_out.write(f"+.{line}\n")
-                    else:
-                        f_out.write(f"{line}\n")
+                    # 普通域名直接添加前缀
+                    f_out.write(f"+.{line}\n")
 
-        log(f"Blacklist prepared and saved to {output_file}")
+        log(f"已处理 {input_path} → {output_path}")
         return True
 
     except Exception as e:
-        error(f"Error preparing blacklist: {str(e)}")
+        error(f"规则处理失败: {str(e)}")
         return False
 
 def main():
-    # Configuration
-    SCRIPT_DIR = Path(__file__).parent
-    MI_HOME = SCRIPT_DIR.parent  # Assuming script is in a subdirectory
-
-    # Path configuration
+    # 配置路径
+    BASE_DIR = Path(__file__).parent.parent
     config = {
-        "input_file": MI_HOME / "rules" / "adblock-filtered.txt",  # Pre-filtered blacklist
-        "processed_file": MI_HOME / "temp" / "mihomo-ready.txt",   # Processed file
-        "output_file": MI_HOME / "rules" / "mihomo.mrs",          # Final output
-        "tool_dir": MI_HOME / "tools"                            # Mihomo tool dir
+        "input": BASE_DIR / "rules" / "adblock-filtered.txt",  # 输入文件
+        "temp": BASE_DIR / "temp" / "mihomo-temp.txt",        # 临时文件
+        "output": BASE_DIR / "rules" / "mihomo-adblock.mrs",  # 输出文件
+        "tool_dir": BASE_DIR / "tools"                       # 工具目录
     }
 
-    # Create necessary directories
-    for path in [config["processed_file"].parent, config["tool_dir"]]:
-        path.mkdir(parents=True, exist_ok=True)
+    # 创建目录
+    config["temp"].parent.mkdir(parents=True, exist_ok=True)
+    config["tool_dir"].mkdir(parents=True, exist_ok=True)
 
-    # Step 1: Prepare the pre-filtered blacklist
-    if not prepare_blacklist(config["input_file"], config["processed_file"]):
+    # 1. 处理 AdGuard 规则
+    if not process_adguard_rules(config["input"], config["temp"]):
         sys.exit(1)
 
-    # Step 2: Download Mihomo tool if needed
-    mihomo_tool = download_mihomo_tool(config["tool_dir"])
-    if not mihomo_tool:
+    # 2. 下载转换工具
+    tool = download_mihomo_tool(config["tool_dir"])
+    if not tool:
         sys.exit(1)
 
-    # Step 3: Convert to mrs format
-    if not convert_to_mrs(config["processed_file"], config["output_file"], mihomo_tool):
+    # 3. 转换为 .mrs 格式
+    if not convert_to_mrs(config["temp"], config["output"], tool):
         sys.exit(1)
 
-    log("Blacklist conversion completed successfully")
+    log("AdGuard Home 黑名单转换完成！")
 
 if __name__ == "__main__":
     main()
