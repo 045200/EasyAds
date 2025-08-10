@@ -2,9 +2,9 @@
 ! Title: EasyAds
 ! Homepage: https://github.com/045200/EasyAds
 ! Expires: 12 Hours
-! Version: 2025-08-10 01:49:55（北京时间）
+! Version: 2025-08-10 13:03:13（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 8834
+! Total count: 8852
 @@$cookie=__gads,domain=godstoryinfo.com|laweducationinfo.com|rsgames.xyz|vichitrainfo.com
 @@&http_referer=$domain=chaopx.com
 @@*.flyme.cn
@@ -1088,6 +1088,7 @@
 @@||api-access.pangolin-sdk-toutiao.com^
 @@||api-album.quark.cn^
 @@||api-analytics.magstimconnect.net^$~third-party
+@@||api-chat.soulapp.cn^
 @@||api-cmnt.wtzw.com^
 @@||api-cn.cdo.heytapmobi.com^
 @@||api-cn.store.heytapmobi.com^
@@ -1289,6 +1290,7 @@
 @@||apkmos.com^$generichide
 @@||apm-and.zhipin.com^
 @@||apmfront.17u.cn^
+@@||apmplus.volces.com^
 @@||app-advertise.zhihuishu.com^
 @@||app-api.pixiv.net^
 @@||app-api.smzdm.com^
@@ -1400,6 +1402,7 @@
 @@||assets.woozooo.com^
 @@||assets.youlai.cn^
 @@||astatic.ccmbg.com/fc/js/prebid?v=$domain=journaldunet.com
+@@||astrategy.beacon.qq.com^
 @@||astyle.alicdn.com/??
 @@||at.umeng.com^
 @@||at.umeng.com^$important
@@ -1685,6 +1688,7 @@
 @@||bytecdntp.com^$script,domain=51eshu.com|qingqingxs.top
 @@||bytedance.com/ttwid/union/register/
 @@||bytegoofy.com/ad/$domain=jinritemai.com
+@@||c-oneid.getui.net^
 @@||c-web.cedyna.co.jp/customer/img/spacer.gif?$~third-party
 @@||c.58cdn.com.cn^
 @@||c.ad6media.fr/l.js$domain=fan-de-cinema.com
@@ -2383,6 +2387,7 @@
 @@||connectivitycheck.gstatic.com^
 @@||connectivitycheck.gstatic.com^$important
 @@||connectivitycheck.platform.hicloud.com^
+@@||console.bce.baidu.com^$domain=console.bce.baidu.com
 @@||console.cloud.tencent.com^
 @@||console.statsig.com/_next/$~third-party
 @@||constantcontact.com/js/WebTracking/
@@ -2587,6 +2592,7 @@
 @@||data-*.faz.net^$domain=m.faz.net
 @@||data-*.herz-fuer-tiere.de/*/bootstrap/loader.js$domain=herz-fuer-tiere.de
 @@||data-*.rtl.de/iomm/latest/bootstrap/stub.js$domain=rtl.de
+@@||data-collector.soulapp.cn^
 @@||data.adxcel-ec2.com^$image,domain=laguardia.edu
 @@||data.bilibili.com
 @@||data.bilibili.com^
@@ -2764,6 +2770,7 @@
 @@||dns.google.com^$document
 @@||dns.icoa.cn^
 @@||dns.rubyfish.cn^$document
+@@||dns.weixin.qq.com.cn^
 @@||dns.weixin.qq.com^$important
 @@||dns9.quad9.net^$document
 @@||dnsgom.net/public/$domain=jingwubook.com|xwdsc.com
@@ -2782,6 +2789,7 @@
 @@||dogecoinpuddle.com/show_ads.js$script
 @@||dogefaucet.com/initializr/js/ads.js$script
 @@||dogry.pl/ads.html$subdocument
+@@||doh.pub^
 @@||domains-ws.revved.com^
 @@||doortodoor.co.kr/jsp/cmn/Tracking.jsp^
 @@||dorado.xiaojukeji.com^
@@ -3227,6 +3235,7 @@
 @@||foundation.youdao.com^
 @@||fourhoi.com^
 @@||fourier-videoclip-eu.allawnos.com^
+@@||fourier.alibaba.com^
 @@||fourier.taobao.com
 @@||fp-it.fengkongcloud.com^
 @@||fp-upload.dun.163.com^
@@ -3257,6 +3266,7 @@
 @@||friends-public-service-prod06.ol.epicgames.com^$important
 @@||frodo.douban.com^
 @@||frontier.tiktokv.com^
+@@||frontier100-toutiao-hl.fqnovel.com^
 @@||frontier100-toutiao-hl.toutiaoapi.com^
 @@||frosmo.com/recoApi/$domain=eeva.fi|terve.fi|lily.fi|meillakotona.fi|apu.fi
 @@||frosmo.com^$image,xmlhttprequest,domain=karkkainen.com
@@ -3324,6 +3334,7 @@
 @@||ganyancanavari.com/js/fingerprint2.min.js$~third-party
 @@||gapt.hit.gemius.pl/gplayer.js$domain=radiocomercial.iol.pt
 @@||gardenista.com/media/js/libs/ga_social_tracking.js
+@@||gateway-mobile-gray.soulapp.cn^
 @@||gateway.kugou.com^
 @@||gatr.hit.gemius.pl/gplayer.js
 @@||gaua.hit.gemius.pl/gplayer.js$domain=1plus1.video
@@ -4520,6 +4531,7 @@
 @@||img.ssl.msdk.qq.com^$document
 @@||img.tapimg.com^
 @@||img.youpin.mi-img.com^
+@@||img.zbt.com*/market-$script
 @@||img.zcool.cn/ad_manager/location/$domain=zcool.com.cn
 @@||img.zuoyebang.cc^
 @@||img.zuoyebang.cc^$important
@@ -4602,6 +4614,7 @@
 @@||input.shouji.sogou.com^$important
 @@||inr-op.elemecdn.com^
 @@||insideruser.microsoft.com^
+@@||insight.soulapp.cn^
 @@||inskinmedia.com^*/js/base/api/$domain=appledaily.com|nextmedia.com
 @@||inspsearchapi.com^$domain=zoo.com|dogpile.com
 @@||instagram.com^
@@ -5093,6 +5106,7 @@
 @@||login.2345.cn^
 @@||login.2345.com^
 @@||login.aliexpress.us^$removeparam
+@@||login.bce.baidu.com^$domain=login.bce.baidu.com
 @@||login.ingbank.pl^$removeparam
 @@||login.ingbank.pl^*/satelliteLib-$script
 @@||login.live.com^
@@ -5351,6 +5365,7 @@
 @@||med-fe.cdn.bcebos.com^
 @@||med-fe.cdn.bcebos.com^$document
 @@||media-imdb.com^*/clickstream.js
+@@||media-service.soulapp.cn^
 @@||media.9game.cn^
 @@||media.bnd.com/mistats/finalizestats.js
 @@||media.bnd.com/mistats/micb.js
@@ -8034,6 +8049,7 @@
 @@||umeng.com/api/$domain=developer.umeng.com
 @@||umeng.com/college/$domain=developer.umeng.com
 @@||umengjmacs.m.taobao.com^
+@@||umini.shujupie.com^
 @@||umiwi.com^
 @@||umwatson.events.data.microsoft.com^
 @@||unet.ucweb.com^
@@ -8140,6 +8156,8 @@
 @@||v3-fq-tts.fqnovelvod.com^
 @@||v3-novelapp.fqnovelvod.com^
 @@||v3-ppx.ixigua.com^
+@@||v5-hl-ali-reading-video.fqnovelvod.com^
+@@||v5-hl-hw-reading-video.fqnovelvod.com^
 @@||v5-novelapp.fqnovelvod.com^
 @@||v6-fq-tts.fqnovelvod.com^
 @@||v6-nimg.ws.126.net^
