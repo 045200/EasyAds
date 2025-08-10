@@ -115,7 +115,7 @@ def main():
         white_set, _ = load_rules(rules_dir / 'allow.txt')
         
         print("过滤黑名单规则...")
-        filtered = chunked_processing(rules_dir / 'adblock.txt', white_set)
+        filtered = chunked_processing(rules_dir / 'dns.txt', white_set)
         
         print("写入结果文件...")
         with open(rules_dir / 'adblock-filtered.txt', 'w', encoding='utf-8') as f:
