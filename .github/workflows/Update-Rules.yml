@@ -25,11 +25,6 @@ jobs:
         run: |
           sudo apt-get update -q
           sudo apt-get install -y -q --no-install-recommends dnsutils
-          pip install --no-cache-dir \
-            uvloop==0.17.0 \
-            aiodns==3.1.1 \
-            pycares==4.3.0 \
-            idna==3.4
         env:
           PIP_NO_CACHE_DIR: "true"
 
@@ -42,17 +37,6 @@ jobs:
           # 下载规则（保留原始格式）
           echo "::group::📥 下载规则"
           python ./data/python/dl.py --format raw || echo "部分规则下载失败"
-          echo "::endgroup::"
-
-          # 智能DNS验证（三组DNS轮询）
-          echo "::group::🔍 DNS验证"
-          python ./data/python/dns.py \
-            --input ./tmp \
-            --output ./data/rules \
-            --strategy intelligent \
-            --timeout 2.0 \
-            --max-retries 2 \
-            --workers ${{ github.runner.os == 'Linux' && '8' || '4' }}
           echo "::endgroup::"
 
           # 规则转换（保持原有功能）
