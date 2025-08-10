@@ -1,96 +1,67 @@
 name: Update Rules
-on:
+on: 
   workflow_dispatch:
   schedule:
     - cron: '0 */12 * * *'
   push:
     paths:
       - 'data/python/**'
+      - 'data/source/**'
       - 'data/mod/**'
-
+    
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
     steps:
-      # ==================== 初始化阶段 ====================
       - uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
-
-      - name: Install Dependencies
-        run: |
-          pip install --no-cache-dir \
-            pytz \
-            pyyaml
-        env:
-          PIP_NO_CACHE_DIR: "true"
-
-      # ==================== 核心处理阶段 ====================
-      - name: Prepare Directory Structure
-        run: |
-          mkdir -p ./data/rules
-          mkdir -p ./tmp
-
-      - name: Download and Convert Rules
-        id: process
-        run: |
-          echo "::group::📥 下载规则源文件"
-          python ./data/python/dl.py --output ./tmp || echo "部分规则下载失败"
+          fetch-depth: 0
           
-          echo "::group::🔄 合并规则文件"
-          python ./data/python/merge.py --source ./tmp --target ./data/rules
-          
-          echo "::group::⚡ 生成各平台规则"
-          python ./data/python/qx.py \
-            --input ./data/rules/merged.txt \
-            --output ./data/rules/qx.list
+      - name: Check for file changes
+        id: changes
+        uses: tj-actions/changed-files@v42
+        with:
+          files: |
+            data/python/**
+            data/source/**
+            data/mod/**
             
-          python ./data/python/mihomo.py \
-            --input ./data/rules/merged.txt \
-            --output ./data/rules/mihomo.yaml
-            
-          python ./data/python/loon.py \
-            --input ./data/rules/merged.txt \
-            --output ./data/rules/loon.conf
-          
-          echo "::group::📊 更新元数据"
-          python ./data/python/domain_list.py \
-            --input ./data/rules/merged.txt \
-            --output ./data/stats
-            
-          python ./data/python/title.py \
-            --config ./data/mod/config.yaml
-            
-          python ./data/python/clean-readme.py \
-            --input ./README.md.template \
-            --output ./README.md
-        continue-on-error: false
-        env:
-          PYTHONUNBUFFERED: 1
-
-      # ==================== 提交阶段 ====================
-      - name: Commit Changes
-        if: steps.process.outcome == 'success'
+      - name: Process Rules
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        continue-on-error: true
         run: |
-          git config --local user.name "GitHub Actions"
-          git config --local user.email "actions@github.com"
+          # Download and process rules
+          python ./data/python/dl.py
+          python ./data/python/merge.py
+          
+          # Generate all rule types
+          python ./data/python/filter-dns.py
+          python ./data/python/qx.py
+          python ./data/python/mihomo.py
+          python ./data/python/loon.py
+          python ./data/python/domain_list.py
+          
+          # Update documentation
+          python ./data/python/title.py
+          python ./data/python/clean-readme.py
+
+      - name: Commit and Push Changes
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        run: |
+          # Configure Git
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git branch -m master
+
+          # Commit changes
           git add --all
-          git commit -m "Auto-update: $(date +'%Y-%m-%d %H:%M:%S')" || echo "无变更"
-          git pull --rebase && git push
-
-      # ==================== 错误处理 ====================
-      - name: Upload Error Logs
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: error-logs-${{ github.run_id }}
-          path: |
-            ./tmp/*.log
-            ./data/python/*.log
+          git commit -m "Updated at $(TZ=UTC-8 date +'%Y-%m-%d %H:%M:%S')（北京时间）" || echo "No changes to commit"
+          
+          # Sync and push
+          for i in 1 2 3; do
+            git pull --rebase origin master
+            git push origin master && break || sleep 5
+          done
 
       - name: Delete workflow runs 
         uses: Mattraks/delete-workflow-runs@main
