@@ -11,7 +11,7 @@ on:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 350
+    timeout-minutes: 180
     steps:
       # ==================== 初始化阶段 ====================
       - uses: actions/checkout@v4
@@ -23,38 +23,52 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          sudo apt-get update -q
-          sudo apt-get install -y -q --no-install-recommends parallel
-          pip install --no-cache-dir pyyaml
+          pip install --no-cache-dir \
+            pytz \
+            pyyaml
         env:
           PIP_NO_CACHE_DIR: "true"
 
       # ==================== 核心处理阶段 ====================
-      - name: Download and Process Rules
+      - name: Prepare Directory Structure
+        run: |
+          mkdir -p ./data/rules
+          mkdir -p ./tmp
+
+      - name: Download and Convert Rules
         id: process
         run: |
-          # 下载规则
-          mkdir -p ./tmp
-          echo "::group::📥 Downloading Rules"
-          python ./data/python/dl.py || echo "部分规则下载失败"
-          echo "::endgroup::"
-
-          # 直接转换规则（跳过DNS验证）
-          echo "::group::🛠️ Generating Rules"
-          parallel ::: \
-            "python ./data/python/merge.py" \
-            "python ./data/python/qx.py" \
-            "python ./data/python/mihomo.py" \
-            "python ./data/python/loon.py"
-          echo "::endgroup::"
-
-          # 更新元数据
-          echo "::group::📝 Updating Metadata"
-          python ./data/python/domain_list.py
-          python ./data/python/title.py
-          python ./data/python/clean-readme.py
-          echo "::endgroup::"
-        continue-on-error: true
+          echo "::group::📥 下载规则源文件"
+          python ./data/python/dl.py --output ./tmp || echo "部分规则下载失败"
+          
+          echo "::group::🔄 合并规则文件"
+          python ./data/python/merge.py --source ./tmp --target ./data/rules
+          
+          echo "::group::⚡ 生成各平台规则"
+          python ./data/python/qx.py \
+            --input ./data/rules/merged.txt \
+            --output ./data/rules/qx.list
+            
+          python ./data/python/mihomo.py \
+            --input ./data/rules/merged.txt \
+            --output ./data/rules/mihomo.yaml
+            
+          python ./data/python/loon.py \
+            --input ./data/rules/merged.txt \
+            --output ./data/rules/loon.conf
+          
+          echo "::group::📊 更新元数据"
+          python ./data/python/domain_list.py \
+            --input ./data/rules/merged.txt \
+            --output ./data/stats
+            
+          python ./data/python/title.py \
+            --config ./data/mod/config.yaml
+            
+          python ./data/python/clean-readme.py \
+            --input ./README.md.template \
+            --output ./README.md
+        continue-on-error: false
         env:
           PYTHONUNBUFFERED: 1
 
@@ -65,10 +79,10 @@ jobs:
           git config --local user.name "GitHub Actions"
           git config --local user.email "actions@github.com"
           git add --all
-          git commit -m "Auto-update: $(date +'%Y-%m-%d %H:%M:%S UTC%z')" || echo "No changes"
-          for i in {1..3}; do git pull --rebase && git push && break || sleep 10; done
+          git commit -m "Auto-update: $(date +'%Y-%m-%d %H:%M:%S')" || echo "无变更"
+          git pull --rebase && git push
 
-      # ==================== 后处理阶段 ====================
+      # ==================== 错误处理 ====================
       - name: Upload Error Logs
         if: failure()
         uses: actions/upload-artifact@v4
@@ -76,7 +90,7 @@ jobs:
           name: error-logs-${{ github.run_id }}
           path: |
             ./tmp/*.log
-            ./data/python/debug.log
+            ./data/python/*.log
 
       - name: Delete workflow runs 
         uses: Mattraks/delete-workflow-runs@main
