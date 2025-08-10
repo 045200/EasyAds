@@ -3,41 +3,43 @@ import time
 import sqlite3
 import tldextract
 import subprocess
+import argparse
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-# 配置常量
-CONFIG = {
+# Default configuration
+DEFAULT_CONFIG = {
     'input_dir': Path('tmp'),
     'cache_db': Path('tmp/dns_cache.db'),
-    'timeout': 2,                # 单次查询超时
-    'batch_size': 500,           # 每批处理量
-    'max_workers': 3,            # 并发控制
-    'cache_ttl': 86400 * 7,      # 7天缓存有效期
+    'timeout': 2,
+    'batch_size': 500,
+    'max_workers': 6,  # Default to 6 as per your workflow
+    'cache_ttl': 86400 * 7,
     'dns_servers': {
         'domestic': ['223.5.5.5', '119.29.29.29', '114.114.114.114'],
         'overseas': ['8.8.8.8', '1.1.1.1', '9.9.9.9']
     },
-    'cn_tlds': {'cn', '中国', '公司', '网络', 'gov.cn', 'edu.cn', 'org.cn'},
-    'whitelist': {               # 已知有效直接放行的域名
-        'baidu.com', 'qq.com', 'taobao.com' 
+    'whitelist': {
+        'baidu.com', 'qq.com', 'taobao.com'
     }
 }
 
 class DNSValidator:
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
         self.tld_extract = tldextract.TLDExtract(cache_dir='/tmp/tldcache')
         self._init_cache()
         self.stats = {'total': 0, 'cached': 0, 'checked': 0, 'removed': 0}
+        self.last_progress_report = 0
 
     def _init_cache(self):
-        """初始化缓存数据库"""
-        with sqlite3.connect(CONFIG['cache_db']) as conn:
+        """Initialize cache database"""
+        with sqlite3.connect(self.config['cache_db']) as conn:
             conn.execute('''
                 CREATE TABLE IF NOT EXISTS domains (
                     domain TEXT PRIMARY KEY,
-                    valid_domestic INTEGER,  -- 国内DNS是否可解析
-                    valid_overseas INTEGER,  -- 国外DNS是否可解析
+                    valid_domestic INTEGER,
+                    valid_overseas INTEGER,
                     checked_at INTEGER,
                     expires_at INTEGER
                 )
@@ -45,17 +47,26 @@ class DNSValidator:
             conn.execute('CREATE INDEX IF NOT EXISTS idx_domain ON domains(domain)')
 
     def _clean_cache(self):
-        """清理过期缓存"""
-        with sqlite3.connect(CONFIG['cache_db']) as conn:
+        """Clean expired cache entries"""
+        with sqlite3.connect(self.config['cache_db']) as conn:
             conn.execute('DELETE FROM domains WHERE expires_at < ?', (int(time.time()),))
 
-    def validate_domain(self, domain):
-        """验证单个域名的有效性（国内外DNS）"""
-        if domain in CONFIG['whitelist']:
-            return True  # 白名单直接通过
+    def _report_progress(self, force=False):
+        """Report progress to avoid timeout"""
+        now = time.time()
+        if force or now - self.last_progress_report > 60:  # Report every minute
+            print(f"⏳ Processed: {self.stats['total']} | "
+                  f"Cached: {self.stats['cached']} | "
+                  f"Checked: {self.stats['checked']}")
+            self.last_progress_report = now
 
-        # 检查缓存
-        with sqlite3.connect(CONFIG['cache_db']) as conn:
+    def validate_domain(self, domain):
+        """Validate a single domain"""
+        if domain in self.config['whitelist']:
+            return True
+
+        # Check cache
+        with sqlite3.connect(self.config['cache_db']) as conn:
             row = conn.execute(
                 'SELECT valid_domestic, valid_overseas FROM domains WHERE domain=? AND expires_at>=?',
                 (domain, int(time.time()))
@@ -63,51 +74,51 @@ class DNSValidator:
 
             if row:
                 self.stats['cached'] += 1
-                return any(row)  # 只要任一组DNS能解析就保留
+                return any(row)
 
-        # 实际检查
+        # Actual DNS check
         self.stats['checked'] += 1
-        domestic_ok = self._check_with_servers(domain, CONFIG['dns_servers']['domestic'])
-        overseas_ok = self._check_with_servers(domain, CONFIG['dns_servers']['overseas'])
+        domestic_ok = self._check_with_servers(domain, self.config['dns_servers']['domestic'])
+        overseas_ok = self._check_with_servers(domain, self.config['dns_servers']['overseas'])
 
-        # 更新缓存
-        with sqlite3.connect(CONFIG['cache_db']) as conn:
+        # Update cache
+        with sqlite3.connect(self.config['cache_db']) as conn:
             conn.execute(
                 'INSERT OR REPLACE INTO domains VALUES (?, ?, ?, ?, ?)',
-                (domain, int(domestic_ok), int(overseas_ok), 
-                int(time.time()), int(time.time()) + CONFIG['cache_ttl'])
+                (domain, int(domestic_ok), int(overseas_ok),
+                int(time.time()), int(time.time()) + self.config['cache_ttl'])
             )
 
+        self._report_progress()
         return domestic_ok or overseas_ok
 
     def _check_with_servers(self, domain, servers):
-        """使用指定DNS服务器组检查域名"""
-        with ThreadPoolExecutor(max_workers=min(3, CONFIG['max_workers'])) as executor:
+        """Check domain with multiple DNS servers"""
+        with ThreadPoolExecutor(max_workers=min(3, self.config['max_workers'])) as executor:
             futures = [executor.submit(self._dig_query, domain, server) for server in servers]
-            for future in as_completed(futures, timeout=CONFIG['timeout']*3):
+            for future in as_completed(futures, timeout=self.config['timeout']*3):
                 if future.result():
                     return True
         return False
 
     def _dig_query(self, domain, server):
-        """执行dig查询"""
+        """Execute dig query with timeout"""
         try:
             cmd = ['dig', f'@{server}', domain, 'A', '+short', '+time=1', '+tries=1']
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=1)
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=self.config['timeout'])
             return bool(result.stdout.strip())
         except:
             return False
 
     def _extract_domain(self, rule):
-        """从规则中提取纯净域名"""
-        # 处理广告规则语法
-        rule = re.sub(r'^\|\|', '', rule)       # 去掉开头的||
-        rule = re.sub(r'\^.*$', '', rule)       # 去掉^后面的部分
-        rule = re.sub(r'\$.*$', '', rule)       # 去掉$后面的部分
-        return rule.split('/')[0].lower()       # 去掉路径部分并转小写
+        """Extract clean domain from rule"""
+        rule = re.sub(r'^\|\|', '', rule)
+        rule = re.sub(r'\^.*$', '', rule)
+        rule = re.sub(r'\$.*$', '', rule)
+        return rule.split('/')[0].lower()
 
     def process_file(self, file):
-        """处理单个规则文件"""
+        """Process a single rule file"""
         print(f"🔍 Processing {file.name}...")
         tmp_file = file.with_suffix('.tmp')
 
@@ -131,51 +142,62 @@ class DNSValidator:
             self.stats['total'] += 1
             batch.append((line, domain))
 
-            # 批量处理
-            if len(batch) >= CONFIG['batch_size']:
+            if len(batch) >= self.config['batch_size']:
                 self._process_batch(batch, valid_lines)
                 batch = []
+                self._report_progress()
 
-        # 处理剩余批次
         if batch:
             self._process_batch(batch, valid_lines)
 
-        # 写入临时文件
         with open(tmp_file, 'w', encoding='utf-8') as fout:
             fout.write('\n'.join(valid_lines) + '\n')
 
-        # 替换原文件
         tmp_file.replace(file)
+        self._report_progress(force=True)
 
-        # 打印统计信息
         removed = self.stats['total'] - len([l for l in valid_lines if l and l[0] not in ('!', '#', '@')])
         print(f"✅ Finished {file.name}")
         print(f"   Total rules: {self.stats['total']} | Removed: {removed}")
         print(f"   Cache hits: {self.stats['cached']} | Fresh checks: {self.stats['checked']}")
 
     def _process_batch(self, batch, valid_lines):
-        """处理一批规则"""
+        """Process a batch of domains"""
         domains = [item[1] for item in batch]
-        with ThreadPoolExecutor(max_workers=CONFIG['max_workers']) as executor:
-            # 并行验证域名
+        with ThreadPoolExecutor(max_workers=self.config['max_workers']) as executor:
             results = list(executor.map(self.validate_domain, domains))
 
-        # 保留有效的规则
         for (line, _), is_valid in zip(batch, results):
             if is_valid:
                 valid_lines.append(line)
 
-def main():
-    validator = DNSValidator()
+def parse_args():
+    """Parse command line arguments"""
+    parser = argparse.ArgumentParser(description='DNS Validation Tool')
+    parser.add_argument('--input-dir', type=str, default='tmp', help='Input directory')
+    parser.add_argument('--timeout', type=int, default=2, help='DNS query timeout')
+    parser.add_argument('--workers', type=int, default=6, help='Max worker threads')
+    parser.add_argument('--cache-file', type=str, default='tmp/dns_cache.db', help='Cache database file')
+    parser.add_argument('--batch-size', type=int, default=500, help='Batch processing size')
+    return parser.parse_args()
 
-    # 清理过期缓存
+def main():
+    args = parse_args()
+    
+    config = DEFAULT_CONFIG.copy()
+    config.update({
+        'input_dir': Path(args.input_dir),
+        'timeout': args.timeout,
+        'max_workers': args.workers,
+        'cache_db': Path(args.cache_file),
+        'batch_size': args.batch_size
+    })
+
+    validator = DNSValidator(config)
     validator._clean_cache()
 
-    # 处理所有规则文件
-    for file in CONFIG['input_dir'].glob('*.txt'):
+    for file in config['input_dir'].glob('*.txt'):
         validator.process_file(file)
-
-        # 重置统计计数
         validator.stats = {'total': 0, 'cached': 0, 'checked': 0, 'removed': 0}
 
 if __name__ == '__main__':
