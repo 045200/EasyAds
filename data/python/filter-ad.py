@@ -1,11 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-GitHub Actions优化版AdBlock规则处理器
-特点：
-1. 内存限制在512MB以内
-2. 自动跳过Cython加速（避免编译依赖）
-3. 分块处理应对Actions的CPU限制
+GitHub Actions优化版AdBlock规则处理器 - 修复括号匹配问题
 """
 
 import re
@@ -95,7 +91,7 @@ def process_chunk(chunk: List[str], white_set: Set[str]) -> List[str]:
         line.strip() for line in chunk 
         if line.strip() and 
         (line.startswith(('!', '#')) or 
-        (not is_covered(normalize_rule(line), white_set))
+         (not is_covered(normalize_rule(line), white_set)))
     ]
 
 def is_covered(normalized_black: str, white_set: Set[str]) -> bool:
@@ -116,13 +112,13 @@ def main():
     
     try:
         print("正在加载白名单...")
-        white_set, _ = load_rules(rules_dir / 'allow.txt")
+        white_set, _ = load_rules(rules_dir / 'allow.txt')
         
         print("过滤黑名单规则...")
-        filtered = chunked_processing(rules_dir / 'adblock.txt", white_set)
+        filtered = chunked_processing(rules_dir / 'adblock.txt', white_set)
         
         print("写入结果文件...")
-        with open(rules_dir / 'adblock-filtered.txt", 'w', encoding='utf-8') as f:
+        with open(rules_dir / 'adblock-filtered.txt', 'w', encoding='utf-8') as f:
             f.write('\n'.join(filtered))
             
         print(f"::notice title=完成::处理完毕！保留规则: {len(filtered)}条")
