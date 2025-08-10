@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # 获取完整提交历史
+          fetch-depth: 0
           
       - name: Check for file changes
         id: changes
@@ -49,11 +49,13 @@ jobs:
        
       - name: Generate filter Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        working-directory: ${{ github.workspace }}
         run: |
           python ./data/python/filter-ad.py
    
       - name: Generate mihomo Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        working-directory: ${{ github.workspace }}
         run: |
           python ./data/python/mihomo.py
 
