@@ -1,5 +1,5 @@
 # DNS rules extracted from adblock.txt
-# Generated on 2025-08-10 09:30:53.052553
+# Generated on 2025-08-10 12:24:56.244683
 
 ||ad.weixin.qq.com^
 ||adn.weixin.qq.com^
@@ -5745,6 +5745,7 @@
 ||7o2l520r0a.com^
 ||7q1z79gxsi.global.ssl.fastly.net^
 ||7rag9q1on.com^
+||7strqfn56s.com^
 ||7tc.fun^
 ||7u4b8l1zt.com^
 ||7wrxo2xh.iriscreative.co^
@@ -16374,6 +16375,7 @@
 ||bbbb.goace.jp^
 ||bbbihe.vertbaudet.es^
 ||bbbtttjjj.com^
+||bbcz4tta.top^
 ||bbggp.callashoes.co.uk^
 ||bbitn.alittlesandco.com^
 ||bbjzly.top^
@@ -52785,7 +52787,6 @@
 ||myhealth.ssmhealth.com^
 ||myhome.usg.com^
 ||myhotelbook.pegs.com^
-||myhuaweicloud.com^
 ||myhzhu.chicme.com^
 ||myinfo.borland.com^
 ||myinfo.eaton.com^
@@ -87295,6 +87296,7 @@
 ||vb3r.farmkind.giving^
 ||vbc08091op.com^
 ||vbc08100op.com^
+||vbc08101op.com^
 ||vbcqr.luminskin.com^
 ||vbe.voyage-prive.be^
 ||vbefb.goclove.com^
