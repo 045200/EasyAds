@@ -1,4 +1,4 @@
-name: SmartDNS Rules Pipeline
+name: Update Rules
 on:
   workflow_dispatch:
   schedule:
@@ -77,7 +77,7 @@ jobs:
       # ==================== 异常处理 ====================
       - name: Upload Error Logs
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: error-logs-${{ github.run_id }}
           path: |
