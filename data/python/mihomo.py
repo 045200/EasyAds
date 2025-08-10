@@ -116,24 +116,30 @@ def process_adguard_rules(input_path, output_path):
 
 def main():
     try:
-        BASE_DIR = Path(__file__).parent.parent
+        # 修正路径获取方式（关键修改点）
+        script_dir = Path(__file__).parent  # /data/python
+        base_dir = script_dir.parent       # /data
+        rules_dir = base_dir / "rules"     # /data/rules
+        
         config = {
-            "input": BASE_DIR / "data" / "rules" / "adblock-filtered.txt",
+            "input": rules_dir / "adblock-filtered.txt",
             "temp": Path(tempfile.gettempdir()) / "mihomo.txt",
-            "output": BASE_DIR / "data" / "rules" / "adb.mrs",
+            "output": rules_dir / "adb.mrs",
             "tool_dir": Path(tempfile.gettempdir()) / "mihomo_tools"
         }
 
+        # 调试输出路径信息
         log("="*50)
-        log("开始 AdGuard 规则转换流程")
+        log("路径验证信息：")
+        log(f"脚本目录: {script_dir}")
+        log(f"基础目录: {base_dir}")
+        log(f"规则目录: {rules_dir}")
         log(f"输入文件: {config['input']}")
-        log(f"临时文件: {config['temp']}")
-        log(f"输出文件: {config['output']}")
-        log(f"工具目录: {config['tool_dir']}")
         log("="*50)
 
         if not config["input"].exists():
             error(f"输入文件不存在: {config['input']}")
+            error(f"请确保前序脚本已生成: {config['input']}")
             sys.exit(1)
 
         if not process_adguard_rules(config["input"], config["temp"]):
