@@ -4,122 +4,112 @@ import aiodns
 import time
 from pathlib import Path
 import re
+import uvloop
 
-# ============== 配置部分（与下载脚本完全一致） ==============
-INPUT_DIR = "./tmp/"          # 下载脚本的输出目录
-OUTPUT_DIR = "./data/rules/"  # 最终规则存放目录
+# ============== 配置部分 ==============
+INPUT_DIR = "./tmp/"          
+OUTPUT_DIR = "./data/rules/"  
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# ============== SmartDNS + CDN 优化配置 ==============
 class DomainValidator:
     def __init__(self):
-        # 国内DNS组（权重根据响应速度动态调整）
-        self.china_dns = [
-            {'server': '223.5.5.5', 'weight': 10},    # 阿里DNS
-            {'server': '119.29.29.29', 'weight': 8},   # 腾讯DNS
-            {'server': '114.114.114.114', 'weight': 5}  # 114DNS
+        uvloop.install()
+        self.loop = asyncio.get_event_loop()
+        
+        # 优化的DNS服务器配置
+        self.resolvers = [
+            aiodns.DNSResolver(nameservers=['223.5.5.5'], loop=self.loop, timeout=2),  # 阿里DNS
+            aiodns.DNSResolver(nameservers=['119.29.29.29'], loop=self.loop, timeout=2) # 腾讯DNS
         ]
-        # 国外DNS组
-        self.global_dns = [
-            {'server': '8.8.8.8', 'weight': 10},      # Google DNS
-            {'server': '1.1.1.1', 'weight': 8},       # Cloudflare
-            {'server': '9.9.9.9', 'weight': 5}        # Quad9
-        ]
-        self.resolvers = self._init_resolvers()
-        self.cache = {}  # CDN缓存 {'domain': {'ips': [], 'expire': timestamp}}
+        self.cache = {}
+        self.skip_prefixes = ('#', '!', '@@', '||', '0.0.0.0')
 
-    def _init_resolvers(self):
-        """初始化异步DNS解析器"""
-        return {
-            'china': [aiodns.DNSResolver(nameservers=[ns['server']], timeout=2) 
-                     for ns in self.china_dns],
-            'global': [aiodns.DNSResolver(nameservers=[ns['server']], timeout=2)
-                      for ns in self.global_dns]
-        }
+    def is_comment_or_special(self, line):
+        """判断是否是注释或特殊规则"""
+        line = line.strip()
+        return any(line.startswith(prefix) for prefix in self.skip_prefixes) or not line
 
-    async def _query_dns(self, resolver, domain):
-        """执行单次DNS查询"""
+    async def safe_resolve(self, domain):
+        """安全的域名解析"""
         try:
-            return await resolver.query(domain, 'A')
-        except (aiodns.error.DNSError, asyncio.TimeoutError):
-            return None
+            if not domain or self.is_comment_or_special(domain):
+                return False
+                
+            # 清理域名中的特殊字符
+            clean_domain = re.sub(r'[^a-zA-Z0-9.-]', '', domain.split('$')[0].split('^')[0])
+            if not clean_domain or '.' not in clean_domain:
+                return False
+                
+            # 检查缓存
+            if clean_domain in self.cache:
+                return self.cache[clean_domain]
+                
+            # 并行查询所有DNS服务器
+            tasks = [asyncio.create_task(r.query(clean_domain, 'A')) for r in self.resolvers]
+            done, _ = await asyncio.wait(tasks, timeout=2, return_when=asyncio.FIRST_COMPLETED)
+            
+            for task in done:
+                if result := task.result():
+                    self.cache[clean_domain] = True
+                    return True
+                    
+            self.cache[clean_domain] = False
+            return False
+            
+        except Exception:
+            return False
 
-    async def smart_resolve(self, domain):
-        """SmartDNS核心逻辑：国内国外双线路+缓存"""
-        # 检查CDN缓存
-        if domain in self.cache and self.cache[domain]['expire'] > time.time():
-            return bool(self.cache[domain]['ips'])
-        
-        # 并行发起国内国外查询
-        tasks = []
-        for resolver in self.resolvers['china'] + self.resolvers['global']:
-            tasks.append(self._query_dns(resolver, domain))
-        
-        # 获取首个成功结果
-        done, _ = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
-        for task in done:
-            if result := task.result():
-                # 更新缓存（默认TTL 60秒）
-                self.cache[domain] = {
-                    'ips': [r.host for r in result],
-                    'expire': time.time() + 60
-                }
-                return True
-        return False
-
-# ============== 文件处理（严格匹配下载脚本的输出） ==============
-def extract_domain(rule):
-    """从规则行提取域名（支持多种格式）"""
-    patterns = [
-        (r'^\|\|([^\/\^\*]+)\^', 2),     # ||domain.com^
-        (r'^0\.0\.0\.0\s+([^\s]+)', 1),  # 0.0.0.0 domain.com
-        (r'^([^\/\^\*\s]+)$', 0)         # domain.com
-    ]
-    for pattern, group in patterns:
-        match = re.search(pattern, rule)
-        if match:
-            return match.group(group) if group else match.group()
-    return None
-
-async def validate_file(input_path, output_path):
-    """处理单个文件（保持原始文件名）"""
+async def process_rules(input_path, output_path):
+    """处理规则文件"""
     validator = DomainValidator()
     valid_rules = []
     
     with open(input_path, 'r', encoding='utf-8', errors='ignore') as f:
-        rules = [line.strip() for line in f if line.strip()]
-    
-    # 批量验证（每100个域名一组）
-    batch_size = 100
-    for i in range(0, len(rules), batch_size):
-        batch = rules[i:i+batch_size]
-        tasks = []
-        for rule in batch:
-            domain = extract_domain(rule)
-            if not domain:  # 非域名规则直接保留
-                valid_rules.append(rule)
+        for line in f:
+            line = line.strip()
+            if not line or validator.is_comment_or_special(line):
+                valid_rules.append(line)
                 continue
-            tasks.append(validator.smart_resolve(domain))
-        
-        results = await asyncio.gather(*tasks)
-        valid_rules.extend(rule for rule, is_valid in zip(batch, results) if is_valid)
+                
+            # 尝试提取域名
+            domain = None
+            for pattern in [
+                r'^\|\|([^\^\/\*]+)\^',  # ||example.com^
+                r'^([^\s\^\/\*]+)\^',    # example.com^
+                r'^0\.0\.0\.0\s+([^\s]+)' # 0.0.0.0 example.com
+            ]:
+                if match := re.search(pattern, line):
+                    domain = match.group(1)
+                    break
+                    
+            if domain and await validator.safe_resolve(domain):
+                valid_rules.append(line)
     
-    # 写入同名文件到输出目录
+    # 保留原始文件格式
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write('\n'.join(valid_rules))
 
-# ============== 主流程（兼容下载脚本的输出结构） ==============
 async def main():
+    print("🚀 开始处理广告规则...")
     start_time = time.time()
     
-    # 处理所有下载脚本生成的文件
-    for rule_type in ['adblock', 'allow']:
-        for input_file in Path(INPUT_DIR).glob(f"{rule_type}*.txt"):
-            output_file = Path(OUTPUT_DIR) / input_file.name  # 保持同名
-            await validate_file(input_file, output_file)
-            print(f"✅ 已处理: {input_file.name} -> {output_file}")
+    try:
+        for rule_type in ['adblock', 'allow']:
+            for input_file in Path(INPUT_DIR).glob(f"{rule_type}*.txt"):
+                output_file = Path(OUTPUT_DIR) / input_file.name
+                await process_rules(input_file, output_file)
+                print(f"✅ 已处理: {input_file.name}")
+                
+    except Exception as e:
+        print(f"❌ 处理失败: {str(e)}")
+        raise
     
-    print(f"⏱️ 总耗时: {time.time()-start_time:.2f}秒")
+    print(f"⏱️ 处理完成! 耗时: {time.time()-start_time:.2f}秒")
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    loop = uvloop.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        loop.run_until_complete(main())
+    finally:
+        loop.close()
