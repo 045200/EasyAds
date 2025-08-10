@@ -160,8 +160,7 @@ def main():
 
     # Path configuration
     config = {
-        "block_file": MI_HOME / "rules" / "dns.txt",          # Block list file
-        "allow_file": MI_HOME / "rules" / "allow.txt",        # Allow list file
+        "block_file": MI_HOME / "rules" / "adblock-filtered.txt",          # Block list file
         "merged_file": MI_HOME / "temp" / "domains.txt",      # Merged domain list
         "output_file": MI_HOME / "rules" / "mihomo.mrs",      # Final output file
         "tool_dir": MI_HOME / "tools"                        # Directory for Mihomo tool
