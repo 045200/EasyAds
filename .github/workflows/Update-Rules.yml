@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # 获取完整提交历史
           
       - name: Check for file changes
         id: changes
@@ -26,38 +26,64 @@ jobs:
             data/source/**
             data/mod/**
             
-      - name: Process Rules
+      - name: Download Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         continue-on-error: true
         run: |
-          # Download and process rules
           python ./data/python/dl.py
+          
+      - name: Merge Rules
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        run: |
           python ./data/python/merge.py
           
-          # Generate all rule types
+      - name: Generate dns Rules
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        run: |
           python ./data/python/filter-dns.py
+
+      - name: Generate qx Rules
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        run: |
           python ./data/python/qx.py
-          python ./data/python/mihomo.py
-          python ./data/python/loon.py
-          python ./data/python/domain_list.py
           
-          # Update documentation
+      - name: Generate mihomo Rules
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        run: |
+          python ./data/python/mihomo.py
+
+      - name: Generate loon Rules
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        run: |
+          python ./data/python/loon.py
+
+      - name: Generate Domain List
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        run: |
+          python ./data/python/domain_list.py
+
+      - name: Update Title&ReadMe
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        run: |
           python ./data/python/title.py
           python ./data/python/clean-readme.py
 
-      - name: Commit and Push Changes
+      - name: Configure Git
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
-          # Configure Git
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git branch -m master
 
-          # Commit changes
+      - name: Commit Changes
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        run: |
           git add --all
           git commit -m "Updated at $(TZ=UTC-8 date +'%Y-%m-%d %H:%M:%S')（北京时间）" || echo "No changes to commit"
-          
-          # Sync and push
+      
+      - name: Sync and Push Changes
+        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        run: |
           for i in 1 2 3; do
             git pull --rebase origin master
             git push origin master && break || sleep 5
