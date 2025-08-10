@@ -7,123 +7,142 @@ import re
 import uvloop
 
 # ============== 配置部分 ==============
-INPUT_DIR = "./tmp/"          
-OUTPUT_DIR = "./data/rules/"  
+INPUT_DIR = "./tmp/"
+OUTPUT_DIR = "./data/rules/"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-class DomainValidator:
+class RuleValidator:
     def __init__(self):
         uvloop.install()
         self.loop = asyncio.get_event_loop()
         
-        # 完整的全球DNS解析组（国内+国外）
-        self.resolvers = [
-            # 国内DNS
-            aiodns.DNSResolver(nameservers=['223.5.5.5'], loop=self.loop, timeout=2),    # 阿里
-            aiodns.DNSResolver(nameservers=['119.29.29.29'], loop=self.loop, timeout=2), # 腾讯
-            aiodns.DNSResolver(nameservers=['114.114.114.114'], loop=self.loop, timeout=2), # 114
-            # 国外DNS
-            aiodns.DNSResolver(nameservers=['8.8.8.8'], loop=self.loop, timeout=3),      # Google
-            aiodns.DNSResolver(nameservers=['1.1.1.1'], loop=self.loop, timeout=3),     # Cloudflare
-            aiodns.DNSResolver(nameservers=['9.9.9.9'], loop=self.loop, timeout=3)      # Quad9
-        ]
+        # 三组国内外DNS配置（共6个服务器）
+        self.resolver_groups = {
+            # 国内组（低延迟）
+            'cn': [
+                aiodns.DNSResolver(nameservers=['223.5.5.5'], loop=self.loop, timeout=1.5),    # 阿里
+                aiodns.DNSResolver(nameservers=['119.29.29.29'], loop=self.loop, timeout=1.5), # 腾讯
+                aiodns.DNSResolver(nameservers=['114.114.114.114'], loop=self.loop, timeout=1.5) # 114
+            ],
+            # 海外组（标准）
+            'intl': [
+                aiodns.DNSResolver(nameservers=['8.8.8.8'], loop=self.loop, timeout=2.5),      # Google
+                aiodns.DNSResolver(nameservers=['1.1.1.1'], loop=self.loop, timeout=2.5),     # Cloudflare
+                aiodns.DNSResolver(nameservers=['9.9.9.9'], loop=self.loop, timeout=2.5)      # Quad9
+            ],
+            # 备用组（混合）
+            'backup': [
+                aiodns.DNSResolver(nameservers=['180.76.76.76'], loop=self.loop, timeout=2),  # 百度
+                aiodns.DNSResolver(nameservers=['208.67.222.222'], loop=self.loop, timeout=3) # OpenDNS
+            ]
+        }
         self.cache = {}
-        self.comment_prefixes = ('#', '!')
-        self.whitelist_prefix = '@@'
+        self.rule_formats = {
+            # 注释/白名单
+            'comment': re.compile(r'^\s*[#!]'),
+            'whitelist': re.compile(r'^\s*@@'),
+            # 各规则格式
+            'adguard': re.compile(r'^\|\|([^\^\/\*:]+)\^?'),
+            'adblock': re.compile(r'^\|\|?([^\s\^\/\*:]+)\^?'),
+            'hosts': re.compile(r'^\s*(?:0\.0\.0\.0|127\.0\.0\.1)\s+([^\s#]+)'),
+            'domain': re.compile(r'^([^\s#]+)$')
+        }
 
     def should_skip(self, line):
-        """判断是否跳过处理（注释/空行/白名单）"""
+        """判断是否跳过处理"""
         line = line.strip()
         return (
-            not line 
-            or any(line.startswith(p) for p in self.comment_prefixes)
-            or line.startswith(self.whitelist_prefix)
+            not line
+            or self.rule_formats['comment'].match(line)
+            or self.rule_formats['whitelist'].match(line)
         )
 
-    async def resolve_domain(self, domain):
-        """全球DNS解析（自动适应国内外域名）"""
-        try:
-            if not domain or '.' not in domain:
-                return False
-                
-            # 清理规则修饰符
-            clean_domain = re.sub(r'[\^\|\*\$\s]', '', domain.split('$')[0])
-            if not clean_domain:
-                return False
-                
-            # 检查缓存
-            if clean_domain in self.cache:
-                return self.cache[clean_domain]
-                
-            # 根据域名类型选择超时（国内域名快速失败）
-            timeout = 2 if re.search(r'\.(cn|com|net)$', clean_domain) else 3
+    async def resolve_with_fallback(self, domain, max_retries=2):
+        """三级DNS解析策略"""
+        domain = domain.lower().strip()
+        if not domain or '.' not in domain:
+            return False
             
-            # 并行查询所有DNS
-            tasks = [asyncio.create_task(r.query(clean_domain, 'A')) for r in self.resolvers]
-            done, _ = await asyncio.wait(tasks, timeout=timeout, return_when=asyncio.FIRST_COMPLETED)
+        # 清理特殊字符
+        clean_domain = re.sub(r'[^\w.-]', '', domain.split('$')[0].split('^')[0])
+        if not clean_domain:
+            return False
             
-            for task in done:
-                if result := task.result():
-                    self.cache[clean_domain] = True
-                    return True
+        # 检查缓存
+        if clean_domain in self.cache:
+            return self.cache[clean_domain]
+            
+        # 智能选择解析组
+        resolver_group = 'cn' if clean_domain.endswith('.cn') else 'intl'
+        
+        for attempt in range(max_retries):
+            for resolver in self.resolver_groups[resolver_group] + self.resolver_groups['backup']:
+                try:
+                    result = await asyncio.wait_for(
+                        resolver.query(clean_domain, 'A'),
+                        timeout=2 if resolver_group == 'cn' else 3
+                    )
+                    if result:
+                        self.cache[clean_domain] = True
+                        return True
+                except Exception:
+                    continue
                     
-            self.cache[clean_domain] = False
-            return False
+            # 失败后切换解析组
+            resolver_group = 'backup' if resolver_group != 'backup' else 'intl'
             
-        except Exception as e:
-            print(f"解析失败 {domain}: {str(e)}")
-            return False
+        self.cache[clean_domain] = False
+        return False
 
 async def process_file(input_path, output_path):
     """处理规则文件"""
-    validator = DomainValidator()
-    kept_rules = []
+    validator = RuleValidator()
+    kept_lines = []
     
     with open(input_path, 'r', encoding='utf-8', errors='ignore') as f:
         for line in f:
-            line = line.strip()
-            
-            # 保留注释/空行/白名单
-            if validator.should_skip(line):
-                kept_rules.append(line)
+            raw_line = line.strip()
+            if validator.should_skip(raw_line):
+                kept_lines.append(line.rstrip('\n'))
                 continue
                 
-            # 提取域名核心部分
+            # 尝试匹配所有规则格式
             domain = None
-            for pattern in [
-                r'^\|\|([^\^\/\*]+)\^',  # ||example.com^
-                r'^([^\s\^\/\*]+)',      # example.com
-                r'^0\.0\.0\.0\s+([^\s]+)' # 0.0.0.0 example.com
-            ]:
-                if match := re.search(pattern, line):
+            for fmt in ['adguard', 'adblock', 'hosts', 'domain']:
+                if match := validator.rule_formats[fmt].search(raw_line):
                     domain = match.group(1)
                     break
                     
-            # 有效域名才进行解析
-            if domain and await validator.resolve_domain(domain):
-                kept_rules.append(line)
+            # hosts格式直接放行
+            if fmt == 'hosts' and domain:
+                kept_lines.append(line.rstrip('\n'))
+                continue
+                
+            # 需要验证的域名
+            if domain and await validator.resolve_with_fallback(domain):
+                kept_lines.append(line.rstrip('\n'))
     
-    # 保持文件原始格式
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write('\n'.join(kept_rules))
+    # 保持原始换行符
+    with open(output_path, 'w', encoding='utf-8', newline='\n') as f:
+        f.write('\n'.join(kept_lines))
 
 async def main():
-    print("🌐 开始处理全球域名规则...")
+    print("🌍 启动全球DNS规则处理器...")
     start_time = time.time()
     
     try:
         # 处理所有规则文件
-        for rule_type in ['adblock', 'allow']:
+        for rule_type in ['adblock', 'allow', 'hosts']:
             for input_file in Path(INPUT_DIR).glob(f"{rule_type}*.txt"):
                 output_file = Path(OUTPUT_DIR) / input_file.name
                 await process_file(input_file, output_file)
-                print(f"✅ 已处理: {input_file.name}")
+                print(f"🔄 已处理: {input_file.name}")
                 
     except Exception as e:
-        print(f"❌ 处理失败: {str(e)}")
+        print(f"💥 处理失败: {str(e)}")
         raise
     
-    print(f"⏱️ 处理完成! 总耗时: {time.time()-start_time:.2f}秒")
+    print(f"✅ 全部完成! 耗时: {time.time()-start_time:.2f}秒")
 
 if __name__ == "__main__":
     loop = uvloop.new_event_loop()
