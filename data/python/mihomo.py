@@ -16,7 +16,6 @@ def error(message):
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} [ERROR] {message}", file=sys.stderr)
 
 def download_mihomo_tool(tool_dir):
-    """下载最新版 Mihomo 转换工具到临时目录"""
     try:
         tool_dir = Path(tool_dir)
         tool_dir.mkdir(parents=True, exist_ok=True)
@@ -43,8 +42,6 @@ def download_mihomo_tool(tool_dir):
                 shutil.copyfileobj(f_in, f_out)
         
         tool_path.chmod(0o755)
-        
-        # 清理临时文件
         version_file.unlink(missing_ok=True)
         tool_gz_path.unlink(missing_ok=True)
 
@@ -56,7 +53,6 @@ def download_mihomo_tool(tool_dir):
         return None
 
 def convert_to_mrs(input_file, output_file, tool_path):
-    """转换为 Mihomo 的 .mrs 格式"""
     try:
         cmd = [
             str(tool_path),
@@ -85,7 +81,6 @@ def convert_to_mrs(input_file, output_file, tool_path):
         return False
 
 def process_adguard_rules(input_path, output_path):
-    """处理纯 AdGuard Home 黑名单语法"""
     try:
         processed_lines = 0
         with open(input_path, 'r', encoding='utf-8', errors='ignore') as f_in, \
@@ -96,25 +91,19 @@ def process_adguard_rules(input_path, output_path):
                 if not line or line.startswith('!'):
                     continue
 
-                # 处理 AdGuard Home 专有黑名单语法
                 if line.startswith("||") and line.endswith("^"):
-                    # 处理: ||domain^ → +.domain
                     f_out.write(f"+.{line[2:-1]}\n")
                     processed_lines += 1
                 elif line.startswith("0.0.0.0 "):
-                    # 处理: 0.0.0.0 domain → +.domain
                     f_out.write(f"+.{line[8:]}\n")
                     processed_lines += 1
                 elif line.startswith("||"):
-                    # 处理: ||domain.com → +.domain.com
                     f_out.write(f"+.{line[2:]}\n")
                     processed_lines += 1
                 elif line.startswith("."):
-                    # 处理: .domain.com → +.domain.com
                     f_out.write(f"+.{line[1:]}\n")
                     processed_lines += 1
                 else:
-                    # 普通域名直接添加前缀
                     f_out.write(f"+.{line}\n")
                     processed_lines += 1
 
@@ -127,13 +116,12 @@ def process_adguard_rules(input_path, output_path):
 
 def main():
     try:
-        # 配置路径 - 适配前一个脚本的输出路径
         BASE_DIR = Path(__file__).parent.parent
         config = {
-            "input": Path(tempfile.gettempdir()) / "adblock-filtered.txt",  # 从临时目录读取
-            "temp": Path(tempfile.gettempdir()) / "mihomo.txt",    # 临时文件
-            "output": BASE_DIR / "rules" / "adb.mrs",              # 输出文件
-            "tool_dir": Path(tempfile.gettempdir()) / "mihomo_tools"  # 工具目录
+            "input": BASE_DIR / "data" / "rules" / "adblock-filtered.txt",
+            "temp": Path(tempfile.gettempdir()) / "mihomo.txt",
+            "output": BASE_DIR / "data" / "rules" / "adb.mrs",
+            "tool_dir": Path(tempfile.gettempdir()) / "mihomo_tools"
         }
 
         log("="*50)
@@ -144,25 +132,20 @@ def main():
         log(f"工具目录: {config['tool_dir']}")
         log("="*50)
 
-        # 检查输入文件是否存在
         if not config["input"].exists():
             error(f"输入文件不存在: {config['input']}")
             sys.exit(1)
 
-        # 1. 处理 AdGuard 规则
         if not process_adguard_rules(config["input"], config["temp"]):
             sys.exit(1)
 
-        # 2. 下载转换工具
         tool = download_mihomo_tool(config["tool_dir"])
         if not tool:
             sys.exit(1)
 
-        # 3. 转换为 .mrs 格式
         if not convert_to_mrs(config["temp"], config["output"], tool):
             sys.exit(1)
 
-        # 4. 清理临时文件
         try:
             config["temp"].unlink(missing_ok=True)
             shutil.rmtree(config["tool_dir"], ignore_errors=True)
