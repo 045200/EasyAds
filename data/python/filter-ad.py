@@ -1,131 +1,159 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-GitHub Actions优化版AdBlock规则处理器 - 修复括号匹配问题
+AdGuard Home规则GitHub Actions处理器 - 生产级
 """
 
 import re
 from pathlib import Path
-from typing import Set, List, Tuple
+from typing import Set, Dict
 import sys
 import resource
+import os
+from datetime import datetime
 
-# 设置内存软限制为512MB
-resource.setrlimit(resource.RLIMIT_AS, (512 * 1024 * 1024, -1))
-
-def memory_guard():
-    """内存监控装饰器"""
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            try:
-                return func(*args, **kwargs)
-            except MemoryError:
-                print("⚠️ 内存不足，启用分块处理模式")
-                return chunked_processing(*args, **kwargs)
-        return wrapper
-    return decorator
-
-@memory_guard()
-def load_rules(filepath: Path) -> Tuple[Set[str], List[str]]:
-    """安全加载规则文件"""
-    encodings = ('utf-8', 'latin-1')
-    for enc in encodings:
-        try:
-            with open(filepath, 'r', encoding=enc) as f:
-                white_set = set()
-                original_lines = []
-                for i, line in enumerate(f):
-                    if i % 10000 == 0 and i > 0:  # 每1万行检查内存
-                        check_memory()
-                    line = line.strip()
-                    if not line or line.startswith(('!', '#')):
-                        continue
-                    norm = normalize_rule(line)
-                    white_set.add(norm)
-                    original_lines.append(line)
-                return white_set, original_lines
-        except UnicodeDecodeError:
-            continue
-    raise ValueError(f"无法解码文件: {filepath}")
-
-def normalize_rule(rule: str) -> str:
-    """GitHub Actions专用轻量标准化"""
-    rule = rule.split('$', 1)[0]  # 先分割提高性能
-    if rule.startswith('@@'):
-        rule = rule[2:]
-    elif rule.startswith('||'):
-        rule = rule[2:]
-    return rule.replace('*', '').strip('.').lower()
-
-def check_memory():
-    """监控内存使用"""
-    used = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024 / 1024
-    if used > 450:  # MB
-        raise MemoryError()
-
-def chunked_processing(black_file: Path, white_set: Set[str], chunk_size=50000) -> List[str]:
-    """分块处理超大规模文件"""
-    results = []
-    encodings = ('utf-8', 'latin-1')
+# GitHub Actions环境优化
+def setup_environment():
+    """严格的CI环境配置"""
+    # 内存限制（保留15%缓冲）
+    mem_limit = int(os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES') * 0.85)
+    resource.setrlimit(resource.RLIMIT_AS, (mem_limit, mem_limit))
     
-    for enc in encodings:
-        try:
-            with open(black_file, 'r', encoding=enc) as f:
-                chunk = []
-                for i, line in enumerate(f):
-                    if i % chunk_size == 0 and i > 0:
-                        results.extend(process_chunk(chunk, white_set))
-                        chunk = []
-                        check_memory()
-                    chunk.append(line)
-                if chunk:
-                    results.extend(process_chunk(chunk, white_set))
-            return results
-        except UnicodeDecodeError:
-            continue
-    raise ValueError(f"无法解码文件: {black_file}")
+    # 文件描述符限制提升
+    resource.setrlimit(resource.RLIMIT_NOFILE, (8192, 8192))
+    
+    # 设置UTC时区（CI环境统一）
+    os.environ['TZ'] = 'UTC'
 
-def process_chunk(chunk: List[str], white_set: Set[str]) -> List[str]:
-    """处理单个数据块"""
-    return [
-        line.strip() for line in chunk 
-        if line.strip() and 
-        (line.startswith(('!', '#')) or 
-         (not is_covered(normalize_rule(line), white_set)))
-    ]
+class RuleProcessor:
+    """20万+规则处理核心"""
+    
+    def __init__(self):
+        setup_environment()
+        self.whitelist = set()
+        self.stats = {
+            'start_time': datetime.utcnow(),
+            'whitelist_loaded': 0,
+            'blacklist_processed': 0,
+            'rules_kept': 0,
+            'memory_peak': 0
+        }
+        
+        # 预编译正则（AdGuard DNS语法专用）
+        self.rule_parser = re.compile(
+            r'^(@@\|\|)?(\|\|)?([a-z0-9-*]+\.?)+(\^|\$|/)'
+        )
 
-def is_covered(normalized_black: str, white_set: Set[str]) -> bool:
-    """优化后的覆盖检查"""
-    if normalized_black in white_set:
-        return True
-    # 检查子域名覆盖（最多3级）
-    parts = normalized_black.split('.')
-    max_level = min(3, len(parts) - 1)
-    for i in range(1, max_level + 1):
-        if '.'.join(parts[i:]) in white_set:
+    def _memory_check(self):
+        """每处理1万条检查内存"""
+        self.stats['memory_peak'] = max(
+            self.stats['memory_peak'],
+            resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024 / 1024
+        )
+        if self.stats['memory_peak'] > 3800:  # GitHub Actions的4GB内存限制
+            raise MemoryError("内存使用接近CI环境上限")
+
+    def load_whitelist(self, path: Path):
+        """加载1万+白名单规则"""
+        with open(path, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith(('!', '#')):
+                    norm = self._normalize_rule(line)
+                    if norm:
+                        self.whitelist.add(norm)
+                        self.stats['whitelist_loaded'] += 1
+                        if self.stats['whitelist_loaded'] % 2000 == 0:
+                            self._memory_check()
+
+    def _normalize_rule(self, rule: str) -> str:
+        """AdGuard规则标准化（性能优化版）"""
+        match = self.rule_parser.match(rule.split('$')[0].strip())
+        if not match:
+            return ""
+        domain = match.group(0)
+        return domain.replace('^', '').replace('*', '').strip('.|/').lower()
+
+    def process_blacklist(self, input_path: Path, output_path: Path):
+        """处理20万+黑名单"""
+        with open(input_path, 'r', encoding='utf-8') as infile, \
+             open(output_path, 'w', encoding='utf-8') as outfile:
+            
+            for line in infile:
+                line = line.strip()
+                self.stats['blacklist_processed'] += 1
+                
+                # 保留注释和空行
+                if not line or line.startswith(('!', '#')):
+                    outfile.write(f"{line}\n")
+                    continue
+                
+                # 规则过滤
+                if not self._is_whitelisted(line):
+                    outfile.write(f"{line}\n")
+                    self.stats['rules_kept'] += 1
+                
+                # 进度报告
+                if self.stats['blacklist_processed'] % 10000 == 0:
+                    print(
+                        f"⏳ 已处理: {self.stats['blacklist_processed']:,} | "
+                        f"保留: {self.stats['rules_kept']:,} | "
+                        f"内存: {self.stats['memory_peak']:.1f}MB",
+                        flush=True
+                    )
+                    self._memory_check()
+
+    def _is_whitelisted(self, rule: str) -> bool:
+        """白名单检查（优化版）"""
+        norm = self._normalize_rule(rule)
+        if not norm:
+            return False
+        
+        # 直接匹配
+        if norm in self.whitelist:
             return True
-    return False
+        
+        # 子域名检查（最多4级）
+        parts = norm.split('.')
+        for i in range(1, min(5, len(parts))):
+            if '.'.join(parts[i:]) in self.whitelist:
+                return True
+        return False
+
+    def generate_report(self):
+        """生成GitHub Actions友好报告"""
+        duration = (datetime.utcnow() - self.stats['start_time']).total_seconds()
+        
+        report = [
+            "::group::📊 处理结果统计",
+            f"🕒 耗时: {duration:.2f}秒",
+            f"📈 内存峰值: {self.stats['memory_peak']:.1f}MB",
+            f"⚪ 白名单规则: {self.stats['whitelist_loaded']:,}",
+            f"⚫ 原始黑名单: {self.stats['blacklist_processed']:,}",
+            f"🟢 保留规则: {self.stats['rules_kept']:,}",
+            f"🔴 过滤规则: {self.stats['blacklist_processed'] - self.stats['rules_kept']:,}",
+            "::endgroup::"
+        ]
+        
+        return "\n".join(report)
 
 def main():
-    rules_dir = Path('data/rules')
-    print("::group::🚀 开始处理规则")
-    
     try:
-        print("正在加载白名单...")
-        white_set, _ = load_rules(rules_dir / 'allow.txt')
+        processor = RuleProcessor()
         
-        print("过滤黑名单规则...")
-        filtered = chunked_processing(rules_dir / 'dns.txt', white_set)
+        # 输入输出路径（硬编码确保可靠）
+        input_dir = Path('data/rules')
+        processor.load_whitelist(input_dir / 'allow.txt')
+        processor.process_blacklist(
+            input_dir / 'dns.txt',
+            input_dir / 'adblock-filtered.txt'
+        )
         
-        print("写入结果文件...")
-        with open(rules_dir / 'adblock-filtered.txt', 'w', encoding='utf-8') as f:
-            f.write('\n'.join(filtered))
-            
-        print(f"::notice title=完成::处理完毕！保留规则: {len(filtered)}条")
-        print("::endgroup::")
+        # 生成报告
+        print(processor.generate_report())
         sys.exit(0)
     except Exception as e:
-        print(f"::error::处理失败: {str(e)}")
+        print(f"::error::❌ 处理失败: {str(e)}")
         sys.exit(1)
 
 if __name__ == '__main__':
