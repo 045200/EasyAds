@@ -49,16 +49,11 @@ jobs:
           
           # 执行DNS验证脚本
           python ./data/python/dns.py \
-            --input-dir ./tmp \
-            --timeout 2 \
-            --workers 6 \
-            --cache-file ./tmp/dns_cache.db \
-            --batch-size 500 2>&1 | tee -a dns_validation.log
-          
-          # 上传日志供调试
-          echo "===== DNS VALIDATION LOG ====="
-          cat dns_validation.log
-        timeout-minutes: 30  # 防止长时间挂起
+  --input-dir ./tmp \
+  --timeout 2 \
+  --workers 6 \
+  --cache-file ./tmp/dns_cache.db \
+  --batch-size 500
 
       - name: Merge Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
