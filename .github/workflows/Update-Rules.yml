@@ -1,4 +1,4 @@
-name: Update Rules
+name: SmartDNS Rules Pipeline
 on:
   workflow_dispatch:
   schedule:
@@ -6,106 +6,88 @@ on:
   push:
     paths:
       - 'data/python/**'
-      - 'data/source/**'
       - 'data/mod/**'
 
 jobs:
   update:
     runs-on: ubuntu-latest
+    timeout-minutes: 350
     steps:
+      # ==================== 初始化 ====================
       - uses: actions/checkout@v4
 
-      - name: Check for file changes
-        id: changes
-        uses: tj-actions/changed-files@v42
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
-          files: |
-            data/python/**
-            data/source/**
-            data/mod/**
+          python-version: '3.10'
 
-      - name: Install dependencies
-        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+      # ==================== 下载阶段 ====================
+      - name: Download Rules (dl.py)
+        id: download
         run: |
-          sudo apt-get update -q
-          sudo apt-get install -y -q --no-install-recommends \
-            dnsutils  # 提供dig命令
-          pip install --no-cache-dir \
-            tldextract==3.4.1  # 确保SQLite支持
-        env:
-          PIP_NO_CACHE_DIR: "true"  # 禁用pip缓存
-
-      - name: Download Rules
-        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        continue-on-error: true
-        run: |
-          python ./data/python/dl.py
-
-      - name: Smart DNS Filter
-        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: |
-          # 确保缓存目录存在
           mkdir -p ./tmp
-          
-          # 执行DNS验证脚本
-          python ./data/python/dns.py \
-  --input-dir ./tmp \
-  --timeout 2 \
-  --workers 6 \
-  --cache-file ./tmp/dns_cache.db \
-  --batch-size 500
+          python ./data/python/dl.py
+          echo "下载文件列表："
+          ls -lh ./tmp/
+        continue-on-error: true  # 允许部分规则下载失败
 
-      - name: Merge Rules
-        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+      # ==================== 验证阶段 ====================
+      - name: SmartDNS Validation
+        if: steps.download.outcome == 'success'
         run: |
-          python ./data/python/merge.py
-          
-      - name: Generate qx Rules
-        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: |
-          python ./data/python/qx.py
-          
-      - name: Generate mihomo Rules
-        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: |
-          python ./data/python/mihomo.py
+          echo "::group::🔍 DNS验证开始"
+          python -m uvloop ./data/python/dns.py \
+            --input ./tmp \
+            --output ./data/rules \
+            --timeout 1.5 \
+            --workers ${{ github.runner.os == 'Linux' && '8' || '4' }} \
+            --cache ./tmp/dns_cache.json
+          echo "::endgroup::"
+        env:
+          PYTHONUNBUFFERED: 1
 
-      - name: Generate loon Rules
-        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+      # ==================== 规则生成 ====================
+      - name: Generate All Rules
+        if: steps.download.outcome == 'success'
         run: |
-          python ./data/python/loon.py
+          parallel ::: \
+            "python ./data/python/merge.py" \
+            "python ./data/python/qx.py" \
+            "python ./data/python/mihomo.py" \
+            "python ./data/python/loon.py"
 
-      - name: Generate Domain List
-        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+      # ==================== 元数据更新 ====================
+      - name: Update Metadata
+        if: steps.download.outcome == 'success'
         run: |
           python ./data/python/domain_list.py
-
-      - name: Update Title&ReadMe
-        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: |
           python ./data/python/title.py
           python ./data/python/clean-readme.py
 
-      - name: Configure Git
-        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git branch -m master
-
+      # ==================== 结果提交 ====================
       - name: Commit Changes
-        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        if: steps.download.outcome == 'success'
         run: |
+          git config --local user.name "GitHub Actions"
+          git config --local user.email "actions@github.com"
           git add --all
-          git commit -m "Updated at $(TZ=UTC-8 date +'%Y-%m-%d %H:%M:%S')（北京时间）" || echo "No changes to commit"
-      
-      - name: Sync and Push Changes
-        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+          git commit -m "Auto-update: $(date +'%Y-%m-%d %H:%M:%S UTC%z')" || echo "No changes"
+          for i in {1..3}; do git pull --rebase && git push && break || sleep 10; done
+
+      # ==================== 异常处理 ====================
+      - name: Upload Error Logs
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: error-logs-${{ github.run_id }}
+          path: |
+            ./tmp/*.log
+            ./data/python/debug.log
+
+      - name: Cleanup
+        if: always()
         run: |
-          for i in 1 2 3; do
-            git pull --rebase origin master
-            git push origin master && break || sleep 5
-          done
+          rm -rf ./tmp/dns_cache.json  # 保留目录但清除缓存
 
       - name: Delete workflow runs 
         uses: Mattraks/delete-workflow-runs@main
