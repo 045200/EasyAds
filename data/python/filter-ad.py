@@ -105,14 +105,20 @@ class AdGuardProcessor:
 def main():
     try:
         processor = AdGuardProcessor()
-        base_dir = Path(__file__).parent.parent
-        input_dir = base_dir / "data" / "rules"
-        output_path = input_dir / "adblock-filtered.txt"
+        
+        # 修正路径获取方式（关键修改点）
+        script_dir = Path(__file__).parent  # /data/python
+        rules_dir = script_dir.parent / "rules"  # /data/rules
+        
+        # 调试输出路径信息（生产环境可移除）
+        print(f"::debug::规则目录: {rules_dir}")
+        print(f"::debug::白名单路径: {rules_dir / 'allow.txt'}")
+        print(f"::debug::黑名单路径: {rules_dir / 'dns.txt'}")
         
         processor.process_blacklist(
-            black_path=input_dir / 'dns.txt',
-            white_path=input_dir / 'allow.txt',
-            output_path=output_path
+            black_path=rules_dir / 'dns.txt',
+            white_path=rules_dir / 'allow.txt',
+            output_path=rules_dir / 'adblock-filtered.txt'
         )
         
         print(processor.generate_report())
