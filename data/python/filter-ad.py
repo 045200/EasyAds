@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-AdGuard Home 规则处理器 - GitHub Actions 生产版
+AdGuard Home 规则处理器 - 生产版
 功能：用白名单净化黑名单 | 环境适配 | 完整统计
 """
 
@@ -11,19 +11,13 @@ from typing import Set, Dict
 import sys
 import resource
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
-# 环境初始化配置
 def setup_github_actions():
     """GitHub Actions 专用环境优化"""
-    # 内存限制（保留 20% 缓冲）
     mem_total = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
     resource.setrlimit(resource.RLIMIT_AS, (int(mem_total * 0.8), mem_total))
-    
-    # 文件描述符限制（处理大文件必需）
     resource.setrlimit(resource.RLIMIT_NOFILE, (8192, 8192))
-    
-    # 禁用 SWAP（防止 CI 环境性能抖动）
     if hasattr(resource, 'RLIMIT_SWAP'):
         resource.setrlimit(resource.RLIMIT_SWAP, (0, 0))
 
@@ -31,25 +25,22 @@ class AdGuardProcessor:
     def __init__(self):
         setup_github_actions()
         self.stats = {
-            'start_time': datetime.utcnow(),
+            'start_time': datetime.now(timezone.utc),
             'whitelist_rules': 0,
             'blacklist_input': 0,
             'blacklist_output': 0,
             'memory_peak_mb': 0,
             'time_elapsed_sec': 0
         }
-        # 预编译 AdGuard 专用正则
         self.rule_normalizer = re.compile(r'^(@@)?(\|\|)?([^*^|~#]+)')
 
     def _update_memory_stats(self):
-        """记录内存峰值"""
         current_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
         self.stats['memory_peak_mb'] = max(self.stats['memory_peak_mb'], current_mem)
-        if current_mem > 3500:  # GitHub Actions 默认内存限制为 4GB
+        if current_mem > 3500:
             raise MemoryError(f"内存使用超过安全阈值: {current_mem:.1f}MB")
 
     def load_whitelist(self, path: Path) -> Set[str]:
-        """加载白名单并统计"""
         whitelist = set()
         with open(path, 'r', encoding='utf-8') as f:
             for line in f:
@@ -64,7 +55,6 @@ class AdGuardProcessor:
         return whitelist
 
     def _normalize_rule(self, rule: str) -> str:
-        """AdGuard 规则标准化（严格模式）"""
         match = self.rule_normalizer.match(rule.split('$')[0].strip())
         if not match:
             return ""
@@ -72,7 +62,6 @@ class AdGuardProcessor:
         return domain.strip('.') if domain else ""
 
     def process_blacklist(self, black_path: Path, white_path: Path, output_path: Path):
-        """核心处理流程"""
         whitelist = self.load_whitelist(white_path)
         
         with open(black_path, 'r', encoding='utf-8') as infile, \
@@ -82,17 +71,14 @@ class AdGuardProcessor:
                 line = line.strip()
                 self.stats['blacklist_input'] += 1
                 
-                # 保留注释和空行
                 if not line or line.startswith(('!', '#')):
                     outfile.write(f"{line}\n")
                     continue
                 
-                # 白名单过滤
                 if self._normalize_rule(line) not in whitelist:
                     outfile.write(f"{line}\n")
                     self.stats['blacklist_output'] += 1
                 
-                # 进度监控
                 if self.stats['blacklist_input'] % 10000 == 0:
                     print(
                         f"⏳ 进度: {self.stats['blacklist_input']:,} 行 | "
@@ -102,11 +88,9 @@ class AdGuardProcessor:
                     )
                     self._update_memory_stats()
         
-        # 最终统计
-        self.stats['time_elapsed_sec'] = (datetime.utcnow() - self.stats['start_time']).total_seconds()
+        self.stats['time_elapsed_sec'] = (datetime.now(timezone.utc) - self.stats['start_time']).total_seconds()
 
     def generate_report(self) -> str:
-        """生成 GitHub Actions 友好报告"""
         return f"""
 ::group::📈 规则处理统计摘要
 🕒 耗时: {self.stats['time_elapsed_sec']:.2f} 秒
@@ -121,16 +105,16 @@ class AdGuardProcessor:
 def main():
     try:
         processor = AdGuardProcessor()
+        base_dir = Path(__file__).parent.parent
+        input_dir = base_dir / "data" / "rules"
+        output_path = input_dir / "adblock-filtered.txt"
         
-        # 文件路径（硬编码确保可靠性）
-        input_dir = Path('data/rules')
         processor.process_blacklist(
             black_path=input_dir / 'dns.txt',
             white_path=input_dir / 'allow.txt',
-            output_path=input_dir / 'adblock-filtered.txt'
+            output_path=output_path
         )
         
-        # 打印统计报告
         print(processor.generate_report())
         sys.exit(0)
     except Exception as e:
