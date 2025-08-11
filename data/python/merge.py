@@ -21,8 +21,8 @@ def is_valid_rule(rule: str) -> bool:
     if rule.startswith(('!', '#')) or '##' in rule or '#@#' in rule:
         return False
 
-    # A very simple check: a valid rule should contain at least one letter or a '*'
-    if re.search(r'[a-zA-Z*]', rule):
+    # Accept common AdBlock rule patterns
+    if re.match(r'^(\|\||/|\*|[a-zA-Z0-9_.-]).*', rule):
         return True
         
     return False
@@ -75,6 +75,8 @@ def process_and_split_rules(input_file: Path, block_output_file: Path, allow_out
             rule_part = line[2:].strip()
             if is_valid_rule(rule_part):
                 allow_rules.add(line)
+            else:
+                print(f"Rejected allow rule: {line} (reason: invalid rule_part)")
         elif '##' in line or '#@#' in line or line.startswith(('#?#', '$', '$$')):
             # Skip cosmetic, element hiding, and scriptlet injection rules
             continue
@@ -97,7 +99,10 @@ def process_and_split_rules(input_file: Path, block_output_file: Path, allow_out
         f.write("! Title: EasyAds Combined Allowlist\n")
         f.write(f"! Last Updated: {datetime.now(timezone.utc).isoformat()}\n")
         f.write("!--------------------------------------------------!\n\n")
-        f.writelines(sorted([rule + '\n' for rule in allow_rules]))
+        if not allow_rules:
+            f.write("! Note: No allow rules were found in the input\n")
+        else:
+            f.writelines(sorted([rule + '\n' for rule in allow_rules]))
 
 def main() -> None:
     """Main function to run the entire processing workflow."""
@@ -115,14 +120,31 @@ def main() -> None:
 
     with open(all_rules_file, 'w', encoding='utf-8') as outfile:
         for file in source_files:
+            if file.stat().st_size == 0:
+                print(f"Warning: {file} is empty")
+                continue
             try:
                 with open(file, 'r', encoding='utf-8') as infile:
-                    outfile.write(infile.read())
+                    content = infile.read()
+                    if not content.strip():
+                        print(f"Warning: {file} contains no valid content")
+                        continue
+                    outfile.write(content)
             except UnicodeDecodeError:
                 with open(file, 'r', encoding='latin-1') as infile:
-                    outfile.write(infile.read())
+                    content = infile.read()
+                    if not content.strip():
+                        print(f"Warning: {file} contains no valid content")
+                        continue
+                    outfile.write(content)
             outfile.write('\n')
-    print(f"-> All source files merged into {all_rules_file}")
+        print(f"-> All source files merged into {all_rules_file}")
+
+    # Check if merged file contains allow rules
+    with open(all_rules_file, 'r', encoding='utf-8') as f:
+        content = f.read()
+        if '@@' not in content:
+            print("Warning: No allow rules (starting with '@@') found in merged file")
 
     print("Step 2: Processing, splitting, and deduplicating rules...")
     blocklist_path = rules_dir / 'adblock.txt'
@@ -135,4 +157,3 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
-
