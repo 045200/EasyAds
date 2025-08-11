@@ -2,11 +2,11 @@
 ! Title: EasyAds
 ! Homepage: https://github.com/045200/EasyAds
 ! Expires: 12 Hours
-! Version: 2025-08-11 22:38:22（北京时间）
+! Version: 2025-08-12 00:21:01（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 8833
+! Total count: 8830
 ! Title: EasyAds Combined Allowlist
-! Last Updated: 2025-08-11T14:38:19.093219+00:00
+! Last Updated: 2025-08-11T16:20:57.839794+00:00
 !--------------------------------------------------!
 
 @@*.flyme.cn
@@ -1276,7 +1276,6 @@
 @@||apkmos.com^$generichide
 @@||apm-and.zhipin.com^
 @@||apmfront.17u.cn^
-@@||apmplus.volces.com^
 @@||app-advertise.zhihuishu.com^
 @@||app-api.pixiv.net^
 @@||app-api.smzdm.com^
@@ -3252,7 +3251,6 @@
 @@||friends-public-service-prod06.ol.epicgames.com^$important
 @@||frodo.douban.com^
 @@||frontier.tiktokv.com^
-@@||frontier100-toutiao-hl.fqnovel.com^
 @@||frontier100-toutiao-hl.toutiaoapi.com^
 @@||frosmo.com/recoApi/$domain=eeva.fi|terve.fi|lily.fi|meillakotona.fi|apu.fi
 @@||frosmo.com^$image,xmlhttprequest,domain=karkkainen.com
@@ -8143,7 +8141,6 @@
 @@||v3-novelapp.fqnovelvod.com^
 @@||v3-ppx.ixigua.com^
 @@||v5-hl-ali-reading-video.fqnovelvod.com^
-@@||v5-hl-hw-reading-video.fqnovelvod.com^
 @@||v5-novelapp.fqnovelvod.com^
 @@||v6-fq-tts.fqnovelvod.com^
 @@||v6-nimg.ws.126.net^
