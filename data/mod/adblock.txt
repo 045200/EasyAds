@@ -1,3 +1,94 @@
+! 国内主流广告SDK拦截
+||ad.*.cn^
+||*.adsensor.org^
+||*.ad.*.com^
+||*.ad*.com^
+||*.ad*.cn^
+||*.umeng.*^
+||*.umeng.com^
+||*.umengcdn.com^
+||*.mob.com^
+||*.mobad.*^
+||*.gdt.qq.com^
+||*.e.qq.com^
+||*.talkingdata.*^
+||*.tanx.com^
+||*.aliyun.com/ad/
+||*.miaozhen.com^
+||*.admaster.com.cn^
+||*.sensorsdata.cn^
+||*.adjust.com^
+||*.appsflyer.com^
+! 主流APP广告拦截
+||*.baidu.com/ad/
+||*.bdstatic.com/ad/
+||*.iqiyi.com/*/ad/
+||*.iqiyi.com/adv/
+||*.youku.com/ad/
+||*.tudou.com/ad/
+||*.tencent.com/ad/
+||*.qq.com/ad/
+||*.weibo.com/ad/
+||*.sina.com.cn/ad/
+||*.sohu.com/ad/
+||*.bilibili.com/ad/
+||*.douyin.com/ad/
+||*.kuaishou.com/ad/
+||*.zhihu.com/ad/
+||*.xiaohongshu.com/ad/
+! 运营商广告拦截
+||*.10086.cn/ad/
+||*.10010.com/ad/
+||*.189.cn/ad/
+||*.chinamobile.com/ad/
+||*.chinaunicom.com/ad/
+||*.chinatelecom.com/ad/
+! 常见APP开屏广告
+||*/splashad*
+||*/splash/*ad*
+||*/launchad*
+||*/ad/splash*
+||*/ad/launch*
+||*/startpage/ad*
+||*/ad/startpage*
+! 通用广告拦截规则
+||*/*advert*
+||*/*banner*ad*
+||*/*popup*ad*
+||*/*float*ad*
+||*/*sponsor*
+||*/*adimg*
+||*/*adpic*
+||*/*gg.*
+||*/*ad/*.js
+||*/*ad/*.css
+||*/*ad/*.jpg
+||*/*ad/*.png
+||*/*ad/*.gif
+! 屏蔽常见统计和追踪
+||*.cnzz.com^
+||*.baidu.com/analytics/
+||*.google-analytics.com^
+||*.doubleclick.net^
+||*.mmstat.com^
+||*.sogou.com/analytics/
+||*.taobao.com/monitor/
+! 腾讯广告SDK核心域名（泛域名+关键精准拦截）
+||*.gdtimg.com^
+||gdt?.qq.com^
+||adxlog?.v.qq.com^
+||adxlog??.v.qq.com^
+||ads*.qq.com^
+||ad*.qq.com^
+||e.qq.com^
+||tanx.com^
+! 必须单独拦截的关键域名
+||ad.qun.qq.com^
+||adpm.app.qq.com^
+||adxlog-upload.v.qq.com^
+||adsmind.gdtimg.com^
+||adver.qq.com^
+||adui.tgideas.qq.com^
 # ====== 腾讯系广告 ======
 ||ad.weixin.qq.com^
 ||adn.weixin.qq.com^
