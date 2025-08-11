@@ -2,11 +2,11 @@
 ! Title: EasyAds
 ! Homepage: https://github.com/045200/EasyAds
 ! Expires: 12 Hours
-! Version: 2025-08-11 20:28:36（北京时间）
+! Version: 2025-08-11 21:14:15（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 163938
+! Total count: 163942
 # DNS rules extracted from adblock.txt
-# Generated on 2025-08-11 12:28:32.844003
+# Generated on 2025-08-11 13:14:11.844021
 
 ||ad.weixin.qq.com^
 ||adn.weixin.qq.com^
@@ -19,10 +19,15 @@
 ||mini-program-ads.qq.com^
 ||ylh.qq.com^
 ||finder.weixin.qq.com^
+||finder*.weixin.qq.com^
 ||recommend.weread.qq.com^
 ||mp.weixin.qq.com/api/recommend^
 ||szextshort.weixin.qq.com^
+||tcss.qq.com^
+||analytics.qq.com^
 ||weixin.qq.com/cgi-bin/recommend^
+||push.weread.qq.com^
+||miniprogram.qq.com/recommend^
 ||pangolin.snssdk.com^
 ||pangolin16*.snssdk.com^
 ||cpro.baidu.com^
@@ -583,7 +588,6 @@
 ||tajs.qq.com^
 ||tangram.e.qq.com^
 ||taobao.qq.com^
-||tcss.qq.com^
 ||tdc.qq.com^
 ||tdid.m.qq.com^
 ||ten.sngapm.qq.com^
