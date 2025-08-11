@@ -2,15 +2,13 @@
 ! Title: EasyAds
 ! Homepage: https://github.com/045200/EasyAds
 ! Expires: 12 Hours
-! Version: 2025-08-11 22:31:04（北京时间）
+! Version: 2025-08-11 22:38:22（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 8850
+! Total count: 8833
 ! Title: EasyAds Combined Allowlist
-! Last Updated: 2025-08-11T14:30:59.358585+00:00
+! Last Updated: 2025-08-11T14:38:19.093219+00:00
 !--------------------------------------------------!
 
-@@$cookie=__gads,domain=godstoryinfo.com|laweducationinfo.com|rsgames.xyz|vichitrainfo.com
-@@&http_referer=$domain=chaopx.com
 @@*.flyme.cn
 @@*.myapp.com
 @@-social-bar.$domain=mobi.yahoo.com
@@ -202,11 +200,6 @@
 @@/webtracking/*$domain=pasts.lv
 @@/wp-content/*/social_$domain=servercat.me
 @@/wp-content/themes/radio-hub/static/js/*.js$domain=tingfm.com
-@@://analytics.google.com/analytics/$domain=analytics.google.com
-@@://mail.ru/$csp=connect-src 'self' *.imgsmail.ru *.mail.ru ok.ru vk.com data: blob:
-@@=mywebloadt1&$domain=myweb.hinet.net
-@@?adType=$domain=taotaosou.com
-@@?sid=ads$domain=126.com|mail.163.com
 @@_300_250.$domain=nanrenwo.net
 @@_370x270.$domain=bairuitool-cn.aliyun-hk03.hicheng.net
 @@_ads_cpc_$domain=90lover.cn
@@ -234,17 +227,6 @@
 @@t1.market.xiaomi.com
 @@url.cn
 @@verify.sec.xiaomi.com
-@@|http*/crossdomain.xml$object-subrequest,domain=vercanalestv.com
-@@|http://$image,domain=socketloop.com
-@@|http://$script,domain=sport1.de
-@@|http://$xmlhttprequest,image,domain=cbsnews.com
-@@|http://*.net/*/$subdocument,third-party,domain=allanalpass.com|amy.gs|any.gs|cash4files.com|cash4links.co|deb.gs|drstickyfingers.com|dyo.gs|eafyfsuh.net|fapoff.com|filesonthe.net|freean.us|freegaysitepass.com|galleries.bz|goneviral.com|hornywood.tv|linkbabes.com|linkbucks.com|megaline.co|miniurls.co|picbucks.com|poontown.net|qqc.co|rqq.co|sasontnwc.net|seriousdeals.net|sexpalace.gs|theseblogs.com|theseforums.com|tinylinks.co|tnabucks.com|tubeviral.com|ultrafiles.net|urlbeat.net|whackyvidz.com|youfap.me|yyv.co|zatnawqy.net|zff.co
-@@|http://*adv$image,domain=naasongs.com|nsongs.com
-@@|http://r.i.ua/s?*&p*&l$image,domain=swordmaster.org
-@@|https://$image,domain=socketloop.com
-@@|https://$script,domain=sport1.de
-@@|wss://zoom.us^$removeparam
-@@|wxpaylogo.qpic.cn^
 @@||"*.streaming.mediaservices.windows.net^
 @@||"mlccdn.blob.core.windows.net^
 @@||$xmlhttprequest,domain=last.fm
@@ -471,6 +453,7 @@
 @@||316.coolapk1s.com^
 @@||31vcd.com/player/kuyun.js
 @@||321mh.com^
+@@||36.156.169.71^
 @@||360.cn^
 @@||360.cn^$document
 @@||360buyimg.com/ad/$domain=jd.com
