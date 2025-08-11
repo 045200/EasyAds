@@ -1,5 +1,5 @@
 # DNS rules extracted from adblock.txt
-# Generated on 2025-08-10 12:24:56.244683
+# Generated on 2025-08-11 01:09:04.165144
 
 ||ad.weixin.qq.com^
 ||adn.weixin.qq.com^
@@ -85651,6 +85651,7 @@
 ||trypsinneutral.com^
 ||tryrewave-ss.zavydeals.com^
 ||tryzens-analytics.com^
+||ts-analysis.shoalter.com^
 ||ts.archbee.com^
 ||ts.beechhalljoinery.co.uk^
 ||ts.buyinsulationonline.co.uk^
