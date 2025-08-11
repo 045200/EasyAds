@@ -1,13 +1,11 @@
 !补充名单
 @@||dns.weixin.qq.com.cn^
-@@||frontier100-toutiao-hl.fqnovel.com^
-@@||v5-hl-hw-reading-video.fqnovelvod.com^
 @@||fourier.alibaba.com^
 @@||umini.shujupie.com^
 @@||doh.pub^
 @@||astrategy.beacon.qq.com^
 @@||c-oneid.getui.net^
-@@||apmplus.volces.com^
+@@||doh.pub^
 @@||insight.soulapp.cn^
 @@||gateway-mobile-gray.soulapp.cn^
 @@||data-collector.soulapp.cn^
