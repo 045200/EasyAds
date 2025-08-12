@@ -1,70 +1,81 @@
-import os
 import re
 from pathlib import Path
+from collections import defaultdict
+import mmap
 
-def process_rules(input_dir='tmp', output_dir='data/rules'):
-    # 初始化集合
-    adblock_black = set()  # 标准AdBlock拦截规则（||domain^）
-    adblock_white = set()  # 标准AdBlock白名单（@@||domain^）
-    hosts_black = set()    # Hosts转换的拦截规则
-    hosts_white = set()    # Hosts转换的放行规则
-    other_rules = set()    # 新增：其他不处理的规则原样保留
+class FullCompatProcessor:
+    __slots__ = ['black_rules', 'white_rules', '_patterns']
+    
+    def __init__(self):
+        # 预编译所有支持的正则表达式
+        self._patterns = {
+            'black': [
+                re.compile(r'^\|\|[^\s^\\^\/]+\^?.*$'),  # 基础域名规则
+                re.compile(r'^127\.0\.0\.1\s+([\w.-]+)'),  # Hosts黑名单
+                re.compile(r'^##[^#\s]'),  # 元素隐藏
+                re.compile(r'^\|\|.+\$[a-z-]+(?!,)')  # 基础修饰符
+            ],
+            'white': [
+                re.compile(r'^@@\|\|[^\s^\\^\/]+\^?.*$'),  # 基础白名单
+                re.compile(r'^0\.0\.0\.0\s+([\w.-]+)'),  # Hosts白名单
+                re.compile(r'^#%#'),  # 脚本片段
+                re.compile(r'^@@.+\$[a-z-]+(?!,)')  # 白名单修饰符
+            ]
+        }
+        self.black_rules = set()
+        self.white_rules = set()
 
-    # 处理所有输入文件
-    for filename in os.listdir(input_dir):
-        filepath = os.path.join(input_dir, filename)
-        if not os.path.isfile(filepath):
-            continue
+    def _process_line(self, line: str) -> None:
+        """支持全语法分类"""
+        line = line.strip()
+        if not line or line.startswith('!'):
+            return
 
-        with open(filepath, 'r', encoding='utf-8') as f:
-            for line in f:
-                line = line.strip()
-                if not line or line.startswith(('! ', '# ', '!#')):  # 严格匹配注释符号
-                    continue
-
-                # 1. 处理AdBlock语法规则
-                if line.startswith('@@'):
-                    if any(c in line for c in ['^', '$']):
-                        adblock_white.add(line)
-                    else:
-                        other_rules.add(line)  # 非常规白名单规则保留
-                elif any(c in line for c in ['^', '$']):
-                    adblock_black.add(line)
-
-                # 2. 处理hosts语法规则
-                elif re.match(r'^\d+\.\d+\.\d+\.\d+\s+[\w.-]+$', line):
-                    ip, domain = line.split()
-                    if ip == '127.0.0.1':
-                        hosts_black.add(f'||{domain}^')
-                    elif ip == '0.0.0.0':
-                        hosts_white.add(f'@@||{domain}^')
-
-                # 3. 其他规则原样保留
+        # 黑名单检测
+        for pattern in self._patterns['black']:
+            if match := pattern.match(line):
+                if pattern.pattern.startswith('127'):
+                    self.black_rules.add(f"||{match.group(1)}^")
                 else:
-                    other_rules.add(line)
+                    self.black_rules.add(line)
+                return
 
-    # 合并规则（保持分类清晰）
-    final_black = sorted(adblock_black.union(hosts_black))
-    final_white = sorted(adblock_white.union(hosts_white))
-    final_other = sorted(other_rules)
+        # 白名单检测
+        for pattern in self._patterns['white']:
+            if match := pattern.match(line):
+                if pattern.pattern.startswith('0.0.0'):
+                    self.white_rules.add(f"@@||{match.group(1)}^")
+                else:
+                    self.white_rules.add(line)
+                return
 
-    # 确保输出目录存在
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
+        # 特殊语法检测（可选扩展）
+        if line.startswith('$$'):
+            self.black_rules.add(line)  # HTML过滤视为黑名单
+        elif line.startswith('/') and line.endswith('/'):
+            self.black_rules.add(line)  # 正则规则视为黑名单
 
-    # 写入文件（黑名单+其他规则 / 白名单+其他规则）
-    with open(os.path.join(output_dir, 'adblock.txt'), 'w', encoding='utf-8') as f:
-        f.write('\n'.join(final_black))
-        if final_other:
-            f.write('\n\n! 其他未分类规则（原样保留）\n')
-            f.write('\n'.join(r for r in final_other if not r.startswith('@@')))
+    def process_files(self, input_dir: str = 'tmp', output_dir: str = 'data/rules'):
+        """处理流程"""
+        Path(output_dir).mkdir(parents=True, exist_ok=True)
+        
+        # 合并处理所有目标文件
+        for pattern in ['adblock*.txt', 'allow*.txt']:
+            for file in Path(input_dir).glob(pattern):
+                with open(file, 'r+') as f:
+                    mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
+                    for line in iter(mm.readline, b''):
+                        self._process_line(line.decode('utf-8', errors='ignore'))
+                    mm.close()
 
-    with open(os.path.join(output_dir, 'allow.txt'), 'w', encoding='utf-8') as f:
-        f.write('\n'.join(final_white))
-        if final_other:
-            f.write('\n\n! 其他未分类规则（原样保留）\n')
-            f.write('\n'.join(r for r in final_other if r.startswith('@@')))
+        # 写入结果
+        with open(Path(output_dir)/'adblock.txt', 'w', encoding='utf-8') as f:
+            f.write('\n'.join(sorted(self.black_rules)))
 
-    print(f"规则处理完成：黑名单 {len(final_black)} 条，白名单 {len(final_white)} 条，其他规则 {len(final_other)} 条")
+        with open(Path(output_dir)/'allow.txt', 'w', encoding='utf-8') as f:
+            f.write('\n'.join(sorted(self.white_rules)))
+
+        print(f"生成规则：\n┣ 黑名单({len(self.black_rules)}条)\n┗ 白名单({len(self.white_rules)}条)")
 
 if __name__ == '__main__':
-    process_rules()
+    FullCompatProcessor().process_files()
