@@ -47,7 +47,8 @@ adblock = [
     #"https://anti-ad.net/easylist.txt",
 
     # Cats-Team广告规则
-    #"https://raw.githubusercontent.com/Cats-Team/AdRules/main/adblock.txt",
+
+"https://raw.githubusercontent.com/Cats-Team/AdRules/main/adblock.txt",
 
     # 挡广告hosts规则
     "https://raw.githubusercontent.com/qq5460168/dangchu/main/adhosts.txt",
@@ -105,7 +106,11 @@ allow = [
 
 #酷安cocieto
 
-"https://raw.githubusercontent.com/urkbio/adguardhomefilter/main/whitelist.txt" 
+"https://raw.githubusercontent.com/urkbio/adguardhomefilter/main/whitelist.txt",
+
+#anti-ad混合名单
+
+"https://anti-ad.net/easylist.txt" 
 ]
 
 # 下载拦截规则
