@@ -3,7 +3,7 @@ from pathlib import Path
 from collections import defaultdict
 import mmap
 import logging
-from typing import Set, Dict, List, Tuple
+from typing import Set, Dict, List, Tuple, Optional
 
 class FullCompatProcessor:
     __slots__ = ['black_rules', 'white_rules', '_patterns']
@@ -32,7 +32,7 @@ class FullCompatProcessor:
         
     def _compile_patterns(self) -> None:
         """预编译所有正则表达式"""
-        self._patterns: Dict[str, List[Tuple[re.Pattern, callable]] = {
+        self._patterns: Dict[str, List[Tuple[re.Pattern, Optional[callable]]] = {
             'black': [(re.compile(pattern), processor) for pattern, processor in self.BLACK_PATTERNS],
             'white': [(re.compile(pattern), processor) for pattern, processor in self.WHITE_PATTERNS]
         }
@@ -62,15 +62,26 @@ class FullCompatProcessor:
                 self.white_rules.add(rule)
                 return
 
+        # 未分类的规则默认视为黑名单
+        self.black_rules.add(line)
+
     def _check_conflicts(self) -> None:
-        """检测黑白名单冲突并记录日志"""
+        """检测黑白名单冲突并记录日志（现在只是信息性提示）"""
         conflicts = self.black_rules & self.white_rules
         if conflicts:
-            logging.warning(
-                f"发现 {len(conflicts)} 条冲突规则（黑名单和白名单重复）。"
+            logging.info(
+                f"发现 {len(conflicts)} 条规则同时存在于黑白名单中（正常现象，白名单会覆盖对应黑名单）。"
                 f"示例: {list(conflicts)[:5]}"
-                "\n注意：白名单规则会自动覆盖黑名单，但请检查是否需要手动清理。"
             )
+
+    def _remove_duplicates(self) -> None:
+        """分别对黑白名单进行去重（保留最后出现的规则）"""
+        # 使用有序字典保持最后出现的规则
+        def deduplicate(rules: Set[str]) -> List[str]:
+            return list(dict.fromkeys(reversed(sorted(rules)))[::-1])
+        
+        self.black_rules = deduplicate(self.black_rules)
+        self.white_rules = deduplicate(self.white_rules)
 
     def process_files(self, input_dir: str = 'tmp', output_dir: str = 'data/rules') -> None:
         """处理流程：合并 → 分类 → 去重 → 冲突检测 → 输出"""
@@ -93,19 +104,18 @@ class FullCompatProcessor:
                         logging.warning(f"文件处理失败 {file}: {str(e)}")
 
             # 3. 去重和冲突检测
+            self._remove_duplicates()
             self._check_conflicts()
 
-            # 4. 输出结果（白名单优先）
+            # 4. 输出结果（保持所有规则）
             with open(Path(output_dir)/'allow.txt', 'w', encoding='utf-8') as f:
-                f.write('\n'.join(sorted(self.white_rules)))
+                f.write('\n'.join(self.white_rules))
             
             with open(Path(output_dir)/'adblock.txt', 'w', encoding='utf-8') as f:
-                # 确保黑名单中不包含白名单已覆盖的规则
-                final_black_rules = self.black_rules - self.white_rules
-                f.write('\n'.join(sorted(final_black_rules)))
+                f.write('\n'.join(self.black_rules))
 
             logging.info(
-                f"规则生成完成: 白名单({len(self.white_rules)}条), 黑名单({len(final_black_rules)}条)"
+                f"规则生成完成: 白名单({len(self.white_rules)}条), 黑名单({len(self.black_rules)}条)"
             )
         except Exception as e:
             logging.error(f"处理失败: {str(e)}")
