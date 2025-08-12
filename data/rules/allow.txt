@@ -2,11 +2,11 @@
 ! Title: EasyAds
 ! Homepage: https://github.com/045200/EasyAds
 ! Expires: 12 Hours
-! Version: 2025-08-12 00:24:01（北京时间）
+! Version: 2025-08-12 09:02:22（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
 ! Total count: 8830
 ! Title: EasyAds Combined Allowlist
-! Last Updated: 2025-08-11T16:23:57.970388+00:00
+! Last Updated: 2025-08-12T01:02:18.172771+00:00
 !--------------------------------------------------!
 
 @@*.flyme.cn
@@ -6764,7 +6764,7 @@
 @@||res.zonecointernationl.com^
 @@||research.hchs.hc.edu.tw/*/banner.php$domain=research.hchs.hc.edu.tw
 @@||researchintel.com^*/feedback.asp$xmlhttprequest,domain=intel.com
-@@||reseguiden.se^*.siteCatalyst.js! url: https://raw.githubusercontent.com/DandelionSprout/adfilt/master/ClearURLs%20for%20uBo/clear_urls_uboified.txt
+@@||reseguiden.se^*.siteCatalyst.js
 @@||resfile.lixincsb.com^
 @@||resmedi.lixincsb.com^
 @@||resolver*mi.com^
