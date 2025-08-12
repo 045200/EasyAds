@@ -47,7 +47,7 @@ adblock = [
     #"https://anti-ad.net/easylist.txt",
 
     # Cats-Team广告规则
-    "https://raw.githubusercontent.com/Cats-Team/AdRules/main/adblock.txt",
+    #"https://raw.githubusercontent.com/Cats-Team/AdRules/main/adblock.txt",
 
     # 挡广告hosts规则
     "https://raw.githubusercontent.com/qq5460168/dangchu/main/adhosts.txt",
