@@ -99,8 +99,13 @@ allow = [
     # Cats-Team白名单
     "https://raw.githubusercontent.com/Cats-Team/AdRules/script/allowlist.txt",
 
-    # Anti-AD白名单
-    "https://anti-ad.net/easylist.txt"
+    # 浅笑
+
+"https://raw.githubusercontent.com/user001235/112/main/white.txt",
+
+#酷安cocieto
+
+"https://raw.githubusercontent.com/urkbio/adguardhomefilter/main/whitelist.txt" 
 ]
 
 # 下载拦截规则
