@@ -19,25 +19,32 @@ def clean_rules(content, rule_type):
             continue
         
         if rule_type == 'allow':
-            # 白名单文件：只提取白名单规则（@@开头），忽略其他
+            # 只处理白名单规则
             if line.startswith('@@'):
                 cleaned_rules.add(line)
-            # 特别标记的hosts格式白名单
+            # 转换hosts格式的白名单
             elif re.match(r'^\s*0\.0\.0\.0\s+', line) and '# whitelist' in line.lower():
                 domain = re.sub(r'^\s*0\.0\.0\.0\s+([^\s#]+).*$', r'@@||\1^', line)
                 cleaned_rules.add(domain)
         else:
-            # 拦截文件：提取所有有效拦截规则，但排除白名单规则
-            if line.startswith('@@'):
-                continue  # 忽略拦截文件中的白名单规则
+            # 处理黑名单规则
             if line.startswith('||') or line.startswith('##') or line.startswith('=') or line.startswith('$'):
                 cleaned_rules.add(line)
-            # 转换hosts格式的拦截规则
+            # 转换hosts格式的黑名单
             elif re.match(r'^\s*(0\.0\.0\.0|127\.0\.0\.1)\s+', line):
                 domain = re.sub(r'^\s*(0\.0\.0\.0|127\.0\.0\.1)\s+([^\s#]+).*$', r'||\2^', line)
                 cleaned_rules.add(domain)
     
     return list(cleaned_rules)
+
+def chunked_read(file_path, chunk_size=50000):
+    """ 内存友好的分块读取生成器 """
+    with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+        while True:
+            chunk = list(itertools.islice(f, chunk_size))
+            if not chunk:
+                break
+            yield chunk
 
 def merge_files(file_pattern, output_file, rule_type):
     """ 流式合并文件并根据类型处理 """
@@ -53,6 +60,24 @@ def merge_files(file_pattern, output_file, rule_type):
     with open(output_file, 'w', encoding='utf-8') as outfile:
         outfile.write('\n'.join(sorted(combined_rules)))
 
+def deduplicate_file(file_path):
+    """ CI优化的去重+排序 """
+    temp_file = f"{file_path}.tmp"
+    
+    try:
+        subprocess.run(
+            f"sort -u {file_path} -o {temp_file}",
+            shell=True,
+            check=True,
+            stderr=subprocess.PIPE
+        )
+        os.replace(temp_file, file_path)
+    except subprocess.CalledProcessError as e:
+        print(f"::error::排序失败: {e.stderr.decode().strip()}")
+        if os.path.exists(temp_file):
+            os.remove(temp_file)
+        raise
+
 def main():
     print("::group::规则处理流程启动")
     
@@ -60,15 +85,16 @@ def main():
     os.makedirs('tmp', exist_ok=True)
     os.chdir('tmp')
     
-    # 独立处理白名单文件（只提取白名单规则）
+    # 独立处理白名单规则
     print("处理白名单文件...")
     merge_files('allow*.txt', 'pure_allow.txt', 'allow')
     
-    # 独立处理拦截文件（只提取拦截规则）
-    print("处理拦截文件...")
+    # 独立处理黑名单规则
+    print("处理黑名单文件...")
     merge_files('adblock*.txt', 'pure_block.txt', 'block')
     
     # 保存最终文件
+    print("生成最终规则文件...")
     target_dir = Path('../data/rules')
     target_dir.mkdir(exist_ok=True)
     
@@ -86,7 +112,7 @@ def main():
         f_out.write('\n')
         f_out.write(f_block.read())
     
-    # 去重处理（各自独立去重）
+    # 去重处理
     print("去重和排序...")
     os.chdir(target_dir)
     deduplicate_file('allow.txt')
