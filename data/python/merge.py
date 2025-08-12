@@ -1,207 +1,197 @@
-#!/usr/bin/env python3
-"""
-AdGuard Home 规则优化处理器
-修复问题：
-1. 白名单规则误判
-2. 拦截规则误判
-3. 增强 hosts 规则支持
-改进：
-1. 更宽松的规则验证，支持 AdGuard 特定语法
-2. 改进 hosts 文件解析
-3. 增强编码处理
-"""
-
+import os
 import re
-import sys
+import glob
 from pathlib import Path
-from typing import Set, Tuple
-from datetime import datetime, timezone
+from typing import Optional, List, Set
+from multiprocessing import Pool, cpu_count
+from itertools import islice
+import logging
 
-class RuleProcessor:
-    def __init__(self):
-        self.counter = {
-            'total': 0,
-            'block': 0,
-            'allow': 0,
-            'rejected': 0,
-            'duplicates': 0
-        }
-        self.rule_hashes = set()
+# Configure logging for GitHub Actions
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler()]
+)
 
-    def _print_progress(self, message: str):
-        print(f"[STATUS] {message}", file=sys.stderr)
+def ensure_directory_exists(directory: str) -> None:
+    """Ensure target directory exists, create if not."""
+    Path(directory).mkdir(parents=True, exist_ok=True)
 
-    def _print_rejection(self, reason: str, rule: str):
-        print(f"[REJECTED] {reason}: {rule[:100]}{'...' if len(rule) > 100 else ''}", file=sys.stderr)
+def validate_rule(line: str) -> Optional[str]:
+    """Validate rule for AdGuard Home (adblock, Hosts, or whitelist)."""
+    line = line.strip()
+    if not line:
+        return None
 
-    def _rule_hash(self, rule: str) -> str:
-        # Preserve case for regex rules
-        if rule.startswith('/') and rule.endswith('/'):
-            return rule.strip()
-        return rule.strip().lower()
+    # Whitelist rules (@@ prefix)
+    if line.startswith('@@'):
+        adblock_part = line[2:].strip()
+        if not adblock_part:
+            logging.warning(f"Invalid whitelist rule: {line}")
+            return None
+        if re.match(r'^\|\|[\w\-\.]+(?:\^|\$[a-zA-Z,=]+)?$', adblock_part) or \
+           re.match(r'^[\w\-\.]+##[\w\-\.\#\:\[\]\(\)]+$', adblock_part):
+            return line
+        logging.warning(f"Invalid whitelist rule: {line}")
+        return None
 
-    def _is_duplicate(self, rule: str) -> bool:
-        return self._rule_hash(rule) in self.rule_hashes
+    # Hosts rules (IPv4 or IPv6 + domain)
+    hosts_pattern = r'^(?:(?:\d{1,3}\.){3}\d{1,3}|(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4})\s+[\w\-\.]+$'
+    if re.match(hosts_pattern, line):
+        parts = line.split(maxsplit=1)
+        if len(parts) == 2:
+            ip, domain = parts
+            if (re.match(r'^(?:\d{1,3}\.){3}\d{1,3}$', ip) or 
+                re.match(r'^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$', ip)) and \
+               re.match(r'^[\w\-\.]+$', domain):
+                return line
+        logging.warning(f"Invalid Hosts rule: {line}")
+        return None
 
-    def _validate_rule(self, rule: str) -> Tuple[bool, str]:
-        """AdGuard Home 兼容的规则验证，增强对 AdGuard 语法的支持"""
-        rule = rule.strip()
-        if not rule:
-            return False, "空规则"
+    # Adblock rules (including $ modifiers and CSS selectors)
+    adblock_pattern = r'^(?:\||@@)?[\w\-\.]+(?:\^|\$[a-zA-Z,=]+)?$|^[\w\-\.]+##[\w\-\.\#\:\[\]\(\)]+$'
+    if re.match(adblock_pattern, line):
+        if '$' in line:
+            modifiers = line.split('$')[-1].split(',')
+            valid_modifiers = {'important', 'badfilter', 'app', 'client', 'domain', 'denyallow'}
+            for mod in modifiers:
+                mod_key = mod.split('=')[0]
+                if mod_key and mod_key not in valid_modifiers and not mod_key.startswith(('domain=', 'denyallow=')):
+                    logging.warning(f"Invalid adblock modifier: {line}")
+                    return None
+        return line
 
-        # 跳过注释和声明
-        if rule.startswith('!') or rule.startswith('[Adblock'):
-            return False, "注释"
+    logging.warning(f"Invalid rule: {line}")
+    return None
 
-        # 元素隐藏规则
-        if '##' in rule or '#@#' in rule or '#%#' in rule:
-            return False, "元素隐藏"
+def process_chunk(chunk: List[str]) -> List[str]:
+    """Process a chunk of rules for validation and deduplication."""
+    seen = set()
+    valid_rules = []
+    for line in chunk:
+        validated = validate_rule(line)
+        if validated and validated not in seen:
+            seen.add(validated)
+            valid_rules.append(validated)
+    return valid_rules
 
-        # 放行规则
-        if rule.startswith('@@'):
-            return True, ""
+def merge_files(file_pattern: str, output_file: str) -> None:
+    """Merge and clean files matching the pattern."""
+    try:
+        file_list = glob.glob(file_pattern)
+        if not file_list:
+            logging.warning(f"No files found matching {file_pattern}")
+            return
 
-        # 正则表达式规则
-        if rule.startswith('/') and rule.endswith('/'):
-            try:
-                re.compile(rule[1:-1])
-                return True, ""
-            except re.error:
-                return False, "无效正则"
+        with open(output_file, 'w', encoding='utf-8') as outfile:
+            for file in file_list:
+                try:
+                    with open(file, 'r', encoding='utf-8') as infile:
+                        content = infile.read()
+                        # Clean comments and empty lines
+                        content = re.sub(r'^[!].*$\n', '', content, flags=re.MULTILINE)
+                        content = re.sub(r'^#(?!\s*#).*\n?', '', content, flags=re.MULTILINE)
+                        content = re.sub(r'^\s*\n', '', content, flags=re.MULTILINE)
+                        outfile.write(content + '\n')
+                    logging.info(f"Processed {file} into {output_file}")
+                except Exception as e:
+                    logging.error(f"Failed to read {file}: {e}")
+        logging.info(f"Merged and cleaned {file_pattern} to {output_file}")
+    except Exception as e:
+        logging.error(f"Failed to merge {file_pattern}: {e}")
 
-        # AdGuard 规则前缀
-        valid_prefixes = (
-            '||', '|', 'http://', 'https://',
-            '/', '*', '^', '$', '~',
-            'domain=', 'ip6-cidr:', 'ip-cidr:'
-        )
-        if any(rule.startswith(p) for p in valid_prefixes):
-            return True, ""
+def deduplicate_rules(input_adblock: str, input_allow: str, output_adblock: str, output_allow: str) -> None:
+    """Deduplicate and validate rules, splitting into adblock and whitelist files."""
+    try:
+        # Collect all rules
+        all_rules = []
+        for file in [input_adblock, input_allow]:
+            if os.path.exists(file):
+                try:
+                    with open(file, 'r', encoding='utf-8') as f:
+                        all_rules.extend(line.strip() for line in f if line.strip())
+                except Exception as e:
+                    logging.error(f"Failed to read {file}: {e}")
 
-        # 增强域名模式，支持更复杂的域名和通配符
-        domain_pattern = r'^(?:[a-zA-Z0-9*_-]+\.)*(?:[a-zA-Z0-9*_-]+\.)+[a-zA-Z]{2,}(?:[/$^|]|$|\*[a-zA-Z0-9_,=]*)'
-        if re.match(domain_pattern, rule):
-            return True, ""
+        # Process rules in parallel
+        chunk_size = 10000  # Adjust based on memory constraints
+        num_cores = cpu_count()
+        chunks = [all_rules[i:i + chunk_size] for i in range(0, len(all_rules), chunk_size)]
 
-        # Hosts 格式兼容
-        if re.match(r'^[a-zA-Z0-9.*_-]+$', rule):
-            return True, ""
+        with Pool(processes=num_cores) as pool:
+            chunk_results = pool.map(process_chunk, chunks)
 
-        # 支持 AdGuard 特定修饰符
-        if re.match(r'^(?:@@)?(?:[a-zA-Z0-9*_-]+\.)+[a-zA-Z]{2,}\^[a-zA-Z0-9_,=]*$', rule):
-            return True, ""
+        # Flatten results and classify rules
+        whitelist_rules = []
+        hosts_rules = []
+        adblock_rules = []
+        seen = set()
 
-        return False, "无效格式"
+        for chunk in chunk_results:
+            for rule in chunk:
+                if rule not in seen:
+                    seen.add(rule)
+                    if rule.startswith('@@'):
+                        whitelist_rules.append(rule)
+                    elif re.match(r'^(?:(?:\d{1,3}\.){3}\d{1,3}|(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4})\s+[\w\-\.]+$', rule):
+                        hosts_rules.append(rule)
+                    else:
+                        adblock_rules.append(rule)
 
-    def process_file(self, file_path: Path) -> Tuple[Set[str], Set[str]]:
-        """处理文件并返回 (block_rules, allow_rules)"""
-        block_rules = set()
-        allow_rules = set()
+        # Sort rules by priority: whitelist > Hosts > adblock
+        final_adblock_rules = whitelist_rules + hosts_rules + adblock_rules
 
-        # 尝试多种编码
-        encodings = ['utf-8', 'gbk', 'iso-8859-1']
-        content = None
-        for encoding in encodings:
-            try:
-                content = file_path.read_text(encoding=encoding)
-                break
-            except UnicodeDecodeError:
-                continue
-        if content is None:
-            self._print_progress(f"所有编码解码失败: {file_path.name}")
-            return block_rules, allow_rules
+        # Write adblock.txt
+        with open(output_adblock, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(final_adblock_rules) + '\n')
+        logging.info(f"Deduplicated rules saved to {output_adblock}")
 
-        self._print_progress(f"处理: {file_path.name} ({len(content.splitlines())}行)")
+        # Write allow.txt
+        with open(output_allow, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(whitelist_rules) + '\n')
+        logging.info(f"Whitelist rules saved to {output_allow}")
 
-        for raw_line in content.splitlines():
-            self.counter['total'] += 1
-            line = raw_line.strip()
-
-            # 跳过注释和空行
-            if not line or line.startswith(('!', '#')) or '[Adblock' in line:
-                continue
-
-            # 增强 hosts 格式解析
-            if re.match(r'^(?:0\.0\.0\.0|127\.0\.0\.1|::1)\s+[a-zA-Z0-9.*_-]+', line):
-                parts = line.split()
-                if len(parts) > 1 and re.match(r'^[a-zA-Z0-9.*_-]+$', parts[1]):
-                    line = f"||{parts[1]}^"
-                else:
-                    self.counter['rejected'] += 1
-                    self._print_rejection("无效 hosts 格式", raw_line)
-                    continue
-
-            try:
-                valid, reason = self._validate_rule(line)
-                if not valid:
-                    self.counter['rejected'] += 1
-                    self._print_rejection(reason, raw_line)
-                    continue
-
-                if self._is_duplicate(line):
-                    self.counter['duplicates'] += 1
-                    continue
-
-                if line.startswith('@@'):
-                    allow_rules.add(line)
-                    self.counter['allow'] += 1
-                else:
-                    block_rules.add(line)
-                    self.counter['block'] += 1
-
-                self.rule_hashes.add(self._rule_hash(line))
-            except Exception as e:
-                self.counter['rejected'] += 1
-                self._print_rejection(f"处理错误: {str(e)}", raw_line)
-
-        return block_rules, allow_rules
-
-def generate_header(list_type: str) -> str:
-    return f"""! Title: AdGuard Home {list_type}
-! Updated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}
-! Expires: 1 day
-! Homepage: https://github.com/EasyAds/EasyAds
-!-------------------------------
-"""
+    except Exception as e:
+        logging.error(f"Failed to deduplicate rules: {e}")
 
 def main():
-    print("=== AdGuard Home 规则处理器 ===")
-    processor = RuleProcessor()
-    input_dir = Path('tmp')
-    output_dir = Path('data/rules')
-    output_dir.mkdir(parents=True, exist_ok=True)
+    # Set directories
+    work_dir = 'tmp'
+    target_dir = Path('../data/rules')
 
-    # 先处理放行规则
-    all_allow = set()
-    for file in sorted(input_dir.glob('allow*.txt')):
-        _, allow = processor.process_file(file)
-        all_allow.update(allow)
+    try:
+        os.makedirs(work_dir, exist_ok=True)
+        os.chdir(work_dir)
+    except Exception as e:
+        logging.error(f"Failed to switch to {work_dir}: {e}")
+        return
 
-    # 再处理拦截规则
-    all_block = set()
-    for file in sorted(input_dir.glob('adblock*.txt')):
-        block, _ = processor.process_file(file)
-        all_block.update(block)
+    # Merge adblock and allow rules
+    logging.info("Merging upstream adblock rules")
+    merge_files('adblock*.txt', 'combined_adblock.txt')
 
-    # 冲突处理：确保放行规则优先
-    final_block = all_block - {x[2:] for x in all_allow if x.startswith('@@')}
+    logging.info("Merging upstream whitelist rules")
+    merge_files('allow*.txt', 'combined_allow.txt')
 
-    # 写入结果
-    with open(output_dir / 'adblock.txt', 'w', encoding='utf-8') as f:
-        f.write(generate_header("拦截规则"))
-        f.writelines(f"{rule}\n" for rule in sorted(final_block))
+    # Deduplicate and validate rules
+    logging.info("Filtering and deduplicating rules")
+    ensure_directory_exists(target_dir)
+    deduplicate_rules(
+        input_adblock='combined_adblock.txt',
+        input_allow='combined_allow.txt',
+        output_adblock=target_dir / 'adblock.txt',
+        output_allow=target_dir / 'allow.txt'
+    )
 
-    with open(output_dir / 'allow.txt', 'w', encoding='utf-8') as f:
-        f.write(generate_header("放行规则"))
-        f.writelines(f"{rule}\n" for rule in sorted(all_allow))
-
-    # 输出统计
-    print("\n=== 处理结果 ===")
-    print(f"总规则: {processor.counter['total']}")
-    print(f"有效拦截: {len(final_block)}")
-    print(f"有效放行: {len(all_allow)}")
-    print(f"重复丢弃: {processor.counter['duplicates']}")
-    print(f"无效规则: {processor.counter['rejected']}")
+    # Clean up temporary files
+    for file in ['combined_adblock.txt', 'combined_allow.txt']:
+        if os.path.exists(file):
+            try:
+                os.remove(file)
+                logging.info(f"Removed temporary file {file}")
+            except Exception as e:
+                logging.error(f"Failed to remove {file}: {e}")
 
 if __name__ == '__main__':
     main()
