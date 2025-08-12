@@ -202,7 +202,6 @@
 -tmp.net.daraz.com
 0-bloghkgadv.app.salemove.com
 0.0.0.1
-0.gravatar.com
 0.r.msn.com
 000123456789.online
 000123456789.site
@@ -273,7 +272,6 @@
 1.ajiyuming.com
 1.bmkjku09.cc
 1.ccm-trk.com
-1.gravatar.com
 1.hnyouneng.com
 1.i999d.cn
 1.isanxia.com
@@ -908,6 +906,7 @@
 198.16.35.45
 198.16.35.46
 198.16.61.27
+1980_s.gw.irs03.com
 199.180.100.185/love44
 19gtest.bj2cu.u3.ucweb.com
 1a839d.api1.shuzilm.cn
@@ -948,7 +947,6 @@
 2.52gao393.cc
 2.52gao4208.cc
 2.afs.googleadservices.com
-2.gravatar.com
 2.jxx2502a.cc
 2.jxx418a.cc
 2.semiao3654.cc
@@ -1147,6 +1145,7 @@
 23jgiy.com
 23t63tvyxz.marketingtornado.ca
 240.zaloapp.ads.zdn.vn
+2417_s.gw.irs03.com
 2431.vainews.cn
 24441mcsjcc.wcald72.xyz
 24511.nianlia.com
@@ -1159,6 +1158,8 @@
 24support.cc
 25.y25287524.vip
 25.y25718211.vip
+2512_s.gw.irs03.com
+2513_s.gw.irs03.com
 2525252fib.adnxs.com
 25252fsecure.adnxs.com
 252fm.adnxs.com
@@ -1909,13 +1910,17 @@
 845.adsina.allyes.com
 845akk3j4le2nfn4kkfjec.xbsahcasfasfasdf.sacvcr.com
 84zm8.xyz
+8510_s.gw.irs03.com
 8516.fun
 851777jj.cc
 85795.today
 85a2403469434a35a412c216d69cfdad-a64b2710149d.cdn.forter.com
 85c64e11.hysjs168.com
 86-a-adm.one
+8667_s.gw.irs03.com
+8668_s.gw.irs03.com
 868vip.mobi
+8710_s.gw.irs03.com
 87asa.com
 87d.xv5b.com
 8861198.com
@@ -12311,7 +12316,6 @@ aliqurecin.pro
 alismarbit.pro
 alitecitru.pro
 aliteunsha.pro
-alive.github.com
 aliveblue-ss.zavydeals.com
 aliyun.cdn.chengzilte.top
 aliyunapi.org
@@ -12430,14 +12434,6 @@ alpwclk.alphatonicworks.site
 alsbcb.koreessentials.com
 alsgaj.sportschosun.com
 alt-r.my.com
-alt1-mtalk.google.com
-alt2-mtalk.google.com
-alt3-mtalk.google.com
-alt4-mtalk.google.com
-alt5-mtalk.google.com
-alt6-mtalk.google.com
-alt7-mtalk.google.com
-alt8-mtalk.google.com
 altalgrami.pro
 alterbaria.pro
 altercring.pro
@@ -14576,6 +14572,7 @@ aphid.polarcop.com
 aphid.smartjournal.no
 aphid.thyself.me
 aphiddarde.pro
+aphone_pv_log.kltb.com.cn
 aphookkensidah.pro
 aphorhuckl.pro
 aphtn.dsw.ca
@@ -15371,7 +15368,6 @@ api.facedoleaotreinamentos.com.br
 api.facilocacoes.com.br
 api.factors.ai
 api.faech.com.br
-api.fakeloc.cc
 api.falcaonegro.com.br
 api.farmflix.com.br
 api.fc.mob.com
@@ -15432,7 +15428,6 @@ api.gifshow.com
 api.gimbal.com
 api.gipinheirosc.com
 api.giraofertas.com.br
-api.github.com
 api.glance.inmobi.com
 api.glimr.io
 api.globalpay365.com
@@ -15517,7 +15512,6 @@ api.impressions.vupulse.com
 api.inboxdollars.com
 api.indexexchange.com
 api.indicative.com
-api.individual.githubcopilot.com
 api.infinario.com
 api.inmense.site
 api.inmersioncorrectiva.com
@@ -15875,7 +15869,6 @@ api.pgs.io
 api.phoenix-widget.com
 api.pilarglass.com.br
 api.pinnaclefertility.com
-api.pinterest.com
 api.pioranodasuavida.com.br
 api.pirsch.io
 api.pisano.com.tr
@@ -16100,7 +16093,6 @@ api.statcounter.visitor-analytics.io
 api.stathat.com
 api.stats.appa.pe
 api.statsig.com
-api.steampowered.com
 api.stickers.duapps.com
 api.storesavage.com.br
 api.subiz.com.vn
@@ -16152,7 +16144,6 @@ api.test.hisavana.com
 api.th.wanzjhb.com
 api.theadex.com
 api.thebestpdf.com
-api.themoviedb.org
 api.thetake.com
 api.thetamovement.com.br
 api.thiagohota.com.br
@@ -17787,14 +17778,7 @@ avanzepist.pro
 avaqb.twobrosbows.com
 avasgtest.branch.rocks
 avast-downloads.com
-avatars.githubusercontent.com
 avatars.yads.tech
-avatars0.githubusercontent.com
-avatars1.githubusercontent.com
-avatars2.githubusercontent.com
-avatars3.githubusercontent.com
-avatars4.githubusercontent.com
-avatars5.githubusercontent.com
 avavmz.bodylab.nl
 avazunativeads.com
 avenueroadadvertising.com
@@ -20881,7 +20865,6 @@ camep.xyz
 camerdisor.pro
 camicsciac.pro
 camisado.actonservice.com
-camo.githubusercontent.com
 camosclubl.pro
 camosmarin.pro
 camouflagedbandicoot.pro
@@ -22156,7 +22139,6 @@ centinanop.pro
 centipede.davimug.com
 centipede.roasted.dev
 central.actonservice.com
-central.github.com
 centralads.simpli.fi
 centravviz.pro
 centrciarl.pro
@@ -23370,7 +23352,6 @@ cloud.clinicakaianakelin.com.br
 cloud.cpatrk.net
 cloud.dentalpartner.com.br
 cloud.folkoperan.se
-cloud.githubusercontent.com
 cloud.grupoarcani.com
 cloud.ilumin.app
 cloud.kickstartsocial.co
@@ -23546,7 +23527,6 @@ cmpxaup.cn
 cms.analytics.yahoo.com
 cms.newshuntads.com
 cms.uc.cn
-cms2.mega.nz
 cmspapp83.com
 cmspapp84.com
 cmstrendslog.indiatimes.com
@@ -23685,7 +23665,6 @@ codeads.com
 codecmacro.pro
 codefculve.pro
 codeisangu.pro
-codeload.github.com
 codepush.appcenter.ms
 coderendam.pro
 codes.royalad.pl
@@ -24056,7 +24035,6 @@ community.bz.mgtv.com
 community.image.video.qpic.cn
 community.jiguang.cn
 community.jpush.cn
-community.oneplus.com
 community.umeng.com
 community.xw.qq.com
 commusmear.pro
@@ -30239,7 +30217,6 @@ designstudios.pro
 desigparas.pro
 desinmedic.pro
 desk.mspaceads.com
-desktop.githubusercontent.com
 desliclutc.pro
 desmitouh.pro
 desmoesist.pro
@@ -31344,8 +31321,6 @@ dl.ad-stir.com
 dl.adview.cn
 dl.btii.cn
 dl.elaw.om
-dl.google.com
-dl.l.google.com
 dl.txcdns.com
 dl.union.ijinshan.com
 dl.wooribank.com.kh
@@ -31504,7 +31479,6 @@ docimribru.pro
 docizyo8.pro
 docker.adsrvr.org
 docs.getui.com
-docs.github.com
 docs.google.com/forms/*/naLogImpressions
 docs.jiguang.cn
 docs.jpush.cn
@@ -32726,7 +32700,6 @@ educate.consulting.com
 educate.digital-launchpad.com
 educate.monetise.com
 education.data.cnzz.com
-education.github.com
 education.greatbatch.com
 educhunfas.pro
 educontinua.unisabana.edu.co
@@ -34203,12 +34176,10 @@ eu.ads.audio.thisisdax.com
 eu.adsymptotic.com
 eu.adventori.com
 eu.adverity.com
-eu.api.mega.co.nz
 eu.event.cmp.advertising.com
 eu.online-panel.advertising.amazon.dev
 eu.pftk.temu.com
 eu.spgo.io
-eu.static.mega.co.nz
 eu.thtk.temu.com
 eu.track.digitaladsystems.com
 eu.usefathom.com
@@ -34828,8 +34799,6 @@ faithlifeads.com
 faithmovingmountains.pro
 faiwax.golfhouse.de
 fakedisguise.com
-fakeloc.cc
-fakelocation.api.lerist.dev
 fakexa-post.mno.link
 fakjkwp.cn
 fakrul.mouribd.com
@@ -34995,7 +34964,6 @@ fatwhippet.pro
 faunaaugme.pro
 fauxgosigil.pro
 favagoo3.pro
-favicons.githubusercontent.com
 favildisag.pro
 favilriapp.pro
 favlrudeno.pro
@@ -36702,13 +36670,11 @@ g.ads.cn.miaozhen.com
 g.adspeed.net
 g.adxadserv.com
 g.analytics.versa-ai.com
-g.api.mega.co.nz
 g.astrastraps.de
 g.blissdiamond.com
 g.blogads.com
 g.buyorborrowmusic.com
 g.cash-ads.com
-g.cdn1.mega.co.nz
 g.cn.miaozhen.com
 g.dagere.pl
 g.detik123cal.cfd
@@ -36761,7 +36727,6 @@ g.rs.yoyi.com.cn
 g.s.360.cn
 g.sdk.look.360.cn
 g.spinkids.cz
-g.static.mega.co.nz
 g.theonlinelightingstore.co.uk
 g.vlion.cn
 g.wan.2345.com
@@ -37652,20 +37617,7 @@ girinrazia.pro
 gironjoyan.pro
 gironrispa.pro
 gis.edge45.testandtarget.omniture.com
-github-cloud.s3.amazonaws.com
-github-com.s3.amazonaws.com
-github-production-release-asset-2e65be.s3.amazonaws.com
-github-production-repository-file-5c1aeb.s3.amazonaws.com
-github-production-user-asset-6210df.s3.amazonaws.com
-github.blog
-github.community
-github.dev
-github.githubassets.com
-github.global.ssl.fastly.net
 github.gpuzelenograd.cloudns.be
-github.io
-github.map.fastly.net
-githubstatus.com
 gitlab-dev-pages.adsrvr.org
 giubbautoa.pro
 giubbridis.pro
@@ -42024,7 +41976,6 @@ help.check-violation.com
 help.cnzz.com
 help.fenxi.cnzz.com
 help.juicyads.com
-help.steampowered.com
 helpfulbeetle.pro
 helpfulbird.pro
 helpfulcrayfish.pro
@@ -42776,7 +42727,6 @@ hugefox.pro
 hugeiguana.pro
 hugejaybird.pro
 hugeleech.pro
-hugeota.d.miui.com
 hugetoucan.pro
 hugevicugna.pro
 hugeworm.pro
@@ -43075,7 +43025,6 @@ i.l.inmobicdn.net
 i.mixadvert.com
 i.moshimo.com
 i.mxplayer.j2inter.com
-i.pinimg.com
 i.qchannel03.cn
 i.sandbox.love
 i.smartnews-ads.com
@@ -43600,7 +43549,6 @@ image.adv.livedoor.com
 image.click.livedoor.com
 image.larksuite-marketing.com
 image.thiagolasevicius.com
-image.tmdb.org
 image.uczzd.cn
 image.yafytg.cn
 image.zzd.sm.cn
@@ -46541,7 +46489,6 @@ jp.devs.data.mob.com
 jp.f.gm.mob.com
 jp.jajipo.com
 jp.l.gm.mob.com
-jp.static.mega.co.nz
 jp.youtui.gameley.com
 jp1-bid-ga.adsrvr.org
 jp1-bid.adsrvr.org
@@ -47944,7 +47891,6 @@ lb-adsdis.mng-ads.com
 lb-adsmob.mng-ads.com
 lb-h7jqakhn-iw10qn3drm2sgzof.clb.kr-tencentclb.cloud
 lb.aaxads.com
-lb.gravatar.com
 lb.usemaxserver.de
 lb3.aaxads.com
 lb5o9.com
@@ -48589,7 +48535,6 @@ live-ads.huya.com
 live-api.immomo.com
 live-api.oncustomer.asia
 live-s3m.mediav.com
-live.github.com
 live.pave-ads.com
 live.rezync.com
 live.seminaris.de
@@ -52340,7 +52285,6 @@ lsjkdj.mynamenecklace.ie
 lskmipb.icu
 lskug.outdoorcookingpros.com
 lslbahl.top
-lsposed.github.io
 lspvo.weldernation.com
 lsrot.renefurtererusa.com
 lsss.lomestar.de
@@ -52365,7 +52309,6 @@ lttusg.rolarola.com
 ltvfrs.toymiso.com
 ltzrvv.shineweddinginvitations.com
 lu.ads.justpremium.com
-lu.api.mega.co.nz
 lu9xve2c97l898gjjxv4.ballercap.com
 lu9xve2c97l898gjjxv4.bigglobaltravel.com
 lu9xve2c97l898gjjxv4.brain-sharper.com
@@ -53927,7 +53870,6 @@ mcb.magiccabaret.be
 mcc.mycoffeecapsules.co.nz
 mcchinadol.adsame.com
 mcd-mkt-prod31-lb.campaign.adobe.com
-mcd270n310.karere.mega.nz
 mcdn.batmobi.net
 mcdn.kandian.qq.com
 mcdp-*.outbrain.com
@@ -54106,7 +54048,6 @@ media.easyads.bg
 media.ethicalads.io
 media.frequencyads.com
 media.geinoschool-hikaku.com
-media.githubusercontent.com
 media.joinupads.com
 media.licenseglobal.com
 media.mobpartner.mobi
@@ -54179,7 +54120,6 @@ meetsourhig.biz
 meettap.pro
 meez.crwdcntrl.net
 mefitchart.pro
-mega.co.nz
 mega.mydealz.de
 megaaxolotl.pro
 megabeetle.pro
@@ -57562,7 +57502,6 @@ mt4v4.com
 mt74gai7.net
 mt843qq.net
 mta.cnzz.com
-mtalk.google.com
 mtalk.mob.com
 mtawcy.xyz
 mtbhf.ragecreate.com
@@ -59619,7 +59558,6 @@ obiettegol.pro
 obiettroch.pro
 objecimper.pro
 objectpartners.actonservice.com
-objects.githubusercontent.com
 obl74.xyz
 oblatpremi.pro
 obliatiddl.pro
@@ -63092,7 +63030,6 @@ pinniped.spacecountdown.com
 pinnisimul.pro
 pinterest-stape.stmna.com.au
 pinterest.adsymptotic.com
-pinterest.com
 pinvf.australianopaldirect.com
 pinziimpas.pro
 pinzimeric.pro
@@ -63108,7 +63045,6 @@ pipedbelta.pro
 pipefachat.pro
 pipeline.rd.nl
 pipelinepub.actonservice.com
-pipelines.actions.githubusercontent.com
 pipercross.pro
 pipergingi.pro
 pipilcoste.pro
@@ -64405,7 +64341,6 @@ privacymps.merchantprocessorsolutions.com
 privacyoptout.zoominformation.com
 privaferma.pro
 privaregol.pro
-private-user-images.githubusercontent.com
 private.internal.amadeus.com
 privateaardwolf.pro
 privateasp.pro
@@ -66499,8 +66434,6 @@ ravviaggri.pro
 ravvikomso.pro
 ravvisform.pro
 ravvispici.pro
-raw.github.com
-raw.githubusercontent.com
 rawdata.appsflyer.com
 rayhan.zatwat.com
 rayli.adsame.com
@@ -67049,7 +66982,6 @@ relay.mobile.toboads.com
 relazovolo.pro
 relazprese.pro
 relazramma.pro
-release-assets.githubusercontent.com
 relegplnk.pro
 relevantfeed.pro
 relevantnewsnow.pro
@@ -69327,7 +69259,6 @@ s.glomstapoolen.com
 s.go.facehiit.com
 s.go.sohu.com
 s.golfcartsofatx.com
-s.gravatar.com
 s.grillo.de
 s.gyorgyteabolt.hu
 s.habarri.pl
@@ -71202,7 +71133,6 @@ secure.gaza2lote.com
 secure.gift2pair.com
 secure.glue1lazy.com
 secure.golp4elik.com
-secure.gravatar.com
 secure.grow1maid.com
 secure.haag0some.com
 secure.haig7anax.com
@@ -73705,7 +73635,6 @@ sg.adserver.yahoo.com
 sg.cityads.com
 sg.log.ulivetv.net
 sg.mmstat.com
-sg.static.mega.co.nz
 sg01.rayjump.com
 sg1.framky.de
 sg2-bid.adsrvr.org
@@ -86286,7 +86215,6 @@ static.l3.cdn.adsucks.com
 static.lacunads.com
 static.mddlsa.com
 static.mediav.com
-static.mega.co.nz
 static.mob.com
 static.mobads.baidu.com
 static.nectarads.com
@@ -86816,8 +86744,6 @@ steadytuatara.pro
 steadyurchin.pro
 steadywolverine.pro
 steakflagg.pro
-steam-chat.com
-steamcdn-a.akamaihd.net
 steamdesig.pro
 steameallop.pro
 steamprices.com/analytics
@@ -87030,7 +86956,6 @@ storage.adxadtracker.com
 storage.moegirl.org.cn
 storctripa.pro
 store-downloads.com
-store.akamai.steamstatic.com
 store.dokanifurniture.shop
 store.is.autonavi.com
 store.massivediscounts.co.uk
@@ -87738,7 +87663,6 @@ superirizz.pro
 superleads.offerstrack.net
 supermacaw.pro
 superordal.pro
-superota.d.miui.com
 superoverc.pro
 superpanda.pro
 superperra.pro
@@ -90172,7 +90096,6 @@ thespreadsheetguru.7eer.net
 thespreadsheetguru.evyy.net
 thesuccessstars.actonservice.com
 thetrafficstat.net
-thetvdb.com
 theversi165.oss-accelerate.aliyuncs.com
 theveryarticle.pro
 thewiarneni.pro
@@ -90865,7 +90788,6 @@ topicinfec.pro
 topics-eole.avads.net
 topics.avads.net
 topilube.la-carafe.fr
-topjohnwu.github.io
 toplomacru.pro
 toponad.com
 toponadss.com
@@ -93018,8 +92940,6 @@ transinfre.pro
 transintac.pro
 transit2.wslog.chinanetcenter.com
 translate-api.xiangtatech.com
-translate-pa.googleapis.com
-translate.googleapis.com
 transleche.pro
 translucentauk.pro
 translucentcaiman.pro
@@ -94803,7 +94723,6 @@ ulrro.cleanskinclub.com
 ulslc.happysocks.com
 ulspj.defendershield.com
 ultimateinsights.pro
-ultimateota.d.miui.com
 ultimmarte.pro
 ultraalbatross.pro
 ultraaman.pro
@@ -95682,7 +95601,6 @@ usebc.vertellis.nl
 usedirect.adsrvr.org
 usefulfeednews.pro
 user-analysis.7moor.com
-user-images.githubusercontent.com
 user-room.naiadsystems.com
 user-shield-check.com
 user-signals.production-public.tubi.io
@@ -95698,8 +95616,6 @@ useraction.de
 userreporting.cloud.unity3d.com
 users.api.jeeng.com
 users.ero-advertising.com
-userstorage.mega.co.nz
-userstroage.mega.co.nz
 usertrack.appcpi.net
 uses.ads.lemmatechnologies.com
 usfw2eu.icu
@@ -95923,7 +95839,6 @@ v1.keepcdn.com
 v1.kwpewga.cn
 v1.log.moji.com
 v1.mpsuadv.ru
-v1.pinimg.com
 v1.taksh.cn
 v10-ad.ixigua.com
 v10.cnzz.com
@@ -97504,7 +97419,6 @@ vs9.gzcm.u3.ucweb.com
 vs9.gzct.u3.ucweb.com
 vs9.gzcu.u3.ucweb.com
 vsbnyxdj.a906-mycdn.com
-vscode.dev
 vscore.pro
 vserv.mobi
 vsfgd.searchatlas.com
@@ -97644,7 +97558,6 @@ vzvvifw.cn
 vzyk92c4.yhcdn-yd.com.
 vzzun.boxlunch.com
 w.adsco.re
-w.api.mega.co.nz
 w.bnlg.fun
 w.bulkbuydirect.co.uk
 w.cnews.qq.com
@@ -109599,7 +109512,6 @@ www.grattinfor.pro
 www.grattscamp.pro
 www.gratucanan.pro
 www.gratumacch.pro
-www.gravatar.com
 www.graveaccio.pro
 www.gravepacke.pro
 www.gravepemol.pro
@@ -113845,7 +113757,6 @@ www.meekstork.pro
 www.meet3monk.com
 www.meettap.pro
 www.mefitchart.pro
-www.mega.co.nz
 www.megaaxolotl.pro
 www.megabeetle.pro
 www.megabumblebee.pro
@@ -116692,7 +116603,6 @@ www.pinkysplash.pro
 www.pinnaclewink.pro
 www.pinnexirax.pro
 www.pinnisimul.pro
-www.pinterest.com
 www.pinziimpas.pro
 www.pinzimeric.pro
 www.piogerazzu.pro
@@ -122829,7 +122739,6 @@ www.steadytuatara.pro
 www.steadyurchin.pro
 www.steadywolverine.pro
 www.steakflagg.pro
-www.steamcommunity.com
 www.steamdesig.pro
 www.steameallop.pro
 www.steatframe.pro
@@ -128808,7 +128717,6 @@ zgwepi.passadena.gr
 zgwsnw.xyz
 zgystsd.com
 zgzqz.muckbootcompany.com
-zh.wikipedia.org
 zhan.cnzz.com
 zhangchi.work
 zhangfeiyijuepifa.com
