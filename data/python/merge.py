@@ -1,159 +1,146 @@
 import re
+import sys
 from pathlib import Path
-from typing import Set, List
+from typing import Set, List, Tuple
 from datetime import datetime, timezone
 
-def is_valid_rule(rule: str) -> bool:
+def print_progress(message: str):
+    """实时进度输出"""
+    print(f"  → {message}", file=sys.stderr)
+
+def print_rejection(line_num: int, reason: str, rule: str):
+    """实时显示被拒绝的规则"""
+    print(f"  × [L{line_num}] {reason}: {rule[:60]}{'...' if len(rule)>60 else ''}", file=sys.stderr)
+
+def is_valid_rule(rule: str) -> Tuple[bool, str]:
     """
-    Performs a basic validation check on an AdBlock-style rule.
-    
-    Args:
-        rule: The rule string to validate (without any '@@' prefix).
-        
-    Returns:
-        bool: True if the rule appears to have a valid format, False otherwise.
+    增强规则验证，返回(是否有效, 原因)
     """
-    # Skip empty or whitespace-only rules
     if not rule or rule.isspace():
-        return False
-        
-    # Disallow rules that are just comments or cosmetic filters
-    if rule.startswith(('!', '#')) or '##' in rule or '#@#' in rule:
-        return False
-
-    # Accept common AdBlock rule patterns
-    if re.match(r'^(\|\||/|\*|[a-zA-Z0-9_.-]).*', rule):
-        return True
-        
-    return False
-
-def process_and_split_rules(input_file: Path, block_output_file: Path, allow_output_file: Path) -> None:
-    """
-    Reads a combined list of rules, cleans them, splits them into block and 
-    allow files, and writes the deduplicated results.
+        return False, "空规则"
+    if rule.startswith('!'):
+        return False, "注释"
+    if '##' in rule or '#@#' in rule:
+        return False, "元素隐藏规则"
+    if rule.startswith(('#?#', '$$')):
+        return False, "脚本注入规则"
     
-    Args:
-        input_file: Path to the combined source file.
-        block_output_file: Path for the final blocklist file.
-        allow_output_file: Path for the final allowlist file.
+    # 允许的规则模式
+    if re.match(r'^(\|\||/|\*|[a-zA-Z0-9_.-]|@@|\$).*', rule):
+        return True, ""
+    
+    return False, "无效格式"
+
+def process_rules(input_file: Path) -> Tuple[Set[str], Set[str]]:
     """
-    block_rules: Set[str] = set()
-    allow_rules: Set[str] = set()
+    核心处理函数，返回(拦截规则集, 放行规则集)
+    """
+    block_rules = set()
+    allow_rules = set()
+    total_lines = 0
 
-    try:
-        with open(input_file, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-    except UnicodeDecodeError:
-        with open(input_file, 'r', encoding='latin-1') as f:
-            lines = f.readlines()
+    print_progress(f"开始处理文件: {input_file.name}")
+    
+    # 自动检测编码
+    encodings = ['utf-8', 'latin-1', 'gbk']
+    for enc in encodings:
+        try:
+            content = input_file.read_text(encoding=enc)
+            break
+        except UnicodeDecodeError:
+            continue
+    else:
+        print_progress("错误：无法解码文件编码")
+        return block_rules, allow_rules
 
-    for line in lines:
-        # Strip leading/trailing whitespace
-        line = line.strip()
+    lines = content.splitlines()
+    print_progress(f"读取到 {len(lines)} 行原始数据")
 
-        # Skip empty lines, section headers, and full-line comments
-        if not line or line.startswith(('!', '[', '# ')):
+    for line_num, raw_line in enumerate(lines, 1):
+        line = raw_line.strip()
+        total_lines += 1
+
+        # 跳过空行和章节标题
+        if not line or line.startswith('['):
             continue
 
-        # Convert Hosts format (e.g., "127.0.0.1 domain.com") to AdBlock syntax
+        # 转换hosts格式规则
         if re.match(r'^\d{1,3}(\.\d{1,3}){3}\s+', line):
             parts = line.split()
-            if len(parts) > 1:
-                domain = parts[1].strip()
-                # Ensure the domain is not a comment and is a valid hostname
-                if domain and not domain.startswith('#') and re.match(r'^[a-zA-Z0-9_.-]+$', domain):
-                    block_rules.add(f"||{domain}^")
-            continue
-
-        # Remove inline comments, but be careful with cosmetic filter syntax
-        if '##' not in line and '#@#' not in line:
-            line = re.sub(r'\s*#.*$', '', line)
-            
-        # Classify the rule
-        if line.startswith('@@'):
-            # This is an allow rule
-            rule_part = line[2:].strip()
-            if is_valid_rule(rule_part):
-                allow_rules.add(line)
+            if len(parts) > 1 and re.match(r'^[a-zA-Z0-9_.-]+$', parts[1]):
+                block_rules.add(f"||{parts[1]}^")
+                continue
             else:
-                print(f"Rejected allow rule: {line} (reason: invalid rule_part)")
-        elif '##' in line or '#@#' in line or line.startswith(('#?#', '$', '$$')):
-            # Skip cosmetic, element hiding, and scriptlet injection rules
+                print_rejection(line_num, "无效hosts规则", raw_line)
+                continue
+
+        # 移除行内注释
+        clean_line = re.sub(r'\s*#.*$', '', line).strip()
+        if not clean_line:
             continue
+
+        # 规则分类处理
+        is_allow = clean_line.startswith('@@')
+        rule_part = clean_line[2:] if is_allow else clean_line
+
+        valid, reason = is_valid_rule(rule_part)
+        if valid:
+            if is_allow:
+                allow_rules.add(clean_line)
+            else:
+                block_rules.add(clean_line)
         else:
-            # Everything else is considered a block rule
-            if is_valid_rule(line):
-                block_rules.add(line)
+            print_rejection(line_num, reason, raw_line)
 
-    # Write the unique, sorted block rules to the output file with a header
-    with open(block_output_file, 'w', encoding='utf-8') as f:
-        f.write("! Title: EasyAds Combined Blocklist\n")
-        f.write(f"! Last Updated: {datetime.now(timezone.utc).isoformat()}\n")
-        f.write("! Expires: 1 day (update recommended)\n")
-        f.write("! Homepage: https://github.com/EasyAds/EasyAds\n")
-        f.write("!--------------------------------------------------!\n\n")
-        f.writelines(sorted([rule + '\n' for rule in block_rules]))
+    print_progress(f"处理完成 | 拦截: {len(block_rules)} | 放行: {len(allow_rules)} | 丢弃: {total_lines - len(block_rules) - len(allow_rules)}")
+    return block_rules, allow_rules
 
-    # Write the unique, sorted allow rules to the output file with a header
-    with open(allow_output_file, 'w', encoding='utf-8') as f:
-        f.write("! Title: EasyAds Combined Allowlist\n")
-        f.write(f"! Last Updated: {datetime.now(timezone.utc).isoformat()}\n")
-        f.write("!--------------------------------------------------!\n\n")
-        if not allow_rules:
-            f.write("! Note: No allow rules were found in the input\n")
+def write_output(output_file: Path, rules: Set[str], list_type: str):
+    """写入输出文件"""
+    header = f"""! Title: EasyAds {list_type}
+! 更新时间: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}
+! 项目地址: https://github.com/EasyAds/EasyAds
+!-------------------------------
+"""
+    with output_file.open('w', encoding='utf-8') as f:
+        f.write(header)
+        if rules:
+            f.writelines(f"{rule}\n" for rule in sorted(rules))
         else:
-            f.writelines(sorted([rule + '\n' for rule in allow_rules]))
+            f.write(f"! 注意: 未找到有效的{list_type}规则\n")
 
-def main() -> None:
-    """Main function to run the entire processing workflow."""
+def main():
+    print("=== AdBlock规则合并处理 ===")
+    
+    # 路径设置
     tmp_dir = Path('tmp')
     rules_dir = Path('data/rules')
-    
-    # Ensure directories exist
-    tmp_dir.mkdir(parents=True, exist_ok=True)
     rules_dir.mkdir(parents=True, exist_ok=True)
 
-    all_rules_file = tmp_dir / 'all_rules_combined.txt'
-
-    print("Step 1: Merging all adblock and allow source files...")
-    source_files: List[Path] = sorted(Path('tmp').glob('adblock*.txt')) + sorted(Path('tmp').glob('allow*.txt'))
-
-    with open(all_rules_file, 'w', encoding='utf-8') as outfile:
-        for file in source_files:
-            if file.stat().st_size == 0:
-                print(f"Warning: {file} is empty")
-                continue
+    # 合并源文件
+    merged_file = tmp_dir / 'merged_rules.tmp'
+    print_progress("正在合并源文件...")
+    
+    with merged_file.open('w', encoding='utf-8') as out:
+        for src in sorted(tmp_dir.glob('*.txt')):
+            print_progress(f"合并: {src.name}")
             try:
-                with open(file, 'r', encoding='utf-8') as infile:
-                    content = infile.read()
-                    if not content.strip():
-                        print(f"Warning: {file} contains no valid content")
-                        continue
-                    outfile.write(content)
-            except UnicodeDecodeError:
-                with open(file, 'r', encoding='latin-1') as infile:
-                    content = infile.read()
-                    if not content.strip():
-                        print(f"Warning: {file} contains no valid content")
-                        continue
-                    outfile.write(content)
-            outfile.write('\n')
-        print(f"-> All source files merged into {all_rules_file}")
+                content = src.read_text(encoding='utf-8')
+                out.write(content + '\n')
+            except:
+                print_progress(f"跳过无法读取的文件: {src.name}")
 
-    # Check if merged file contains allow rules
-    with open(all_rules_file, 'r', encoding='utf-8') as f:
-        content = f.read()
-        if '@@' not in content:
-            print("Warning: No allow rules (starting with '@@') found in merged file")
+    # 处理规则
+    print_progress("\n开始规则处理...")
+    block, allow = process_rules(merged_file)
 
-    print("Step 2: Processing, splitting, and deduplicating rules...")
-    blocklist_path = rules_dir / 'adblock.txt'
-    allowlist_path = rules_dir / 'allow.txt'
-    process_and_split_rules(all_rules_file, blocklist_path, allowlist_path)
-    print(f"-> Blocklist created at {blocklist_path}")
-    print(f"-> Allowlist created at {allowlist_path}")
+    # 写入结果
+    print_progress("\n写入结果文件...")
+    write_output(rules_dir / 'adblock.txt', block, "拦截规则")
+    write_output(rules_dir / 'allow.txt', allow, "放行规则")
 
-    print("\nProcess completed successfully!")
+    print("\n=== 处理完成 ===")
+    print(f"最终结果: {len(block)} 条拦截规则, {len(allow)} 条放行规则")
 
 if __name__ == '__main__':
     main()
