@@ -1,5 +1,5 @@
-#字节系广告
-#汽水音乐补充规则
+# 字节系广告
+# 汽水音乐补充规则
 ! 拦截广告视频源
 ||v3-luna.douyinvod.com/ad/
 ||lf-webcast-gr-sourcecdn.bytegecko.com/ad/
@@ -45,6 +45,7 @@ luna.music.com##.video-reward-overlay
 ||bytedance.com^$popup
 ||gecko.zijieapi.com^$redirect=nooptext
 
+# ====== 通用广告拦截规则 =====
 ! 国内主流广告SDK拦截
 ||ad.*.cn^
 ||*.adsensor.org^
@@ -66,6 +67,7 @@ luna.music.com##.video-reward-overlay
 ||*.sensorsdata.cn^
 ||*.adjust.com^
 ||*.appsflyer.com^
+
 ! 主流APP广告拦截
 ||*.baidu.com/ad/
 ||*.bdstatic.com/ad/
@@ -83,6 +85,7 @@ luna.music.com##.video-reward-overlay
 ||*.kuaishou.com/ad/
 ||*.zhihu.com/ad/
 ||*.xiaohongshu.com/ad/
+
 ! 运营商广告拦截
 ||*.10086.cn/ad/
 ||*.10010.com/ad/
@@ -90,6 +93,7 @@ luna.music.com##.video-reward-overlay
 ||*.chinamobile.com/ad/
 ||*.chinaunicom.com/ad/
 ||*.chinatelecom.com/ad/
+
 ! 常见APP开屏广告
 ||*/splashad*
 ||*/splash/*ad*
@@ -98,6 +102,7 @@ luna.music.com##.video-reward-overlay
 ||*/ad/launch*
 ||*/startpage/ad*
 ||*/ad/startpage*
+
 ! 通用广告拦截规则
 ||*/*advert*
 ||*/*banner*ad*
@@ -112,6 +117,7 @@ luna.music.com##.video-reward-overlay
 ||*/*ad/*.jpg
 ||*/*ad/*.png
 ||*/*ad/*.gif
+
 ! 屏蔽常见统计和追踪
 ||*.cnzz.com^
 ||*.baidu.com/analytics/
@@ -120,7 +126,8 @@ luna.music.com##.video-reward-overlay
 ||*.mmstat.com^
 ||*.sogou.com/analytics/
 ||*.taobao.com/monitor/
-! 腾讯广告SDK核心域名（泛域名+关键精准拦截）
+
+# ====== 腾讯系广告 ======
 ||*.gdtimg.com^
 ||gdt?.qq.com^
 ||adxlog?.v.qq.com^
@@ -129,14 +136,12 @@ luna.music.com##.video-reward-overlay
 ||ad*.qq.com^
 ||e.qq.com^
 ||tanx.com^
-! 必须单独拦截的关键域名
 ||ad.qun.qq.com^
 ||adpm.app.qq.com^
 ||adxlog-upload.v.qq.com^
 ||adsmind.gdtimg.com^
 ||adver.qq.com^
 ||adui.tgideas.qq.com^
-# ====== 腾讯系广告 ======
 ||ad.weixin.qq.com^
 ||adn.weixin.qq.com^
 ||adtest.weixin.qq.com^
@@ -161,15 +166,15 @@ luna.music.com##.video-reward-overlay
 ||qq.com/adjs/
 ||qq.com/ad-material/
 ||finder.weixin.qq.com^
-||finder*.weixin.qq.com^  # 通配符覆盖子域名
+||finder*.weixin.qq.com^
 ||recommend.weread.qq.com^
 ||mp.weixin.qq.com/api/recommend^
 ||szextshort.weixin.qq.com^
-||tcss.qq.com^  # 腾讯统计服务
-||analytics.qq.com^  # 腾讯分析
+||tcss.qq.com^
+||analytics.qq.com^
 ||weixin.qq.com/cgi-bin/recommend^
-||push.weread.qq.com^  # 微信读书推荐
-||miniprogram.qq.com/recommend^  # 小程序推荐
+||push.weread.qq.com^
+||miniprogram.qq.com/recommend^
 
 # ====== 字节系广告 =====
 ||pangolin.snssdk.com^
@@ -213,7 +218,7 @@ luna.music.com##.video-reward-overlay
 ||meituan.com/adx/
 ||dpfile.com/adx/
 
-# ====== 通用拦截规则 =====
+# ====== 媒体资源拦截 =====
 ||*/ad-*.jpg^$image
 ||*/ads/*.mp4^$media
 ||*/adx/*.js^
