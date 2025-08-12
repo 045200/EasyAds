@@ -5,6 +5,10 @@ AdGuard Home 规则优化处理器
 1. 白名单规则误判
 2. 拦截规则误判
 3. 增强 hosts 规则支持
+改进：
+1. 更宽松的规则验证，支持 AdGuard 特定语法
+2. 改进 hosts 文件解析
+3. 增强编码处理
 """
 
 import re
@@ -28,47 +32,63 @@ class RuleProcessor:
         print(f"[STATUS] {message}", file=sys.stderr)
 
     def _print_rejection(self, reason: str, rule: str):
-        print(f"[REJECTED] {reason}: {rule[:100]}{'...' if len(rule)>100 else ''}", file=sys.stderr)
+        print(f"[REJECTED] {reason}: {rule[:100]}{'...' if len(rule) > 100 else ''}", file=sys.stderr)
 
     def _rule_hash(self, rule: str) -> str:
+        # Preserve case for regex rules
+        if rule.startswith('/') and rule.endswith('/'):
+            return rule.strip()
         return rule.strip().lower()
 
     def _is_duplicate(self, rule: str) -> bool:
         return self._rule_hash(rule) in self.rule_hashes
 
     def _validate_rule(self, rule: str) -> Tuple[bool, str]:
-        """AdGuard Home 兼容的规则验证"""
+        """AdGuard Home 兼容的规则验证，增强对 AdGuard 语法的支持"""
         rule = rule.strip()
         if not rule:
             return False, "空规则"
 
-        # 注释和声明
+        # 跳过注释和声明
         if rule.startswith('!') or rule.startswith('[Adblock'):
             return False, "注释"
 
         # 元素隐藏规则
-        if '##' in rule or '#@#' in rule:
+        if '##' in rule or '#@#' in rule or '#%#' in rule:
             return False, "元素隐藏"
 
-        # 放行规则（增强白名单检测）
+        # 放行规则
         if rule.startswith('@@'):
             return True, ""
 
-        # 常见规则前缀
+        # 正则表达式规则
+        if rule.startswith('/') and rule.endswith('/'):
+            try:
+                re.compile(rule[1:-1])
+                return True, ""
+            except re.error:
+                return False, "无效正则"
+
+        # AdGuard 规则前缀
         valid_prefixes = (
-            '||', '|', 'http://', 'https://', 
+            '||', '|', 'http://', 'https://',
             '/', '*', '^', '$', '~',
             'domain=', 'ip6-cidr:', 'ip-cidr:'
         )
         if any(rule.startswith(p) for p in valid_prefixes):
             return True, ""
 
-        # 标准域名模式
-        if re.match(r'^([a-zA-Z0-9*_-]+\.)+[a-zA-Z]{2,}(/|$|\^|\|)', rule):
+        # 增强域名模式，支持更复杂的域名和通配符
+        domain_pattern = r'^(?:[a-zA-Z0-9*_-]+\.)*(?:[a-zA-Z0-9*_-]+\.)+[a-zA-Z]{2,}(?:[/$^|]|$|\*[a-zA-Z0-9_,=]*)'
+        if re.match(domain_pattern, rule):
             return True, ""
 
         # Hosts 格式兼容
         if re.match(r'^[a-zA-Z0-9.*_-]+$', rule):
+            return True, ""
+
+        # 支持 AdGuard 特定修饰符
+        if re.match(r'^(?:@@)?(?:[a-zA-Z0-9*_-]+\.)+[a-zA-Z]{2,}\^[a-zA-Z0-9_,=]*$', rule):
             return True, ""
 
         return False, "无效格式"
@@ -78,14 +98,18 @@ class RuleProcessor:
         block_rules = set()
         allow_rules = set()
 
-        try:
-            content = file_path.read_text(encoding='utf-8')
-        except UnicodeDecodeError:
+        # 尝试多种编码
+        encodings = ['utf-8', 'gbk', 'iso-8859-1']
+        content = None
+        for encoding in encodings:
             try:
-                content = file_path.read_text(encoding='gbk')
-            except:
-                self._print_progress(f"解码失败: {file_path.name}")
-                return block_rules, allow_rules
+                content = file_path.read_text(encoding=encoding)
+                break
+            except UnicodeDecodeError:
+                continue
+        if content is None:
+            self._print_progress(f"所有编码解码失败: {file_path.name}")
+            return block_rules, allow_rules
 
         self._print_progress(f"处理: {file_path.name} ({len(content.splitlines())}行)")
 
@@ -97,11 +121,15 @@ class RuleProcessor:
             if not line or line.startswith(('!', '#')) or '[Adblock' in line:
                 continue
 
-            # 转换 hosts 格式
-            if re.match(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\s+', line):
+            # 增强 hosts 格式解析
+            if re.match(r'^(?:0\.0\.0\.0|127\.0\.0\.1|::1)\s+[a-zA-Z0-9.*_-]+', line):
                 parts = line.split()
-                if len(parts) > 1 and re.match(r'^[a-zA-Z0-9.*-]+$', parts[1]):
+                if len(parts) > 1 and re.match(r'^[a-zA-Z0-9.*_-]+$', parts[1]):
                     line = f"||{parts[1]}^"
+                else:
+                    self.counter['rejected'] += 1
+                    self._print_rejection("无效 hosts 格式", raw_line)
+                    continue
 
             try:
                 valid, reason = self._validate_rule(line)
@@ -123,6 +151,7 @@ class RuleProcessor:
 
                 self.rule_hashes.add(self._rule_hash(line))
             except Exception as e:
+                self.counter['rejected'] += 1
                 self._print_rejection(f"处理错误: {str(e)}", raw_line)
 
         return block_rules, allow_rules
@@ -158,11 +187,11 @@ def main():
     final_block = all_block - {x[2:] for x in all_allow if x.startswith('@@')}
 
     # 写入结果
-    with open(output_dir/'adblock.txt', 'w', encoding='utf-8') as f:
+    with open(output_dir / 'adblock.txt', 'w', encoding='utf-8') as f:
         f.write(generate_header("拦截规则"))
         f.writelines(f"{rule}\n" for rule in sorted(final_block))
 
-    with open(output_dir/'allow.txt', 'w', encoding='utf-8') as f:
+    with open(output_dir / 'allow.txt', 'w', encoding='utf-8') as f:
         f.write(generate_header("放行规则"))
         f.writelines(f"{rule}\n" for rule in sorted(all_allow))
 
