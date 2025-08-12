@@ -27,7 +27,7 @@ class FullCompatProcessor:
     def __init__(self):
         self.black_rules: Set[str] = set()
         self.white_rules: Set[str] = set()
-        self._patterns: Dict[str, List[Tuple[Pattern, Optional[Callable]]] = {}
+        self._patterns: Dict[str, List[Tuple[Pattern, Optional[Callable]]]] = {}  # 修复这里
         self._compile_patterns()
         
     def _compile_patterns(self) -> None:
@@ -70,22 +70,15 @@ class FullCompatProcessor:
                 f"示例: {sorted(conflicts)[:3]}"
             )
 
-    def _remove_duplicates(self) -> None:
-        """去重处理（保持集合类型）"""
-        # 集合自动去重，无需额外处理
-        pass
-
     def process_files(self, input_dir: str = 'tmp', output_dir: str = 'data/rules') -> None:
         """主处理流程"""
         try:
-            # 准备目录
             Path(output_dir).mkdir(parents=True, exist_ok=True)
             input_path = Path(input_dir)
             
             if not input_path.exists():
                 raise FileNotFoundError(f"目录不存在: {input_dir}")
 
-            # 处理文件
             for pattern in ['adblock*.txt', 'allow*.txt']:
                 for file in input_path.glob(pattern):
                     try:
@@ -96,10 +89,8 @@ class FullCompatProcessor:
                     except Exception as e:
                         logging.warning(f"处理文件失败 {file}: {e}")
 
-            # 冲突检测
             self._check_conflicts()
 
-            # 输出结果（排序后写入）
             with open(Path(output_dir)/'allow.txt', 'w', encoding='utf-8') as f:
                 f.write('\n'.join(sorted(self.white_rules)))
             
