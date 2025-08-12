@@ -2,11 +2,11 @@
 ! Title: EasyAds
 ! Homepage: https://github.com/045200/EasyAds
 ! Expires: 12 Hours
-! Version: 2025-08-12 19:44:55（北京时间）
+! Version: 2025-08-12 20:26:38（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 169041
+! Total count: 169045
 # DNS rules extracted from adblock.txt
-# Generated on 2025-08-12 11:44:52.733851
+# Generated on 2025-08-12 12:26:34.803824
 
 ||*-*-*-lrycfv.vip^
 ||*-*.ap-east-1.elb.amazonaws.com^
@@ -2934,6 +2934,7 @@
 ||a.vserv.mobi^
 ||a.vturb.net^
 ||a.wanzhuang.com^
+||a.wb.ru^
 ||a.weareknitters.ch^
 ||a.weareknitters.co.uk^
 ||a.weareknitters.com^
@@ -24570,6 +24571,7 @@
 ||bee.tc.easebar.com^
 ||beechvilla.pro^
 ||beedigital.padigital.es^
+||beehiiv-adnetwork-production.s*.amazonaws.com^
 ||beekmsolac.pro^
 ||beeline.beeline-tire.co.jp^
 ||beenedsl.com^
@@ -32370,6 +32372,7 @@
 ||console.dm.mob.com^
 ||console.llxads.com^
 ||console.uxlens.com^
+||consolidata.ai^
 ||consonarra.pro^
 ||consoodori.pro^
 ||consoseced.pro^
@@ -118124,6 +118127,7 @@
 ||stats.vdsnow.ru^
 ||stats.vegamuze.be^
 ||stats.vican.me^
+||stats.vidalytics.com^
 ||stats.vidbinge.com^
 ||stats.viddler.com^
 ||stats.videasy.net^
