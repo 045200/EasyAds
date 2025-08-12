@@ -1,3 +1,26 @@
+#字节系广告
+! 基础广告域名拦截
+||bytegecko.com^$third-party
+||zijieapi.com^$third-party
+||douyinvod.com^$third-party
+||amemv.com^$third-party
+||bytedance.com^$script,domain=~music.163.com
+
+! 汽水音乐专项规则（动态广告接口）
+luna.music.com##.reward-video-popup
+luna.music.com##div[class*="ad-container"]
+luna.music.com##[data-testid="ad-layer"]
+luna.music.com##.ads-skip-button
+luna.music.com##.video-reward-overlay
+
+! 抖音/西瓜视频广告拦截
+||lf-webcast-*.bytegecko.com^$media,domain=~live.douyin.com
+||*.douyinvod.com/ad/*$xmlhttprequest
+||api*.amemv.com^$domain=ixigua.com
+
+! 高级规则（覆盖弹窗和重定向）
+||bytedance.com^$popup
+||gecko.zijieapi.com^$redirect=nooptext
 ! 国内主流广告SDK拦截
 ||ad.*.cn^
 ||*.adsensor.org^
