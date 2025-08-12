@@ -1,4 +1,27 @@
 #字节系广告
+#汽水音乐补充规则
+! 拦截广告视频源
+||v3-luna.douyinvod.com/ad/
+||lf-webcast-gr-sourcecdn.bytegecko.com/ad/
+||zijieapi.com/ad/
+
+! 拦截广告跳转按钮
+luna.music.com##a[href*="ad.douyin.com"]
+luna.music.com##button:has-text(去看视频)
+luna.music.com##div:has-text(再看1个)
+
+! 拦截奖励弹窗
+luna.music.com##div.reward-popup
+luna.music.com##div[class*="reward-dialog"]
+
+! 拦截计时器组件
+luna.music.com##div.time-reward-container
+luna.music.com##div[class*="countdown-timer"]
+
+! 高级拦截
+||luna.music.com/api/reward/video
+||music-api.tiktokv.com/reward/
+
 ! 基础广告域名拦截（字节跳动系）
 ||bytegecko.com^$third-party
 ||zijieapi.com^$third-party
