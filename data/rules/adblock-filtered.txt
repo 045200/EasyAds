@@ -1,5 +1,5 @@
 # DNS rules extracted from adblock.txt
-# Generated on 2025-08-12 10:58:11.637893
+# Generated on 2025-08-12 11:02:31.859786
 
 ||*-*-*-lrycfv.vip^
 ||*-*.ap-east-1.elb.amazonaws.com^
@@ -17458,6 +17458,7 @@
 ||analytics.qoqa.ch^
 ||analytics.qoqa.com^
 ||analytics.qoqa.ninja^
+||analytics.qq.com^
 ||analytics.qs-apps.com^
 ||analytics.qualcomm.com^
 ||analytics.qualityquestions.co^
@@ -47634,6 +47635,7 @@
 ||find.api.micloud.xiaomi.net.iberostar.com^
 ||find.my-xiaomi.live^
 ||find.tjmartbd.com^
+||finder*.weixin.qq.com^
 ||finder.weixin.qq.com^
 ||findjliquo.pro^
 ||findthetruth.allergyai.com^
@@ -78606,6 +78608,7 @@
 ||minigame5-normal.zijieapi.com^
 ||minimassap.pro^
 ||minipage.2345.com^
+||miniprogram.qq.com/recommend^
 ||minisilkworm.pro^
 ||minisite.letv.com^
 ||minisite2012.qq.com^
@@ -90094,6 +90097,7 @@
 ||push.res.meizu.com^
 ||push.skysrt.com^
 ||push.umeng.com^
+||push.weread.qq.com^
 ||push.wps.cn^
 ||push.xdrig.com^
 ||push.yoads.net^

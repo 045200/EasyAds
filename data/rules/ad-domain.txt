@@ -17470,6 +17470,7 @@ analytics.qogita.com
 analytics.qoqa.ch
 analytics.qoqa.com
 analytics.qoqa.ninja
+analytics.qq.com
 analytics.qs-apps.com
 analytics.qualcomm.com
 analytics.qualityquestions.co
@@ -47650,6 +47651,7 @@ finch.market.xyz
 find.api.micloud.xiaomi.net.iberostar.com
 find.my-xiaomi.live
 find.tjmartbd.com
+finder*.weixin.qq.com
 finder.weixin.qq.com
 findjliquo.pro
 findthetruth.allergyai.com
@@ -78624,6 +78626,7 @@ minigame5-normal-lq.zijieapi.com
 minigame5-normal.zijieapi.com
 minimassap.pro
 minipage.2345.com
+miniprogram.qq.com/recommend
 minisilkworm.pro
 minisite.letv.com
 minisite2012.qq.com
@@ -90118,6 +90121,7 @@ push.pgl.qq.com
 push.res.meizu.com
 push.skysrt.com
 push.umeng.com
+push.weread.qq.com
 push.wps.cn
 push.xdrig.com
 push.yoads.net
