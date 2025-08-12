@@ -2,13 +2,12 @@
 ! Title: EasyAds
 ! Homepage: https://github.com/045200/EasyAds
 ! Expires: 12 Hours
-! Version: 2025-08-12 15:17:04（北京时间）
+! Version: 2025-08-12 15:25:12（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 4373
-! Title: EasyAds 放行规则
-! Version: 20250812
-! Updated: 2025-08-12 07:16:58 UTC
-! Expires: 1 days
+! Total count: 4376
+! Title: AdGuard Home 放行规则
+! Updated: 2025-08-12 07:25:09 UTC
+! Expires: 1 day
 ! Homepage: https://github.com/EasyAds/EasyAds
 !-------------------------------
 @@*.flyme.cn
@@ -27,6 +26,9 @@
 @@t1.market.xiaomi.com
 @@url.cn
 @@verify.sec.xiaomi.com
+@@|*-api-idc.ksapisrv.com^
+@@|*-api-js.gifshow.com^
+@@|*-api.ksapisrv.com^
 @@|12311ali.push.yximgs.com^
 @@|123456.al^
 @@|36s113ali-livemate.pull.yximgs.com^
