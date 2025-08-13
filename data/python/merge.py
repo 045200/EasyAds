@@ -5,7 +5,7 @@ from pathlib import Path
 
 os.chdir('tmp')
 
-# 折中方案核心匹配规则（黑白名单同步优化）
+# 折中方案核心匹配规则
 ALLOW_PATTERN = re.compile(
     r'^@@\|\|[\w.-]+\^?(\$~?[\w,=-]+)?|'  # 域名规则+基础修饰符
     r'^@@##.+|'                           # 元素隐藏例外
@@ -22,10 +22,14 @@ BLOCK_PATTERN = re.compile(
 
 def clean_rules(content, pattern):
     """通用规则清理函数"""
-    # 移除注释行（保留空行用于分隔）
     content = re.sub(r'^[!#].*$\n', '', content, flags=re.MULTILINE)
-    # 按模式过滤有效规则
     return '\n'.join(line for line in content.splitlines() if pattern.search(line))
+
+def extract_allow_rules(content):
+    """从黑名单内容中提取白名单规则"""
+    # 匹配黑名单中可能存在的例外规则（如@@开头的规则）
+    return '\n'.join(line for line in content.splitlines() 
+                   if line.startswith('@@') and ALLOW_PATTERN.search(line))
 
 print("合并拦截规则")
 with open('combined_adblock.txt', 'w', encoding='utf-8') as outfile:
@@ -33,9 +37,14 @@ with open('combined_adblock.txt', 'w', encoding='utf-8') as outfile:
         with open(file, 'r', encoding='utf-8', errors='ignore') as infile:
             outfile.write(infile.read() + '\n')
 
-# 黑名单折中处理
+# 处理黑名单并提取潜在白名单
+with open('combined_adblock.txt', 'r', encoding='utf-8') as f:
+    block_content = f.read()
+    extracted_allow = extract_allow_rules(block_content)  # 新增提取逻辑
+    cleaned_block = clean_rules(block_content, BLOCK_PATTERN)
+
 with open('cleaned_adblock.txt', 'w', encoding='utf-8') as f:
-    f.write(clean_rules(open('combined_adblock.txt').read(), BLOCK_PATTERN))
+    f.write(cleaned_block)
 
 print("合并白名单规则")
 with open('combined_allow.txt', 'w', encoding='utf-8') as outfile:
@@ -43,31 +52,46 @@ with open('combined_allow.txt', 'w', encoding='utf-8') as outfile:
         with open(file, 'r', encoding='utf-8', errors='ignore') as infile:
             outfile.write(infile.read() + '\n')
 
-# 白名单折中处理
+# 合并提取的白名单规则
+with open('combined_allow.txt', 'r', encoding='utf-8') as f:
+    allow_content = f.read() + '\n' + extracted_allow  # 合并提取的规则
+    cleaned_allow = clean_rules(allow_content, ALLOW_PATTERN)
+
 with open('cleaned_allow.txt', 'w', encoding='utf-8') as f:
-    f.write(clean_rules(open('combined_allow.txt').read(), ALLOW_PATTERN))
+    f.write(cleaned_allow)
 
 print("生成最终规则")
 with open('cleaned_adblock.txt', 'a', encoding='utf-8') as f:
-    f.write('\n' + open('cleaned_allow.txt').read())
+    f.write('\n' + cleaned_allow)
 
-# 提取白名单时仍保持简单判断
+# 最终白名单文件（包含从黑名单提取的规则）
 with open('allow.txt', 'w', encoding='utf-8') as f:
-    f.writelines(line for line in open('cleaned_adblock.txt') 
-              if line.startswith('@@'))
+    f.write(cleaned_allow)  # 直接使用已清理的白名单内容
 
-# 文件移动和去重（保持不变）
+# 文件移动和去重
 target_dir = Path('../data/rules/')
 target_dir.mkdir(exist_ok=True)
+
+def deduplicate_file(filepath):
+    """专业去重函数（保留顺序且不区分大小写）"""
+    with open(filepath, 'r+', encoding='utf-8') as f:
+        seen = set()
+        unique_lines = []
+        for line in f:
+            lower_line = line.lower()
+            if lower_line not in seen:
+                seen.add(lower_line)
+                unique_lines.append(line)
+        f.seek(0)
+        f.writelines(unique_lines)
+        f.truncate()
+
 Path('cleaned_adblock.txt').rename(target_dir / 'adblock.txt')
 Path('allow.txt').rename(target_dir / 'allow.txt')
 
 print("规则去重")
-for file in glob.glob(str(target_dir / '*.txt')):
-    with open(file, 'r+', encoding='utf-8') as f:
-        lines = sorted({line for line in f if line.strip()}, key=str.lower)
-        f.seek(0)
-        f.writelines(lines)
-        f.truncate()
+for file in [target_dir / 'adblock.txt', target_dir / 'allow.txt']:
+    if file.exists():
+        deduplicate_file(file)
 
 print("处理完成")
