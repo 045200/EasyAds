@@ -23,16 +23,39 @@ class GitHubRuleMerger:
     __slots__ = ['black_rules', 'white_rules', '_patterns', 'config', '_logger']
     
     # GitHub Actions专用配置
-    DEFAULT_CONFIG = {
-        'input_dir': os.getenv('INPUT_DIR', './tmp'),
-        'output_dir': os.getenv('OUTPUT_DIR', './data/rules'),
-        'keep_hosts_syntax': False,
-        'remove_duplicates': True,
-        'minify_output': True,
-        'max_file_size_mb': 50,
-        'worker_threads': 4,  # GitHub Actions推荐2-4线程
-        'timeout': 300,       # 5分钟超时
-    }
+DEFAULT_CONFIG = {
+    'input_dir': os.getenv('INPUT_DIR', './tmp'),  # 输入目录路径，支持环境变量注入
+                                                  # 默认值: './tmp'
+                                                  # 建议: 保持默认或设置为GitHub工作空间子目录
+    
+    'output_dir': os.getenv('OUTPUT_DIR', './data/rules'),  # 输出目录路径，支持环境变量注入
+                                                          # 默认值: './data/rules'
+                                                          # 建议: 设置为可持久化的目录
+    
+    'keep_hosts_syntax': False,  # 是否保留原始hosts文件语法(如127.0.0.1 example.com)
+                                # 默认值: False (转换为AdBlock语法)
+                                # 建议: 仅在需要兼容旧系统时启用
+    
+    'remove_duplicates': True,  # 是否移除重复规则(基于BLAKE2哈希去重)
+                               # 默认值: True
+                               # 建议: 始终启用以提高规则质量
+    
+    'minify_output': True,  # 是否最小化输出(移除注释和空行)
+                          # 默认值: True
+                          # 建议: 生产环境启用，调试时禁用
+    
+    'max_file_size_mb': 50,  # 单个文件最大处理大小(MB)
+                            # 默认值: 50 (GitHub Actions内存限制考虑)
+                            # 警告: 超过此值将跳过处理
+    
+    'worker_threads': 4,  # 处理线程数(根据GitHub Actions机器配置优化)
+                         # 默认值: 4 (2vCPU环境最佳实践)
+                         # 范围: 1-8 (超过可能导致OOM)
+    
+    'timeout': 300,  # 整体处理超时时间(秒)
+                    # 默认值: 300 (5分钟)
+                    # 建议: 复杂规则集可增至600
+}
 
     # 预编译正则（CI环境优化）
     _HOSTS_PATTERN = re.compile(r'^(?:127\.0\.0\.1|0\.0\.0\.0|::)\s+([\w.-]+)')
