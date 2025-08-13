@@ -1,118 +1,148 @@
 #!/usr/bin/env python3
 """
-规则合并与处理脚本
-功能：
-1. 合并多个广告拦截规则文件
-2. 合并多个白名单规则文件
-3. 清理注释和空行
-4. 分离白名单规则
-5. 规则去重排序
-6. 最终文件输出
+多语法规则处理器（GitHub Action兼容版）
+特性：
+1. 完整保留GitHub风格的多规则语法识别（ABP/Hosts/Regex）
+2. 独立处理黑白名单去重
+3. 兼容原始文件目录结构
 """
 
-import os
 import re
+import os
 from pathlib import Path
+from typing import Set, Dict, Generator
+from dataclasses import dataclass
+import hashlib
 
-def merge_files(file_pattern: str, output_file: str, clean_comments: bool = True) -> None:
-    """合并匹配模式的文件并清理注释"""
-    file_list = glob.glob(file_pattern)
-    if not file_list:
-        print(f"警告: 没有找到匹配 {file_pattern} 的文件")
-        return
+# 输入输出配置（与原始脚本完全一致）
+INPUT_DIR = Path('tmp')
+OUTPUT_DIR = Path('data/rules')
+ADBLOCK_PATTERN = 'adblock*.txt'
+ALLOW_PATTERN = 'allow*.txt'
 
-    # 合并文件内容
-    with open(output_file, 'w', encoding='utf-8') as outfile:
-        for file in file_list:
-            with open(file, 'r', encoding='utf-8') as infile:
-                outfile.write(infile.read())
-                outfile.write('\n')
-
-    # 清理注释
-    if clean_comments:
-        with open(output_file, 'r', encoding='utf-8') as f:
-            content = f.read()
+class RuleParser:
+    """GitHub风格多规则解析器（完整保留原特性）"""
+    
+    # 预编译规则类型识别正则 [citation:1]
+    RULE_PATTERNS = {
+        'ABP': re.compile(r'^\|\|([^\s\\\/]+)\^?\$?\b'),
+        'HOSTS': re.compile(r'^(?:127\.0\.0\.1|0\.0\.0\.0|::)\s+([\w.-]+)'),
+        'REGEX': re.compile(r'^/(.+)/[gimsuy]*$'),
+        'COMMENT': re.compile(r'^[![]')
+    }
+    
+    @classmethod
+    def classify(cls, line: str) -> str:
+        """规则类型检测（增强版）[citation:1]"""
+        line = line.strip()
+        if not line:
+            return 'COMMENT'
         
-        # 移除注释行 (! 或 # 开头但不是 ## 的行)
-        content = re.sub(r'^[!].*$\n', '', content, flags=re.MULTILINE)
-        content = re.sub(r'^#(?!\s*#).*\n?', '', content, flags=re.MULTILINE)
-        
-        # 移除连续空行
-        content = re.sub(r'\n{3,}', '\n\n', content)
-        
-        with open(output_file, 'w', encoding='utf-8') as f:
-            f.write(content.strip())
+        for rule_type, pattern in cls.RULE_PATTERNS.items():
+            if pattern.match(line):
+                return rule_type
+        return 'ABP'  # 默认按ABP规则处理
 
-def filter_allow_rules(combined_file: str, allow_file: str) -> None:
-    """从合并文件中过滤出白名单规则"""
-    with open(combined_file, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-    
-    with open(allow_file, 'w', encoding='utf-8') as f:
-        for line in lines:
-            if line.startswith('@@'):
-                f.write(line)
+    @classmethod
+    def normalize(cls, line: str) -> str:
+        """规则标准化转换（保留所有语法特性）[citation:1][citation:7]"""
+        rule_type = cls.classify(line)
+        
+        # 保留原始规则（特殊标记不转换）
+        if rule_type in ('ABP', 'REGEX', 'COMMENT'):
+            return line
+        
+        # 仅Hosts规则转换
+        if rule_type == 'HOSTS':
+            if match := cls.RULE_PATTERNS['HOSTS'].match(line):
+                return f"||{match.group(1)}^"
+        
+        return line
 
-def deduplicate_file(file_path: str) -> None:
-    """对文件内容进行去重和排序"""
-    with open(file_path, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-    
-    # 去重并排序
-    unique_lines = sorted(set(lines), key=lambda x: x.lower())
-    
-    # 写入临时文件
-    temp_file = f"temp_{os.path.basename(file_path)}"
-    with open(temp_file, 'w', encoding='utf-8') as f:
-        f.writelines(unique_lines)
-    
-    # 替换原文件
-    os.replace(temp_file, file_path)
+@dataclass
+class RuleSets:
+    """分类型规则容器（增强去重控制）"""
+    black: Set[str]
+    white: Set[str]
+
+class AdvancedRuleProcessor:
+    def __init__(self):
+        # 独立去重池（增强版哈希算法）[citation:3]
+        self._seen_hashes = {
+            'black': set(),  # 黑名单去重池
+            'white': set()   # 白名单去重池
+        }
+
+    def _process_line(self, line: str) -> tuple[str, bool]:
+        """增强型行处理（保留所有语法特性）"""
+        raw_line = line.strip()
+        if RuleParser.classify(raw_line) == 'COMMENT':
+            return None, False
+
+        # 标准化处理（保留原始ABP/Regex规则）
+        processed = RuleParser.normalize(raw_line)
+        is_allow = raw_line.startswith('@@')
+        
+        # 分类型去重（基于标准化后的规则）[citation:3]
+        rule_hash = hashlib.sha256(processed.lower().encode()).hexdigest()
+        pool = 'white' if is_allow else 'black'
+        
+        if rule_hash in self._seen_hashes[pool]:
+            return None, False
+        
+        self._seen_hashes[pool].add(rule_hash)
+        return processed, is_allow
+
+    def process_files(self) -> RuleSets:
+        """处理流程（兼容原始文件结构）"""
+        rules = RuleSets(black=set(), white=set())
+
+        # 合并处理黑名单文件（支持多语法）
+        for file in INPUT_DIR.glob(ADBLOCK_PATTERN):
+            with open(file, 'r', encoding='utf-8', errors='replace') as f:
+                for line in f:
+                    rule, is_allow = self._process_line(line)
+                    if rule and not is_allow:
+                        rules.black.add(rule)
+
+        # 单独处理白名单文件（严格@@检测）
+        for file in INPUT_DIR.glob(ALLOW_PATTERN):
+            with open(file, 'r', encoding='utf-8', errors='replace') as f:
+                for line in f:
+                    rule, is_allow = self._process_line(line)
+                    if rule and is_allow:
+                        rules.white.add(rule)
+
+        return rules
+
+    @staticmethod
+    def _write_output(rules: RuleSets):
+        """保持原始输出结构（增强排序）[citation:2]"""
+        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+        # 黑名单输出（保留所有语法）
+        with open(OUTPUT_DIR / 'adblock.txt', 'w', encoding='utf-8') as f:
+            f.writelines(f"{r}\n" for r in sorted(rules.black, key=lambda x: (len(x), x.lower())))
+
+        # 白名单输出（严格@@开头）
+        with open(OUTPUT_DIR / 'allow.txt', 'w', encoding='utf-8') as f:
+            f.writelines(f"{r}\n" for r in sorted(rules.white, key=lambda x: (len(x), x.lower())))
 
 def main():
-    # 初始化工作目录
-    os.chdir('tmp')
-    print("当前工作目录:", os.getcwd())
+    print("=" * 40)
+    print("多语法规则处理开始".center(40))
+    print("=" * 40)
 
-    # 1. 合并广告拦截规则
-    print("合并上游拦截规则...")
-    merge_files('adblock*.txt', 'combined_adblock.txt')
-    print("拦截规则合并完成")
+    processor = AdvancedRuleProcessor()
+    rules = processor.process_files()
+    processor._write_output(rules)
 
-    # 2. 合并白名单规则
-    print("合并上游白名单规则...")
-    merge_files('allow*.txt', 'combined_allow.txt')
-    print("白名单规则合并完成")
-
-    # 3. 过滤白名单规则
-    print("过滤白名单规则...")
-    filter_allow_rules('combined_allow.txt', 'allow.txt')
-    print("白名单规则过滤完成")
-
-    # 4. 准备输出目录
-    target_dir = Path('../data/rules')
-    target_dir.mkdir(parents=True, exist_ok=True)
-
-    # 5. 移动并重命名文件
-    print("整理输出文件...")
-    files_to_move = {
-        'combined_adblock.txt': target_dir / 'adblock.txt',
-        'allow.txt': target_dir / 'allow.txt'
-    }
-
-    for src, dst in files_to_move.items():
-        if os.path.exists(src):
-            os.replace(src, dst)
-            print(f"已移动 {src} -> {dst}")
-
-    # 6. 去重处理
-    print("规则去重中...")
-    os.chdir(target_dir)
-    for file in Path('.').glob('*.txt'):
-        print(f"正在处理 {file.name}...")
-        deduplicate_file(file.name)
-    print("规则去重完成")
+    print(f"生成黑名单规则: {len(rules.black)} 条（支持ABP/Hosts/Regex语法）")
+    print(f"生成白名单规则: {len(rules.white)} 条（严格@@开头）")
+    print("=" * 40)
+    print("处理完成".center(40))
+    print("=" * 40)
 
 if __name__ == '__main__':
-    import glob  # 移动到文件顶部会更规范，这里为了保持原有结构
+    INPUT_DIR.mkdir(exist_ok=True)
     main()
