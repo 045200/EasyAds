@@ -10,12 +10,15 @@ class UltimateRuleProcessor:
     
     # 配置模板
     DEFAULT_CONFIG = {
-        'keep_hosts_syntax': False,
-        'remove_duplicates': True,
-        'minify_output': False,
-        'validate_rules': True,
-        'backup_original': True,
-        'conflict_resolution': 'whitelist_priority'  # or 'blacklist_priority'
+    'keep_hosts_syntax': False,  # 是否保留原始Hosts格式
+    'remove_duplicates': True,   # 是否去重
+    'minify_output': True,      # 是否移除注释
+    'validate_rules': True,      # 是否验证规则
+    'backup_original': False,     # 是否备份源文件
+     'conflict_resolution': 'whitelist_priority'  # 可选值:
+# - 'whitelist_priority': 白名单覆盖黑名单
+# - 'blacklist_priority': 保留黑名单
+# - 'strict': 保留冲突项并报警    
     }
 
     # 完整语法支持（覆盖所有主流拦截器）
