@@ -2,9 +2,9 @@
 ! Title: EasyAds
 ! Homepage: https://github.com/045200/EasyAds
 ! Expires: 12 Hours
-! Version: 2025-08-13 17:07:27（北京时间）
+! Version: 2025-08-13 20:27:12（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 165261
+! Total count: 165263
 ||j6u8vwfmbj-1311321840.cos-website.ap-nanjing.myqcloud.com^
 ||www.ikesepsckslp.cn^
 ||mobile.yangkeduo.com^
@@ -13560,6 +13560,7 @@
 ||analytics.virginaustralia.com^
 ||analytics.virginmobileusa.com^
 ||analytics.visible.com^
+||analytics.vitalsignstracker.com^
 ||analytics.viture.dev^
 ||analytics.vivantskincare.com^
 ||analytics.vivint.com^
@@ -88975,6 +88976,7 @@
 ||wantingwindow.com^
 ||wao.atu.de^
 ||wap.mylifetime.com^
+||wap.qqbiquge.net^
 ||wap001.bytravel.cn^
 ||wap1.laogu.wang^
 ||wapn1.flosports.tv^

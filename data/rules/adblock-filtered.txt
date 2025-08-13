@@ -13409,6 +13409,7 @@
 ||analytics.virginaustralia.com^
 ||analytics.virginmobileusa.com^
 ||analytics.visible.com^
+||analytics.vitalsignstracker.com^
 ||analytics.viture.dev^
 ||analytics.vivantskincare.com^
 ||analytics.vivint.com^
@@ -88705,6 +88706,7 @@
 ||wantingwindow.com^
 ||wao.atu.de^
 ||wap.mylifetime.com^
+||wap.qqbiquge.net^
 ||wap001.bytravel.cn^
 ||wap1.laogu.wang^
 ||wapn1.flosports.tv^
