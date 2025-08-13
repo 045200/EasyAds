@@ -1,148 +1,101 @@
 #!/usr/bin/env python3
 """
-多语法规则处理器（GitHub Action兼容版）
-特性：
-1. 完整保留GitHub风格的多规则语法识别（ABP/Hosts/Regex）
-2. 独立处理黑白名单去重
-3. 兼容原始文件目录结构
+终极规则分类器（严格分离黑白名单）
+功能：
+1. 白名单处理：仅提取@@规则和特殊放行格式，跳过所有黑名单规则
+2. 黑名单处理：仅提取非@@规则，跳过所有白名单规则
+3. 不保留任何注释或元数据
 """
 
 import re
-import os
 from pathlib import Path
-from typing import Set, Dict, Generator
-from dataclasses import dataclass
+from typing import Set
 import hashlib
 
-# 输入输出配置（与原始脚本完全一致）
-INPUT_DIR = Path('tmp')
-OUTPUT_DIR = Path('data/rules')
-ADBLOCK_PATTERN = 'adblock*.txt'
-ALLOW_PATTERN = 'allow*.txt'
+# 配置
+INPUT_DIR = Path('input_rules')
+OUTPUT_DIR = Path('processed_rules')
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-class RuleParser:
-    """GitHub风格多规则解析器（完整保留原特性）"""
+class RuleFilter:
+    """严格规则过滤器"""
     
-    # 预编译规则类型识别正则 [citation:1]
-    RULE_PATTERNS = {
-        'ABP': re.compile(r'^\|\|([^\s\\\/]+)\^?\$?\b'),
-        'HOSTS': re.compile(r'^(?:127\.0\.0\.1|0\.0\.0\.0|::)\s+([\w.-]+)'),
-        'REGEX': re.compile(r'^/(.+)/[gimsuy]*$'),
-        'COMMENT': re.compile(r'^[![]')
-    }
-    
-    @classmethod
-    def classify(cls, line: str) -> str:
-        """规则类型检测（增强版）[citation:1]"""
-        line = line.strip()
-        if not line:
-            return 'COMMENT'
-        
-        for rule_type, pattern in cls.RULE_PATTERNS.items():
-            if pattern.match(line):
-                return rule_type
-        return 'ABP'  # 默认按ABP规则处理
-
-    @classmethod
-    def normalize(cls, line: str) -> str:
-        """规则标准化转换（保留所有语法特性）[citation:1][citation:7]"""
-        rule_type = cls.classify(line)
-        
-        # 保留原始规则（特殊标记不转换）
-        if rule_type in ('ABP', 'REGEX', 'COMMENT'):
-            return line
-        
-        # 仅Hosts规则转换
-        if rule_type == 'HOSTS':
-            if match := cls.RULE_PATTERNS['HOSTS'].match(line):
-                return f"||{match.group(1)}^"
-        
-        return line
-
-@dataclass
-class RuleSets:
-    """分类型规则容器（增强去重控制）"""
-    black: Set[str]
-    white: Set[str]
-
-class AdvancedRuleProcessor:
-    def __init__(self):
-        # 独立去重池（增强版哈希算法）[citation:3]
-        self._seen_hashes = {
-            'black': set(),  # 黑名单去重池
-            'white': set()   # 白名单去重池
-        }
-
-    def _process_line(self, line: str) -> tuple[str, bool]:
-        """增强型行处理（保留所有语法特性）"""
-        raw_line = line.strip()
-        if RuleParser.classify(raw_line) == 'COMMENT':
-            return None, False
-
-        # 标准化处理（保留原始ABP/Regex规则）
-        processed = RuleParser.normalize(raw_line)
-        is_allow = raw_line.startswith('@@')
-        
-        # 分类型去重（基于标准化后的规则）[citation:3]
-        rule_hash = hashlib.sha256(processed.lower().encode()).hexdigest()
-        pool = 'white' if is_allow else 'black'
-        
-        if rule_hash in self._seen_hashes[pool]:
-            return None, False
-        
-        self._seen_hashes[pool].add(rule_hash)
-        return processed, is_allow
-
-    def process_files(self) -> RuleSets:
-        """处理流程（兼容原始文件结构）"""
-        rules = RuleSets(black=set(), white=set())
-
-        # 合并处理黑名单文件（支持多语法）
-        for file in INPUT_DIR.glob(ADBLOCK_PATTERN):
-            with open(file, 'r', encoding='utf-8', errors='replace') as f:
-                for line in f:
-                    rule, is_allow = self._process_line(line)
-                    if rule and not is_allow:
-                        rules.black.add(rule)
-
-        # 单独处理白名单文件（严格@@检测）
-        for file in INPUT_DIR.glob(ALLOW_PATTERN):
-            with open(file, 'r', encoding='utf-8', errors='replace') as f:
-                for line in f:
-                    rule, is_allow = self._process_line(line)
-                    if rule and is_allow:
-                        rules.white.add(rule)
-
-        return rules
-
+    # 白名单规则匹配（核心检测逻辑）
     @staticmethod
-    def _write_output(rules: RuleSets):
-        """保持原始输出结构（增强排序）[citation:2]"""
-        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    def is_allow_rule(line: str) -> bool:
+        line = line.strip()
+        return (
+            line.startswith('@@') or                  # 标准@@规则
+            re.match(r'^\d+\.\d+\.\d+\.\d+\s+@@', line) or  # Hosts放行格式
+            re.match(r'^@@\d+\.\d+\.\d+\.\d+', line)       # IP放行格式
+        ) and not line.startswith('!')               # 排除注释
+    
+    # 黑名单规则匹配（排除白名单后）
+    @staticmethod
+    def is_block_rule(line: str) -> bool:
+        line = line.strip()
+        return (
+            not line.startswith(('!', '@@')) and     # 非注释且非白名单
+            bool(re.match(r'^(\|\||\d+\.|##|/)', line))  # 匹配ABP/Hosts/元素隐藏/正则
 
-        # 黑名单输出（保留所有语法）
-        with open(OUTPUT_DIR / 'adblock.txt', 'w', encoding='utf-8') as f:
-            f.writelines(f"{r}\n" for r in sorted(rules.black, key=lambda x: (len(x), x.lower())))
-
-        # 白名单输出（严格@@开头）
-        with open(OUTPUT_DIR / 'allow.txt', 'w', encoding='utf-8') as f:
-            f.writelines(f"{r}\n" for r in sorted(rules.white, key=lambda x: (len(x), x.lower())))
-
-def main():
-    print("=" * 40)
-    print("多语法规则处理开始".center(40))
-    print("=" * 40)
-
-    processor = AdvancedRuleProcessor()
-    rules = processor.process_files()
-    processor._write_output(rules)
-
-    print(f"生成黑名单规则: {len(rules.black)} 条（支持ABP/Hosts/Regex语法）")
-    print(f"生成白名单规则: {len(rules.white)} 条（严格@@开头）")
-    print("=" * 40)
-    print("处理完成".center(40))
-    print("=" * 40)
+class RuleProcessor:
+    def __init__(self):
+        self.allow_rules: Set[str] = set()
+        self.block_rules: Set[str] = set()
+        self.allow_hashes: Set[str] = set()
+        self.block_hashes: Set[str] = set()
+    
+    def _hash_rule(self, rule: str) -> str:
+        """生成规则哈希（白名单区分大小写）"""
+        return hashlib.sha256(rule.encode()).hexdigest()
+    
+    def process_file(self, file_path: Path):
+        """处理单个文件"""
+        with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith('!'):
+                    continue  # 跳过空行和注释
+                
+                # 白名单处理（严格模式）
+                if RuleFilter.is_allow_rule(line):
+                    rule_hash = self._hash_rule(line)
+                    if rule_hash not in self.allow_hashes:
+                        self.allow_hashes.add(rule_hash)
+                        self.allow_rules.add(line)
+                    continue
+                
+                # 黑名单处理（排除白名单后）
+                if RuleFilter.is_block_rule(line):
+                    # 转换Hosts规则为ABP格式
+                    if line.startswith(('0.0.0.0', '127.0.0.1', '::')):
+                        if domain := re.match(r'^(?:\d+\.\d+\.\d+\.\d+|::)\s+([\w.-]+)', line):
+                            line = f"||{domain.group(1)}^"
+                    
+                    rule_hash = self._hash_rule(line.lower())  # 黑名单不区分大小写
+                    if rule_hash not in self.block_hashes:
+                        self.block_hashes.add(rule_hash)
+                        self.block_rules.add(line)
+    
+    def process_all(self):
+        """处理所有规则文件"""
+        for file in INPUT_DIR.glob('*.txt'):
+            self.process_file(file)
+        
+        # 保存结果
+        with open(OUTPUT_DIR / 'allow.txt', 'w') as f:
+            f.write("\n".join(sorted(self.allow_rules)))
+        
+        with open(OUTPUT_DIR / 'block.txt', 'w') as f:
+            f.write("\n".join(sorted(self.block_rules)))
+        
+        print(f"处理完成：白名单{len(self.allow_rules)}条 | 黑名单{len(self.block_rules)}条")
 
 if __name__ == '__main__':
-    INPUT_DIR.mkdir(exist_ok=True)
-    main()
+    print("=== 规则分类处理器 ===")
+    print("模式：严格分离黑白名单 | 不保留注释")
+    
+    processor = RuleProcessor()
+    processor.process_all()
+    
+    print(f"输出文件：{OUTPUT_DIR}/allow.txt 和 block.txt")
