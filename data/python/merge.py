@@ -23,39 +23,47 @@ class GitHubRuleMerger:
     __slots__ = ['black_rules', 'white_rules', '_patterns', 'config', '_logger']
     
     # GitHub Actions专用配置
-DEFAULT_CONFIG = {
-    'input_dir': os.getenv('INPUT_DIR', './tmp'),  # 输入目录路径，支持环境变量注入
-                                                  # 默认值: './tmp'
-                                                  # 建议: 保持默认或设置为GitHub工作空间子目录
-    
-    'output_dir': os.getenv('OUTPUT_DIR', './data/rules'),  # 输出目录路径，支持环境变量注入
-                                                          # 默认值: './data/rules'
-                                                          # 建议: 设置为可持久化的目录
-    
-    'keep_hosts_syntax': False,  # 是否保留原始hosts文件语法(如127.0.0.1 example.com)
-                                # 默认值: False (转换为AdBlock语法)
-                                # 建议: 仅在需要兼容旧系统时启用
-    
-    'remove_duplicates': True,  # 是否移除重复规则(基于BLAKE2哈希去重)
-                               # 默认值: True
-                               # 建议: 始终启用以提高规则质量
-    
-    'minify_output': True,  # 是否最小化输出(移除注释和空行)
-                          # 默认值: True
-                          # 建议: 生产环境启用，调试时禁用
-    
-    'max_file_size_mb': 50,  # 单个文件最大处理大小(MB)
-                            # 默认值: 50 (GitHub Actions内存限制考虑)
-                            # 警告: 超过此值将跳过处理
-    
-    'worker_threads': 4,  # 处理线程数(根据GitHub Actions机器配置优化)
-                         # 默认值: 4 (2vCPU环境最佳实践)
-                         # 范围: 1-8 (超过可能导致OOM)
-    
-    'timeout': 300,  # 整体处理超时时间(秒)
-                    # 默认值: 300 (5分钟)
-                    # 建议: 复杂规则集可增至600
-}
+    DEFAULT_CONFIG = {
+        # 输入目录路径，支持环境变量注入
+        # 默认值: './tmp'
+        # 建议: 保持默认或设置为GitHub工作空间子目录
+        'input_dir': os.getenv('INPUT_DIR', './tmp'),
+        
+        # 输出目录路径，支持环境变量注入
+        # 默认值: './data/rules'
+        # 建议: 设置为可持久化的目录
+        'output_dir': os.getenv('OUTPUT_DIR', './data/rules'),
+        
+        # 是否保留原始hosts文件语法(如127.0.0.1 example.com)
+        # 默认值: False (转换为AdBlock语法)
+        # 建议: 仅在需要兼容旧系统时启用
+        'keep_hosts_syntax': False,
+        
+        # 是否移除重复规则(基于BLAKE2哈希去重)
+        # 默认值: True
+        # 建议: 始终启用以提高规则质量
+        'remove_duplicates': True,
+        
+        # 是否最小化输出(移除注释和空行)
+        # 默认值: True
+        # 建议: 生产环境启用，调试时禁用
+        'minify_output': True,
+        
+        # 单个文件最大处理大小(MB)
+        # 默认值: 50 (GitHub Actions内存限制考虑)
+        # 警告: 超过此值将跳过处理
+        'max_file_size_mb': 50,
+        
+        # 处理线程数(根据GitHub Actions机器配置优化)
+        # 默认值: 4 (2vCPU环境最佳实践)
+        # 范围: 1-8 (超过可能导致OOM)
+        'worker_threads': 4,
+        
+        # 整体处理超时时间(秒)
+        # 默认值: 300 (5分钟)
+        # 建议: 复杂规则集可增至600
+        'timeout': 300,
+    }
 
     # 预编译正则（CI环境优化）
     _HOSTS_PATTERN = re.compile(r'^(?:127\.0\.0\.1|0\.0\.0\.0|::)\s+([\w.-]+)')
@@ -65,7 +73,7 @@ DEFAULT_CONFIG = {
         """初始化CI优化处理器"""
         self.black_rules = set()
         self.white_rules = set()
-        self.config = self.DEFAULT_CONFIG | kwargs
+        self.config = {**self.DEFAULT_CONFIG, **kwargs}
         self._logger = self._init_github_logger()
         self._compile_patterns()
 
@@ -92,7 +100,8 @@ DEFAULT_CONFIG = {
             ],
             'white': [
                 (re.compile(r'^@@\|\|([^\s\\\/]+)\^?$'), None),
-                (re.compile(r'^@@\d+\.\d+\.\d+\.\d+\s+([\w.-]+'), 
+                # 修复的正则表达式：添加了缺失的闭合括号和完整匹配
+                (re.compile(r'^@@\d+\.\d+\.\d+\.\d+\s+([\w.-]+)'), 
                  self._make_hosts_processor(white_list=True))
             ]
         }
@@ -158,7 +167,7 @@ DEFAULT_CONFIG = {
         """安全文件处理（带资源清理）"""
         file_size = file.stat().st_size
         max_size = self.config['max_file_size_mb'] * 1024 * 1024
-        
+
         if file_size > max_size:
             self._logger.warning(f"::warning::File too big {file.name} ({file_size/1024/1024:.1f}MB)")
             return
@@ -191,7 +200,7 @@ DEFAULT_CONFIG = {
 
         target = self.white_rules if is_whitelist else self.black_rules
         patterns = self._patterns['white' if is_whitelist else 'black']
-        
+
         for pattern, processor in patterns:
             if match := pattern.match(line):
                 rule = processor(match) if processor else line
@@ -216,7 +225,7 @@ DEFAULT_CONFIG = {
         fingerprint = lambda r: hashlib.blake2b(
             r.lower().encode(), digest_size=16
         ).hexdigest()
-        
+
         for rule in list(rules):
             fp = fingerprint(rule)
             if fp in seen or (is_whitelist and rule.startswith('@@') 
@@ -252,7 +261,7 @@ DEFAULT_CONFIG = {
 if __name__ == '__main__':
     start_time = time.monotonic()
     merger = GitHubRuleMerger()
-    
+
     try:
         success = merger.process_files()
         elapsed = time.monotonic() - start_time
