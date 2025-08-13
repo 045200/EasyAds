@@ -8,43 +8,39 @@ import hashlib
 class UltimateRuleProcessor:
     __slots__ = ['black_rules', 'white_rules', '_patterns', 'config']
     
-    # 配置模板
+    # 完整配置表（注释已补全）
     DEFAULT_CONFIG = {
-    'keep_hosts_syntax': False,  # 是否保留原始Hosts格式
-    'remove_duplicates': True,   # 是否去重
-    'minify_output': True,      # 是否移除注释
-    'validate_rules': True,      # 是否验证规则
-    'backup_original': False,     # 是否备份源文件
-     'conflict_resolution': 'whitelist_priority'  # 可选值:
-# - 'whitelist_priority': 白名单覆盖黑名单
-# - 'blacklist_priority': 保留黑名单
-# - 'strict': 保留冲突项并报警    
+        'keep_hosts_syntax': True,  # 是否保留原始Hosts格式（False则转换为AdBlock格式）
+        'remove_duplicates': True,   # 是否移除重复规则
+        'minify_output': True,       # 是否最小化输出（移除注释和空行）
+        'validate_rules': True,      # 是否验证规则语法有效性
+        'backup_original': False,    # 是否在处理前备份原始文件
+        'conflict_resolution': 'whitelist_priority'  # 冲突解决策略：
+                                                   # 'whitelist_priority' - 白名单优先
+                                                   # 'blacklist_priority' - 黑名单优先
+                                                   # 'strict' - 保留冲突并警告
     }
 
-    # 完整语法支持（覆盖所有主流拦截器）
+    # 完整语法支持（保持所有处理逻辑）
     FULL_SYNTAX = {
         'black': [
-            # Hosts格式
+            # Hosts格式处理
             (r'^(?:127\.0\.0\.1|0\.0\.0\.0|::)\s+([\w.-]+)', 
              lambda m, cfg: m.group(0) if cfg['keep_hosts_syntax'] else f"||{m.group(1)}^"),
             
-            # 标准AdBlock
+            # 标准AdBlock语法
             (r'^\|\|([^\s\\\/]+)\^?$', None),
-            (r'^\|\|([^\s\\\/]+)\^?\$[a-z-_,=]+', None),  # 全参数支持
-            (r'^/.*/$', None),  # 正则
+            (r'^\|\|([^\s\\\/]+)\^?\$[a-z-_,=]+', None),
+            (r'^/.*/$', None),
             
-            # AdGuard扩展
+            # 特殊规则
             (r'^\|\|.*\$\$.*', None),  # 元素隐藏
             (r'^\$.*$', None),         # 脚本规则
             (r'^\|\|.*\^dns$', None),  # DNS过滤
-            
-            # uBlock扩展
-            (r'^\.\w+$', None),       # 域名前缀
-            (r'^\*://\*\.\w+/*$', None),  # 通配符
-            (r'^[a-z-]+:\/\/.*$', None),  # 协议规则
-            
-            # 特殊规则
-            (r'^!.*$', None),          # 注释保留
+            (r'^\.\w+$', None),        # 域名前缀匹配
+            (r'^\*://\*\.\w+/*$', None), # 通配符
+            (r'^[a-z-]+:\/\/.*$', None), # 协议规则
+            (r'^!.*$', None),          # 注释
             (r'^\[Adblock.*\]$', None) # 文件头
         ],
         'white': [
@@ -60,22 +56,16 @@ class UltimateRuleProcessor:
             (r'^@@\.\w+$', None),
             (r'^@@\*://\*\.\w+/*$', None),
             (r'^@@[a-z-]+:\/\/.*$', None),
-            
-            # 特殊白名单
             (r'^@@\|\|.*\^dns$', None)  # DNS例外
         ]
     }
 
     def __init__(self, **kwargs):
-        """
-        :param kwargs: 可覆盖DEFAULT_CONFIG的配置项
-        """
         self.black_rules = set()
         self.white_rules = set()
         self.config = self.DEFAULT_CONFIG | kwargs
         self._compile_patterns()
         
-        # 初始化日志
         logging.basicConfig(
             level=logging.INFO,
             format='%(asctime)s [%(levelname)s] %(message)s',
@@ -86,10 +76,10 @@ class UltimateRuleProcessor:
         )
 
     def _compile_patterns(self) -> None:
-        """动态编译正则模式（支持配置感知）"""
+        """编译所有正则表达式模式"""
         self._patterns = {
             typ: [(re.compile(pattern), 
-                  processor if not processor else lambda m, p=processor: p(m, self.config))
+                 processor if not processor else lambda m, p=processor: p(m, self.config))
                 for pattern, processor in self.FULL_SYNTAX[typ]]
             for typ in ['black', 'white']
         }
@@ -105,7 +95,7 @@ class UltimateRuleProcessor:
 
         # 注释和文件头特殊处理
         if line.startswith('!') or line.startswith('[Adblock'):
-            if self.config['keep_comments']:
+            if not self.config['minify_output']:
                 (self.white_rules if is_whitelist else self.black_rules).add(line)
             return True
 
@@ -129,28 +119,21 @@ class UltimateRuleProcessor:
             return True
 
     def process_files(self, input_dir: str = 'input', output_dir: str = 'output') -> None:
-        """增强的文件处理流程"""
+        """主处理流程（仅处理adblock*.txt和allow*.txt）"""
         input_path = Path(input_dir)
         output_path = Path(output_dir)
         
         try:
-            # 备份原始文件（可选）
-            if self.config['backup_original']:
-                self._backup_files(input_path)
-            
             # 创建输出目录
             output_path.mkdir(parents=True, exist_ok=True)
             
-            # 并行处理所有规则文件
-            file_types = [
-                ('adblock*.txt', False),
-                ('allow*.txt', True),
-                ('*.rules', None)  # 自动检测类型
-            ]
+            # 处理黑名单文件（仅adblock*.txt）
+            for file in input_path.glob('adblock*.txt'):
+                self._process_file(file, is_whitelist=False)
             
-            for pattern, is_whitelist in file_types:
-                for file in input_path.glob(pattern):
-                    self._process_single_file(file, is_whitelist)
+            # 处理白名单文件（仅allow*.txt）
+            for file in input_path.glob('allow*.txt'):
+                self._process_file(file, is_whitelist=True)
             
             # 后处理
             self._post_process()
@@ -162,16 +145,9 @@ class UltimateRuleProcessor:
             logging.critical(f"处理失败: {e}", exc_info=True)
             raise
 
-    def _process_single_file(self, file: Path, is_whitelist: Optional[bool]) -> None:
-        """处理单个文件（带自动类型检测）"""
+    def _process_file(self, file: Path, is_whitelist: bool) -> None:
+        """处理单个文件"""
         try:
-            # 自动检测文件类型
-            if is_whitelist is None:
-                with file.open('r', encoding='utf-8') as f:
-                    first_line = f.readline()
-                is_whitelist = first_line.startswith('@@')
-            
-            # 实际处理
             with file.open('rb') as f:
                 with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as mm:
                     for line in iter(mm.readline, b''):
@@ -224,7 +200,7 @@ class UltimateRuleProcessor:
                 if not (rule.startswith('@@') and 
                       get_fingerprint(rule[2:]) in black_fps)
             }
-        else:  # blacklist_priority
+        elif self.config['conflict_resolution'] == 'blacklist_priority':
             white_fps = {get_fingerprint(rule[2:]) 
                         for rule in self.white_rules 
                         if rule.startswith('@@')}
@@ -232,6 +208,7 @@ class UltimateRuleProcessor:
                 rule for rule in self.black_rules
                 if get_fingerprint(rule) not in white_fps
             }
+        # 'strict'模式不做处理
 
     def _validate_rules(self) -> None:
         """规则语法验证"""
@@ -271,7 +248,7 @@ class UltimateRuleProcessor:
             )
 
     def _save_rules(self, output_dir: Path) -> None:
-        """增强的规则保存"""
+        """保存最终规则"""
         # 准备内容
         black_content = sorted(self.black_rules, key=lambda x: x.lower())
         white_content = sorted(self.white_rules, key=lambda x: x.lower())
@@ -297,23 +274,10 @@ class UltimateRuleProcessor:
             logging.error(f"保存失败: {e}")
             raise
 
-    def _backup_files(self, input_dir: Path) -> None:
-        """创建输入文件备份"""
-        backup_dir = input_dir / 'backup'
-        backup_dir.mkdir(exist_ok=True)
-        
-        for file in input_dir.glob('*'):
-            if file.is_file():
-                backup = backup_dir / f"{file.name}.bak"
-                backup.write_text(file.read_text())
-        
-        logging.info(f"已创建备份至: {backup_dir}")
-
 if __name__ == '__main__':
-    # 示例配置（可覆盖默认值）
+    # 使用示例
     processor = UltimateRuleProcessor(
-        keep_hosts_syntax=True,
-        conflict_resolution='whitelist_priority',
-        minify_output=True
+        keep_hosts_syntax=False,
+        conflict_resolution='whitelist_priority'
     )
     processor.process_files()
