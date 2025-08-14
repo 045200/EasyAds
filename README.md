@@ -83,7 +83,7 @@
 
 | 规则类型 | 📥 GitHub直链 | 🚀 国内加速链接 |
 | :---- | :---- | :---- |
-| Clash Mihomo规则 | [mihomo.mrs](https://raw.githubusercontent.com/045200/EasyAds/master/data/rules/mihomo.mrs) | [mihomo.mrs](https://ghfast.top/raw.githubusercontent.com/045200/EasyAds/master/data/rules/mihomo.mrs) |
+| Clash Mihomo规则 | [mihomo.mrs](https://raw.githubusercontent.com/045200/EasyAds/master/data/rules/adb.mrs) | [mihomo.mrs](https://ghfast.top/raw.githubusercontent.com/045200/EasyAds/master/data/rules/adb.mrs) |
 
 </details>
 
