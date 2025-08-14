@@ -2,9 +2,9 @@
 ! Title: EasyAds
 ! Homepage: https://github.com/045200/EasyAds
 ! Expires: 12 Hours
-! Version: 2025-08-14 12:43:20（北京时间）
+! Version: 2025-08-14 20:27:50（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 8624
+! Total count: 8626
 @@||dns.weixin.qq.com.cn^
 @@||fourier.alibaba.com^
 @@||umini.shujupie.com^
@@ -3527,6 +3527,7 @@
 @@||aboluowang.com^$generichide
 @@||about-australia.com/*/clickheat.js
 @@||abovetopsecret.com/ads.html$subdocument
+@@||abt.nike.com^$domain=nike.com
 @@||abysstream.com/ads.js$script
 @@||accaii.com^$domain=kyuusai2nd.net
 @@||account.adobe.com/newrelic.js$~third-party
@@ -6843,6 +6844,7 @@
 @@||play.dlsite.com/csr/viewer/lib/newrelic.js
 @@||play.google.com/log?$domain=meet.google.com
 @@||play.google.com/log?format=json$domain=news.google.com
+@@||play.history.com^$cookie=/^AMCVS?_.*AdobeOrg/
 @@||play.wtk.insys.pl/Scripts/InsysPlayer.v0.1.0/adTest.png$image
 @@||playbitco.in/show_ads.js$script
 @@||playep.pro/log_event$~third-party,xmlhttprequest
