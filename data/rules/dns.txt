@@ -2,9 +2,9 @@
 ! Title: EasyAds
 ! Homepage: https://github.com/045200/EasyAds
 ! Expires: 12 Hours
-! Version: 2025-08-14 00:23:48（北京时间）
+! Version: 2025-08-14 09:04:10（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 165462
+! Total count: 165467
 ||vbc08111op.com^
 ||uuyeghhbdhyetghuj.top^
 ||datakkko.top^
@@ -21553,6 +21553,7 @@
 ||d3plfjw9uod7ab.cloudfront.net^
 ||d3r7h55ola878c.cloudfront.net^
 ||d3s7ggfq1s6jlj.cloudfront.net^
+||d3s9in1sg.com^
 ||d3sbxpiag177w8.cloudfront.net^
 ||d3tglifpd8whs6.cloudfront.net^
 ||d3uvwl4wtkgzo1.cloudfront.net^
@@ -32755,6 +32756,7 @@
 ||gogovapps.actonservice.com^
 ||gogtm.timeeamare.ro^
 ||goi08130kh.com^
+||goi08131kh.com^
 ||goihs.kyliecosmetics.com^
 ||gokrafxr.icu^
 ||gold.questrade.com^
@@ -53749,6 +53751,7 @@
 ||oazzl.powderhound.london^
 ||ob.cheqzone.com^
 ||ob.esnlocco.com^
+||obdtfijian.com^
 ||obeliacallay.com^
 ||obetgtqx.calumet.de^
 ||obfnkc.yuool.com.br^
@@ -56433,6 +56436,7 @@
 ||plans.ceteraretirement.com^
 ||plans.fundtherebuild.com^
 ||plas.imfeld.dev^
+||plasmidjerky.com^
 ||platedmanlily.com^
 ||platform.iteratehq.com^
 ||platformsolutions.shutterstock.com^
@@ -80646,6 +80650,7 @@
 ||tidy.intel.in^
 ||tidy.intel.la^
 ||tidymitten.com^
+||tiengrelby.com^
 ||tiepinshazings.com^
 ||tieszhu.com^
 ||tif.ionos.com^
