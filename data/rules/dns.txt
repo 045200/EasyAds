@@ -2,9 +2,9 @@
 ! Title: EasyAds
 ! Homepage: https://github.com/045200/EasyAds
 ! Expires: 12 Hours
-! Version: 2025-08-16 09:01:16（北京时间）
+! Version: 2025-08-16 20:23:25（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 167155
+! Total count: 167168
 ||vbc08111op.com^
 ||uuyeghhbdhyetghuj.top^
 ||datakkko.top^
@@ -5001,6 +5001,7 @@
 ||0oqt9i.cn^
 ||0pdsa.icu^
 ||0r3tyg.cn^
+||0rvv7l6k7g.com^
 ||0sbm.consobaby.co.uk^
 ||0tfsd2rwwu3xjstb.edge41.testandtarget.omniture.com^
 ||0tq6ub.cn^
@@ -5411,6 +5412,7 @@
 ||5mc92su06suu.www.abhijith.page^
 ||5mltq.icu^
 ||5mm.zxfw5.cn^
+||5odd5zsn.xyz^
 ||5oovx2t8rl04.thebarrecollective.co^
 ||5pub.com^
 ||5uazcu2o1.com^
@@ -10086,6 +10088,7 @@
 ||ac1.pingpingw.com^
 ||ac9kpxbans1l.staging.unstoppabledomains.com^
 ||aca.circlepolicy.com^
+||academic96.top^
 ||academics.academicsuperstore.com^
 ||acadian-asset.actonservice.com^
 ||acasadf112.cn^
@@ -21669,6 +21672,7 @@
 ||d6ek.pandasuite.io^
 ||d6eka7.handigekasten.nl^
 ||d6eka7.vandouglashout.com^
+||d6hvvn5jvc.com^
 ||d6rak4b14t5gp.cloudfront.net^
 ||d712.theinformation.com^
 ||d761erxl2qywg.cloudfront.net^
@@ -27705,6 +27709,7 @@
 ||eel.ieo.do^
 ||eel.transistor.fm^
 ||eelkeageg.com^
+||eelw.cn^
 ||eennme.vidaxl.sk^
 ||eeoldm.onitsukatiger.com^
 ||eeqweqw.fun^
@@ -29893,6 +29898,7 @@
 ||fakedisguise.com^
 ||fakexa-post.mno.link^
 ||fakrul.mouribd.com^
+||fakxqq.cn^
 ||fal2.carrefour-banque.fr^
 ||falcon.designed.org^
 ||falcon.executeprogram.com^
@@ -32927,6 +32933,8 @@
 ||goi08130kh.com^
 ||goi08131kh.com^
 ||goi08141kh.com^
+||goi08160kh.com^
+||goi08161kh.com^
 ||goihs.kyliecosmetics.com^
 ||gokrafxr.icu^
 ||gold.questrade.com^
@@ -35786,6 +35794,7 @@
 ||gtreus.aliexpress.com^
 ||gtrib.kitandkaboodal.com^
 ||gtrk.s3.amazonaws.com^
+||gtrphahmu.com^
 ||gts.absulo.it^
 ||gts.cynomi.com^
 ||gts.qodo.ai^
@@ -40647,6 +40656,7 @@
 ||kbx.wested.com^
 ||kbzcg.ryzesuperfoods.com^
 ||kc.katieconsiders.com^
+||kc3mmffdbt.com^
 ||kcdrr.mesotheliomahope.com^
 ||kcecv.doctork.jp^
 ||kcglsiv.icu^
@@ -56456,6 +56466,7 @@
 ||piln.cn^
 ||pimormebwf.com^
 ||pimpoint.inriver.com^
+||pin6d37stu.com^
 ||pinchsquirrel.com^
 ||pincourse.com^
 ||pine.clk.click^
@@ -79773,6 +79784,7 @@
 ||t.goxavier.com^
 ||t.goyotes.com^
 ||t.gozips.com^
+||t.greenbids.ai^
 ||t.griztix.umt.edu^
 ||t.gseagles.com^
 ||t.hagebau.de^
@@ -89809,6 +89821,7 @@
 ||wb.g8financassistemicas.com.br^
 ||wb.momentuminvestments.io^
 ||wbcygu.wardow.com^
+||wbczkm.icu^
 ||wbe4.cn^
 ||wbiphu.johnbeerens.com^
 ||wbkdsg.xyz^
