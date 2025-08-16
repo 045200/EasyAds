@@ -2,9 +2,9 @@
 ! Title: EasyAds
 ! Homepage: https://github.com/045200/EasyAds
 ! Expires: 12 Hours
-! Version: 2025-08-15 20:25:39（北京时间）
+! Version: 2025-08-16 09:01:16（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 167144
+! Total count: 167155
 ||vbc08111op.com^
 ||uuyeghhbdhyetghuj.top^
 ||datakkko.top^
@@ -12067,6 +12067,7 @@
 ||analyticcdn.wlmediahub.com^
 ||analytics-1.cavai.com^
 ||analytics-api.a-f.io^
+||analytics-api.gemcommerce.com^
 ||analytics-api.invideo.io^
 ||analytics-api.klickly.com^
 ||analytics-api.liveapp.com^
@@ -12343,6 +12344,7 @@
 ||analytics.cornbreadorganics.com^
 ||analytics.corusent.com^
 ||analytics.cosmonova.net^
+||analytics.cosmopolitanmag.com.tr^
 ||analytics.craftygoblin.nl^
 ||analytics.crawfordcountybank.com^
 ||analytics.crazygames.com^
@@ -16216,6 +16218,7 @@
 ||barbadoshello.com^
 ||barbarousbase.com^
 ||barbatm.barbanegocios.com.br^
+||bariesnaw.com^
 ||barium.cheezdev.com^
 ||barnacle.big-in-japan.com^
 ||barnacle.hearmeout.work^
@@ -17059,6 +17062,7 @@
 ||boelsl.lastijerasmagicas.com^
 ||boewzj.meiji-jisho.com^
 ||bogcig.blockofgear.com^
+||bogydompays.com^
 ||bohee.med-gesund.de^
 ||bohtf.beardbrand.com^
 ||boii.boirath.shop^
@@ -29008,6 +29012,7 @@
 ||erutinmos.snagajob.com^
 ||erutvncw.top^
 ||ervaring.theqlounge.nl^
+||erwflorcelkn.xyz^
 ||es-business.vodafone.com^
 ||es-es.siemensplmevents.com^
 ||es-go.experian.com^
@@ -40699,6 +40704,7 @@
 ||keep.ricomoda.com^
 ||keeper.fs1inc.com^
 ||kefscj.location-vacances-express.com^
+||kellethelix.com^
 ||kemmars.com^
 ||kennisdomein.pqr.com^
 ||kenuu.howardbentleyauto.com^
@@ -51836,6 +51842,7 @@
 ||millswell.com^
 ||milseycurly.com^
 ||mimakiusa.actonservice.com^
+||mimamsaslews.com^
 ||mimosamajor.com^
 ||mindfulgem.com^
 ||mindlessmark.com^
@@ -53892,6 +53899,7 @@
 ||nu.esri.nl^
 ||nuahla.telecommande-express.com^
 ||nubap.buffalojeans.com^
+||nubbycoolly.com^
 ||nucgsx.indestructibleshoes.com^
 ||nuctok.topten10mall.com^
 ||nudgeduck.com^
@@ -65655,6 +65663,7 @@
 ||silkworm.westwoodmbc.org^
 ||sillyscrew.com^
 ||silverfish.djordjevanjek.com^
+||simetra.tracking.ringieraxelspringer.tech^
 ||simg.bwin.be^
 ||simg.bwin.com^
 ||simg.bwin.es^
@@ -90524,6 +90533,7 @@
 ||wildwoodavenue.com^
 ||wiley.met.vgwort.de^
 ||wiliestreacher.com^
+||wiltinfume.com^
 ||win.staticstuff.net^
 ||win.websearchertrk.com^
 ||windowylarvule.com^
@@ -90783,6 +90793,7 @@
 ||wssgmstats.vibbo.com^
 ||wsstats.coches.net^
 ||wstat.ozon.ru^
+||wstats.ageverif.com^
 ||wstats.e-wok.tv^
 ||wstats.gameblog.fr^
 ||wstats.slashed.cloud^
