@@ -2,9 +2,9 @@
 ! Title: EasyAds
 ! Homepage: https://github.com/045200/EasyAds
 ! Expires: 12 Hours
-! Version: 2025-08-16 20:23:25（北京时间）
+! Version: 2025-08-17 09:08:37（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
-! Total count: 167168
+! Total count: 167170
 ||vbc08111op.com^
 ||uuyeghhbdhyetghuj.top^
 ||datakkko.top^
@@ -11613,6 +11613,7 @@
 ||akcze.dysoncanada.ca^
 ||akgnwd.tocris.com^
 ||akhedh.teno.com^
+||akhirzaea.com^
 ||akhlamesouchy.com^
 ||akjfo.sunrisecapitalgroup.com^
 ||akkieh.yumeyakata.com^
@@ -54290,6 +54291,7 @@
 ||ohtdbl.mister-auto.es^
 ||ohtusgy.icu^
 ||ohuvee.mokkimies.com^
+||ohwb.cn^
 ||ohxrqr.ilvi.com^
 ||oia04300klq.com^
 ||oiat.dow.com^
