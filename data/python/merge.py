@@ -5,75 +5,37 @@ from pathlib import Path
 
 os.chdir('tmp')
 
-# 折中方案核心匹配规则
-ALLOW_PATTERN = re.compile(
-    r'^@@\|\|[\w.-]+\^?(\$~?[\w,=-]+)?|'  # 域名规则+基础修饰符
-    r'^@@##.+|'                           # 元素隐藏例外
-    r'^@@/[^/]+/|'                        # 正则例外
-    r'^@@\d+\.\d+\.\d+\.\d+'              # IP例外
+# 完整AdGuard语法匹配规则
+FULL_SYNTAX = re.compile(
+    r'^(\|\|)?[\w.-]+\^?(\$[\w,=-]+)?$|'          # 基础域名规则
+    r'^@@(\|\|)?[\w.-]+\^?(\$[\w,=-]+)?$|'        # 例外规则
+    r'^/[\w\W]+/$|^@@/[\w\W]+/$|'                # 正则规则
+    r'^##.+$|^@@##.+$|'                          # 元素隐藏规则
+    r'^\d+\.\d+\.\d+\.\d+\s+[\w.-]+$|'           # Hosts格式
+    r'^\|\|[\w.-]+\^\$dnstype=\w+$|'             # DNS类型规则
+    r'^@@\|\|[\w.-]+\^\$dnstype=\w+$|'           # DNS例外
+    r'^\|\|[\w.-]+\^\$dnsrewrite=\w+$|'          # DNS重写
+    r'^@@\|\|[\w.-]+\^\$dnsrewrite=NOERROR$'     # DNS重写例外
 )
 
-BLOCK_PATTERN = re.compile(
-    r'^\|\|[\w.-]+\^(\$~?[\w,=-]+)?|'     # 域名规则+基础修饰符
-    r'^/[\w/-]+/|'                        # 正则规则
-    r'^##.+|'                             # 元素隐藏
-    r'^\d+\.\d+\.\d+\.\d+\s+[\w.-]+'      # Hosts格式
-)
+def clean_rules(content):
+    """高效规则清理函数（保留全语法）"""
+    return '\n'.join(
+        line.strip() for line in content.splitlines() 
+        if line.strip() and FULL_SYNTAX.match(line.strip())
+    )
 
-def clean_rules(content, pattern):
-    """通用规则清理函数"""
-    content = re.sub(r'^[!#].*$\n', '', content, flags=re.MULTILINE)
-    return '\n'.join(line for line in content.splitlines() if pattern.search(line))
+def merge_files(pattern, output_file):
+    """合并文件并清理规则"""
+    with open(output_file, 'w', encoding='utf-8') as out:
+        for file in glob.glob(pattern):
+            with open(file, 'r', encoding='utf-8', errors='ignore') as f:
+                cleaned = clean_rules(f.read())
+                if cleaned:
+                    out.write(cleaned + '\n')
 
-def extract_allow_rules(content):
-    """从黑名单内容中提取白名单规则"""
-    # 匹配黑名单中可能存在的例外规则（如@@开头的规则）
-    return '\n'.join(line for line in content.splitlines() 
-                   if line.startswith('@@') and ALLOW_PATTERN.search(line))
-
-print("合并拦截规则")
-with open('combined_adblock.txt', 'w', encoding='utf-8') as outfile:
-    for file in glob.glob('adblock*.txt'):
-        with open(file, 'r', encoding='utf-8', errors='ignore') as infile:
-            outfile.write(infile.read() + '\n')
-
-# 处理黑名单并提取潜在白名单
-with open('combined_adblock.txt', 'r', encoding='utf-8') as f:
-    block_content = f.read()
-    extracted_allow = extract_allow_rules(block_content)  # 新增提取逻辑
-    cleaned_block = clean_rules(block_content, BLOCK_PATTERN)
-
-with open('cleaned_adblock.txt', 'w', encoding='utf-8') as f:
-    f.write(cleaned_block)
-
-print("合并白名单规则")
-with open('combined_allow.txt', 'w', encoding='utf-8') as outfile:
-    for file in glob.glob('allow*.txt'):
-        with open(file, 'r', encoding='utf-8', errors='ignore') as infile:
-            outfile.write(infile.read() + '\n')
-
-# 合并提取的白名单规则
-with open('combined_allow.txt', 'r', encoding='utf-8') as f:
-    allow_content = f.read() + '\n' + extracted_allow  # 合并提取的规则
-    cleaned_allow = clean_rules(allow_content, ALLOW_PATTERN)
-
-with open('cleaned_allow.txt', 'w', encoding='utf-8') as f:
-    f.write(cleaned_allow)
-
-print("生成最终规则")
-with open('cleaned_adblock.txt', 'a', encoding='utf-8') as f:
-    f.write('\n' + cleaned_allow)
-
-# 最终白名单文件（包含从黑名单提取的规则）
-with open('allow.txt', 'w', encoding='utf-8') as f:
-    f.write(cleaned_allow)  # 直接使用已清理的白名单内容
-
-# 文件移动和去重
-target_dir = Path('../data/rules/')
-target_dir.mkdir(exist_ok=True)
-
-def deduplicate_file(filepath):
-    """专业去重函数（保留顺序且不区分大小写）"""
+def deduplicate(filepath):
+    """高效去重（保留顺序）"""
     with open(filepath, 'r+', encoding='utf-8') as f:
         seen = set()
         unique_lines = []
@@ -86,12 +48,20 @@ def deduplicate_file(filepath):
         f.writelines(unique_lines)
         f.truncate()
 
-Path('cleaned_adblock.txt').rename(target_dir / 'adblock.txt')
+# 处理拦截规则
+merge_files('adblock*.txt', 'adblock.txt')
+
+# 处理白名单规则
+merge_files('allow*.txt', 'allow.txt')
+
+# 移动文件到目标目录
+target_dir = Path('../')
+target_dir.mkdir(exist_ok=True)
+Path('adblock.txt').rename(target_dir / 'adblock.txt')
 Path('allow.txt').rename(target_dir / 'allow.txt')
 
-print("规则去重")
+# 去重处理
 for file in [target_dir / 'adblock.txt', target_dir / 'allow.txt']:
-    if file.exists():
-        deduplicate_file(file)
+    deduplicate(file)
 
-print("处理完成")
+print("规则处理完成")
