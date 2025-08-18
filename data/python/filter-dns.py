@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-高效黑名单处理器 - 统一路径版
-支持完整 AdGuard Home 语法 | 特殊语法跳过验证 | GitHub CI 优化
+高效黑名单处理器 - GitHub Actions 优化版
+支持完整 AdGuard Home 语法 | 特殊语法跳过验证 | 极速 DNS 验证
 """
 
 # ======================
@@ -10,10 +10,10 @@
 INPUT_FILE = "adblock.txt"         # 输入文件（仓库根目录）
 OUTPUT_ADGUARD = "dns.txt"         # AdGuard输出（仓库根目录）
 OUTPUT_HOSTS = "hosts.txt"         # Hosts输出（仓库根目录）
-MAX_WORKERS = 4                    # CI环境推荐4工作线程
-TIMEOUT = 2                        # CI环境推荐2秒超时
+MAX_WORKERS = 6                    # 优化线程数（GitHub Actions 推荐）
+TIMEOUT = 1.5                      # DNS查询超时（1.5秒）
 DNS_VALIDATION = True              # DNS验证开关
-BATCH_SIZE = 5000                  # 分批处理大小
+BATCH_SIZE = 10000                 # 分批处理大小（内存优化）
 
 # ======================
 # 脚本主体
@@ -22,10 +22,10 @@ import os
 import sys
 import re
 import time
-import random
 import logging
-import socket
 import concurrent.futures
+import asyncio
+import aiodns
 from pathlib import Path
 from typing import Tuple, Optional, List, Set, Iterator
 
@@ -43,169 +43,146 @@ logging.basicConfig(
     handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
-class RuleValidator:
-    """规则验证器 - 使用GitHub环境变量"""
-    # DNS服务器
-    DNS_SERVERS = (
-        "223.5.5.5",        # 阿里DNS
-        "119.29.29.29",     # 腾讯DNS
-        "1.1.1.1",          # Cloudflare
-        "8.8.8.8",          # Google DNS
-    )
+class DNSValidator:
+    """高性能异步DNS验证器"""
+    DNS_SERVERS = [
+        "223.5.5.5",        # 阿里DNS（亚洲）
+        "119.29.29.29",     # 腾讯DNS（亚洲）
+        "1.1.1.1",          # Cloudflare（全球）
+        "8.8.8.8",          # Google DNS（全球）
+    ]
     
     def __init__(self):
-        # 使用集合存储域名缓存
-        self.valid_domains = set()
-        self.invalid_domains = set()
+        self.resolver = None
+        self.valid_cache = set()
+        self.invalid_cache = set()
+        
+    async def setup(self):
+        """初始化异步解析器"""
+        loop = asyncio.get_running_loop()
+        self.resolver = aiodns.DNSResolver(loop=loop, timeout=TIMEOUT)
+        # 随机化服务器列表
+        self.resolver.nameservers = self.DNS_SERVERS.copy()
+        random.shuffle(self.resolver.nameservers)
     
-    def validate_rule(self, rule: str) -> Tuple[Optional[str], Optional[List[str]]]:
-        """验证单条规则"""
+    async def is_valid_domain(self, domain: str) -> bool:
+        """验证域名有效性"""
+        # 检查缓存
+        if domain in self.valid_cache:
+            return True
+        if domain in self.invalid_cache:
+            return False
+            
+        # 异步DNS查询
+        try:
+            await self.resolver.query(domain, 'A')
+            self.valid_cache.add(domain)
+            return True
+        except (aiodns.error.DNSError, asyncio.TimeoutError):
+            try:
+                # 尝试CNAME记录
+                await self.resolver.query(domain, 'CNAME')
+                self.valid_cache.add(domain)
+                return True
+            except (aiodns.error.DNSError, asyncio.TimeoutError):
+                self.invalid_cache.add(domain)
+                return False
+
+class RuleProcessor:
+    """规则处理器（无状态）"""
+    @staticmethod
+    def parse_rule(rule: str) -> Tuple[Optional[str], Optional[List[str]]]:
+        """解析单条规则"""
         # 跳过注释和头部声明
         if COMMENT_RULE.match(rule):
             return None, None
-        
+
         # 跳过例外规则
         if EXCEPTION_RULE.match(rule):
             return None, None
-        
+
         # 特殊语法直接写入
         if ADG_SPECIAL.match(rule):
             return rule, None
-        
+
         # 尝试解析为AdGuard规则
-        if domain := self._parse_adguard(rule):
-            if not DNS_VALIDATION or self._is_domain_valid(domain):
-                return rule, [f"0.0.0.0 {domain}"]
-            return None, None
-        
+        if domain := RuleProcessor._parse_adguard(rule):
+            return rule, [f"0.0.0.0 {domain}"]
+
         # 尝试解析为Hosts规则
-        if result := self._parse_hosts(rule):
+        if result := RuleProcessor._parse_hosts(rule):
             ip, domains = result
-            valid_domains = [d for d in domains if not DNS_VALIDATION or self._is_domain_valid(d)]
-            if not valid_domains:
-                return None, None
-            return f"{ip} {' '.join(valid_domains)}", [f"{ip} {d}" for d in valid_domains]
-        
+            return f"{ip} {' '.join(domains)}", [f"{ip} {d}" for d in domains]
+
         # 无法识别的规则直接写入
         return rule, None
-    
-    def _parse_adguard(self, rule: str) -> Optional[str]:
+
+    @staticmethod
+    def _parse_adguard(rule: str) -> Optional[str]:
         """解析AdGuard规则"""
         if match := ADG_DOMAIN.match(rule):
             return next((g for g in match.groups() if g), "").lower()
         return None
-    
-    def _parse_hosts(self, rule: str) -> Optional[Tuple[str, List[str]]]:
+
+    @staticmethod
+    def _parse_hosts(rule: str) -> Optional[Tuple[str, List[str]]]:
         """解析Hosts规则"""
         if match := HOSTS_RULE.match(rule):
             ip = match.group(1)
             domains = [d.lower() for d in match.group(2).split()]
             return ip, domains
         return None
-    
-    def _is_domain_valid(self, domain: str) -> bool:
-        """验证域名有效性"""
-        if domain in self.valid_domains:
-            return True
-        if domain in self.invalid_domains:
-            return False
-        
-        is_valid = self._dns_query(domain)
-        
-        if is_valid:
-            self.valid_domains.add(domain)
-        else:
-            self.invalid_domains.add(domain)
-        
-        return is_valid
-    
-    def _dns_query(self, domain: str) -> bool:
-        """DNS查询实现"""
-        # 尝试系统DNS
-        try:
-            socket.getaddrinfo(domain, 80)
-            return True
-        except socket.gaierror:
-            pass
-        
-        # 随机选择DNS服务器
-        server = random.choice(self.DNS_SERVERS)
-        
-        # 使用UDP套接字查询
-        try:
-            resolver = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            resolver.settimeout(TIMEOUT)
-            
-            # 构造DNS查询
-            query_id = random.randint(0, 65535)
-            query = bytearray()
-            query += query_id.to_bytes(2, 'big')  # 事务ID
-            query += b"\x01\x00"                  # 标志
-            query += b"\x00\x01"                  # 问题数
-            query += b"\x00\x00" * 3              # 其他部分置零
-            
-            # 域名编码
-            for part in domain.encode().split(b"."):
-                query.append(len(part))
-                query += part
-            query += b"\x00"                      # 结束
-            
-            query += b"\x00\x01"                  # A记录
-            query += b"\x00\x01"                  # IN类
-            
-            # 发送并接收
-            resolver.sendto(query, (server, 53))
-            response, _ = resolver.recvfrom(512)
-            
-            # 基础验证
-            return (len(response) > 12 and 
-                    response[:2] == query_id.to_bytes(2, 'big') and
-                    response[3] & 0x0F == 0)
-        except Exception:
-            return False
 
 class BlacklistProcessor:
     """黑名单处理器"""
     def __init__(self):
-        self.validator = RuleValidator()
         self.adguard_rules = set()
         self.hosts_rules = set()
         self.processed_count = 0
         self.start_time = time.time()
-    
-    def process(self):
+        self.dns_validator = DNSValidator()
+        
+    async def process(self):
         """主处理流程"""
-        logger.info("启动规则处理")
+        logger.info("🚀 启动规则处理引擎")
         
         # 获取工作区路径
-        if "GITHUB_WORKSPACE" in os.environ:
-            workspace = Path(os.environ["GITHUB_WORKSPACE"])
-            logger.info(f"使用GITHUB_WORKSPACE: {workspace}")
-        else:
-            workspace = Path.cwd()
-            logger.info(f"使用当前工作目录: {workspace}")
-        
+        workspace = self._get_workspace()
         input_path = workspace / INPUT_FILE
-        logger.info(f"输入文件: {input_path}")
+        logger.info(f"📂 输入文件: {input_path}")
         
         # 检查文件是否存在
         if not input_path.exists():
-            logger.error(f"输入文件不存在: {input_path}")
-            logger.info("请确保文件位于仓库根目录")
+            logger.error(f"❌ 输入文件不存在: {input_path}")
+            logger.info("💡 请确保文件位于仓库根目录")
             sys.exit(1)
         
-        # 分批处理文件
-        for batch in self._read_batches(input_path):
-            with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-                futures = [executor.submit(self.validator.validate_rule, line) for line in batch]
-                
-                for future in concurrent.futures.as_completed(futures):
-                    self._handle_result(future.result())
-                    self._log_progress()
+        # 初始化DNS验证器
+        if DNS_VALIDATION:
+            logger.info("🔍 初始化DNS验证器...")
+            await self.dns_validator.setup()
         
+        # 处理规则
+        await self._process_file(input_path)
+        
+        # 保存结果
         self._save_results(workspace)
         self._print_summary()
+    
+    def _get_workspace(self) -> Path:
+        """获取工作区路径"""
+        if "GITHUB_WORKSPACE" in os.environ:
+            return Path(os.environ["GITHUB_WORKSPACE"])
+        return Path.cwd()
+    
+    async def _process_file(self, input_path: Path):
+        """处理输入文件"""
+        batch_count = 0
+        for batch in self._read_batches(input_path):
+            batch_count += 1
+            await self._process_batch(batch, batch_count)
     
     def _read_batches(self, input_path: Path) -> Iterator[List[str]]:
         """分批读取文件"""
@@ -220,26 +197,40 @@ class BlacklistProcessor:
             if batch:
                 yield batch
     
-    def _handle_result(self, result: Tuple[Optional[str], Optional[List[str]]]):
-        """处理验证结果"""
-        adguard_rule, hosts_rules = result
-        if adguard_rule:
-            self.adguard_rules.add(adguard_rule)
-        if hosts_rules:
-            self.hosts_rules.update(hosts_rules)
-        self.processed_count += 1
-    
-    def _log_progress(self):
-        """记录处理进度"""
-        if self.processed_count % 2000 == 0:
-            elapsed = time.time() - self.start_time
-            rate = self.processed_count / elapsed if elapsed > 0 else 0
-            logger.info(
-                f"已处理: {self.processed_count} | "
-                f"AdGuard规则: {len(self.adguard_rules)} | "
-                f"Hosts规则: {len(self.hosts_rules)} | "
-                f"速度: {rate:.1f} 条/秒"
-            )
+    async def _process_batch(self, batch: List[str], batch_num: int):
+        """处理一批规则"""
+        batch_start = time.time()
+        valid_count = 0
+        
+        # 处理规则
+        for rule in batch:
+            adguard_rule, hosts_rules = RuleProcessor.parse_rule(rule)
+            
+            # 验证规则
+            if adguard_rule and hosts_rules and DNS_VALIDATION:
+                domain = rule.split()[-1] if hosts_rules else ""
+                if domain and not await self.dns_validator.is_valid_domain(domain):
+                    continue
+                
+            # 添加有效规则
+            if adguard_rule:
+                self.adguard_rules.add(adguard_rule)
+            if hosts_rules:
+                self.hosts_rules.update(hosts_rules)
+                
+            self.processed_count += 1
+            valid_count += 1
+        
+        # 记录进度
+        batch_time = time.time() - batch_start
+        total_time = time.time() - self.start_time
+        logger.info(
+            f"📦 批次 #{batch_num} | "
+            f"规则: {valid_count}/{len(batch)} | "
+            f"批次耗时: {batch_time:.2f}s | "
+            f"累计: {self.processed_count} | "
+            f"总耗时: {total_time:.1f}s"
+        )
     
     def _save_results(self, workspace: Path):
         """保存结果文件"""
@@ -257,22 +248,22 @@ class BlacklistProcessor:
     def _print_summary(self):
         """打印摘要信息"""
         total_time = time.time() - self.start_time
-        logger.info(
-            f"处理完成! 耗时: {total_time:.1f}秒 | "
-            f"总数: {self.processed_count} | "
-            f"AdGuard规则: {len(self.adguard_rules)} | "
-            f"Hosts规则: {len(self.hosts_rules)}"
-        )
-        logger.info(f"输出文件: {OUTPUT_ADGUARD}, {OUTPUT_HOSTS}")
+        logger.info("✅ 处理完成!")
+        logger.info(f"⏱️ 总耗时: {total_time:.1f}秒")
+        logger.info(f"📊 处理规则: {self.processed_count}")
+        logger.info(f"🛡️ AdGuard规则: {len(self.adguard_rules)}")
+        logger.info(f"💾 Hosts规则: {len(self.hosts_rules)}")
+        logger.info(f"💾 输出文件: {OUTPUT_ADGUARD}, {OUTPUT_HOSTS}")
 
 if __name__ == "__main__":
+    import random
     try:
         processor = BlacklistProcessor()
-        processor.process()
+        asyncio.run(processor.process())
         sys.exit(0)
     except KeyboardInterrupt:
-        logger.info("处理已中断")
+        logger.info("⛔ 处理已中断")
         sys.exit(1)
     except Exception as e:
-        logger.error(f"处理失败: {str(e)}")
+        logger.error(f"🔥 处理失败: {str(e)}")
         sys.exit(1)
