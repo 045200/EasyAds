@@ -535,7 +535,7 @@ class BlacklistProcessor:
             logger.error(f"输入文件不存在: {input_path}")
             sys.exit(1)
     
-    def _handle_result(self, result: Tuple[Optional[str], Optional[List[str]]):
+    def _handle_result(self, result: Tuple[Optional[str], Optional[List[str]]]):
         """处理验证结果"""
         adguard_rule, hosts_rules = result
         if adguard_rule:
