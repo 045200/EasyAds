@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-高效黑名单处理器 - CI路径修复版
+高效黑名单处理器 - 统一路径版
 支持完整 AdGuard Home 语法 | 特殊语法跳过验证 | GitHub CI 优化
 """
 
 # ======================
 # 配置区
 # ======================
-INPUT_FILE = "adblock.txt"         # 输入文件
-OUTPUT_ADGUARD = "dns.txt"         # AdGuard输出
-OUTPUT_HOSTS = "hosts.txt"         # Hosts输出
+INPUT_FILE = "adblock.txt"         # 输入文件（仓库根目录）
+OUTPUT_ADGUARD = "dns.txt"         # AdGuard输出（仓库根目录）
+OUTPUT_HOSTS = "hosts.txt"         # Hosts输出（仓库根目录）
 MAX_WORKERS = 4                    # CI环境推荐4工作线程
 TIMEOUT = 2                        # CI环境推荐2秒超时
 DNS_VALIDATION = True              # DNS验证开关
@@ -44,30 +44,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-class PathResolver:
-    """路径解析器 - GitHub CI 优化版"""
-    @staticmethod
-    def resolve_path(relative_path: str) -> Path:
-        """解析相对路径为绝对路径 - 适应GitHub CI目录结构"""
-        # 优先使用GitHub工作流环境变量
-        if "GITHUB_WORKSPACE" in os.environ:
-            base_dir = Path(os.environ["GITHUB_WORKSPACE"])
-            logger.info(f"使用GITHUB_WORKSPACE路径: {base_dir}")
-            return base_dir / relative_path
-        
-        # 使用脚本路径推导
-        script_dir = Path(__file__).parent.resolve()
-        
-        # 检查脚本是否在仓库的data/python目录中
-        if "data/python" in str(script_dir):
-            return script_dir.parent.parent / relative_path
-        
-        # 如果不在标准位置，使用脚本目录的父目录作为基础
-        return script_dir.parent / relative_path
-
 class RuleValidator:
-    """规则验证器 - 预编译正则优化"""
-    # DNS服务器 - 使用元组减少内存占用
+    """规则验证器 - 使用GitHub环境变量"""
+    # DNS服务器
     DNS_SERVERS = (
         "223.5.5.5",        # 阿里DNS
         "119.29.29.29",     # 腾讯DNS
@@ -81,7 +60,7 @@ class RuleValidator:
         self.invalid_domains = set()
     
     def validate_rule(self, rule: str) -> Tuple[Optional[str], Optional[List[str]]]:
-        """验证单条规则 - 优化性能"""
+        """验证单条规则"""
         # 跳过注释和头部声明
         if COMMENT_RULE.match(rule):
             return None, None
@@ -112,14 +91,13 @@ class RuleValidator:
         return rule, None
     
     def _parse_adguard(self, rule: str) -> Optional[str]:
-        """解析AdGuard规则 - 使用预编译正则"""
+        """解析AdGuard规则"""
         if match := ADG_DOMAIN.match(rule):
-            # 返回第一个非空匹配组
             return next((g for g in match.groups() if g), "").lower()
         return None
     
     def _parse_hosts(self, rule: str) -> Optional[Tuple[str, List[str]]]:
-        """解析Hosts规则 - 使用预编译正则"""
+        """解析Hosts规则"""
         if match := HOSTS_RULE.match(rule):
             ip = match.group(1)
             domains = [d.lower() for d in match.group(2).split()]
@@ -127,7 +105,7 @@ class RuleValidator:
         return None
     
     def _is_domain_valid(self, domain: str) -> bool:
-        """验证域名有效性 - 使用缓存优化"""
+        """验证域名有效性"""
         if domain in self.valid_domains:
             return True
         if domain in self.invalid_domains:
@@ -143,8 +121,8 @@ class RuleValidator:
         return is_valid
     
     def _dns_query(self, domain: str) -> bool:
-        """DNS查询实现 - 精简高效版"""
-        # 尝试系统DNS - 最快方式
+        """DNS查询实现"""
+        # 尝试系统DNS
         try:
             socket.getaddrinfo(domain, 80)
             return True
@@ -159,7 +137,7 @@ class RuleValidator:
             resolver = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             resolver.settimeout(TIMEOUT)
             
-            # 构造精简DNS查询
+            # 构造DNS查询
             query_id = random.randint(0, 65535)
             query = bytearray()
             query += query_id.to_bytes(2, 'big')  # 事务ID
@@ -180,7 +158,7 @@ class RuleValidator:
             resolver.sendto(query, (server, 53))
             response, _ = resolver.recvfrom(512)
             
-            # 基础验证: 响应长度、事务ID、响应码
+            # 基础验证
             return (len(response) > 12 and 
                     response[:2] == query_id.to_bytes(2, 'big') and
                     response[3] & 0x0F == 0)
@@ -188,7 +166,7 @@ class RuleValidator:
             return False
 
 class BlacklistProcessor:
-    """黑名单处理器 - 内存优化版"""
+    """黑名单处理器"""
     def __init__(self):
         self.validator = RuleValidator()
         self.adguard_rules = set()
@@ -197,18 +175,24 @@ class BlacklistProcessor:
         self.start_time = time.time()
     
     def process(self):
-        """主处理流程 - 分批处理优化内存"""
-        logger.info("启动规则处理 (CI优化版)")
-        input_path = PathResolver.resolve_path(INPUT_FILE)
+        """主处理流程"""
+        logger.info("启动规则处理")
+        
+        # 获取工作区路径
+        if "GITHUB_WORKSPACE" in os.environ:
+            workspace = Path(os.environ["GITHUB_WORKSPACE"])
+            logger.info(f"使用GITHUB_WORKSPACE: {workspace}")
+        else:
+            workspace = Path.cwd()
+            logger.info(f"使用当前工作目录: {workspace}")
+        
+        input_path = workspace / INPUT_FILE
         logger.info(f"输入文件: {input_path}")
         
         # 检查文件是否存在
         if not input_path.exists():
             logger.error(f"输入文件不存在: {input_path}")
-            logger.info("请检查路径是否正确:")
-            logger.info(f"当前工作目录: {Path.cwd()}")
-            if "GITHUB_WORKSPACE" in os.environ:
-                logger.info(f"GITHUB_WORKSPACE: {os.environ['GITHUB_WORKSPACE']}")
+            logger.info("请确保文件位于仓库根目录")
             sys.exit(1)
         
         # 分批处理文件
@@ -220,11 +204,11 @@ class BlacklistProcessor:
                     self._handle_result(future.result())
                     self._log_progress()
         
-        self._save_results()
+        self._save_results(workspace)
         self._print_summary()
     
     def _read_batches(self, input_path: Path) -> Iterator[List[str]]:
-        """分批读取文件 - 减少内存占用"""
+        """分批读取文件"""
         batch = []
         with open(input_path, 'r', encoding='utf-8') as f:
             for line in f:
@@ -237,7 +221,7 @@ class BlacklistProcessor:
                 yield batch
     
     def _handle_result(self, result: Tuple[Optional[str], Optional[List[str]]]):
-        """处理验证结果 - 精简高效"""
+        """处理验证结果"""
         adguard_rule, hosts_rules = result
         if adguard_rule:
             self.adguard_rules.add(adguard_rule)
@@ -246,8 +230,8 @@ class BlacklistProcessor:
         self.processed_count += 1
     
     def _log_progress(self):
-        """记录处理进度 - 减少日志频率"""
-        if self.processed_count % 2000 == 0:  # 减少日志频率
+        """记录处理进度"""
+        if self.processed_count % 2000 == 0:
             elapsed = time.time() - self.start_time
             rate = self.processed_count / elapsed if elapsed > 0 else 0
             logger.info(
@@ -257,21 +241,21 @@ class BlacklistProcessor:
                 f"速度: {rate:.1f} 条/秒"
             )
     
-    def _save_results(self):
-        """保存结果文件 - 流式写入"""
+    def _save_results(self, workspace: Path):
+        """保存结果文件"""
         # AdGuard规则
-        adguard_path = PathResolver.resolve_path(OUTPUT_ADGUARD)
+        adguard_path = workspace / OUTPUT_ADGUARD
         adguard_path.parent.mkdir(parents=True, exist_ok=True)
         with open(adguard_path, 'w', encoding='utf-8') as f:
             f.write("\n".join(sorted(self.adguard_rules)))
         
         # Hosts规则
-        hosts_path = PathResolver.resolve_path(OUTPUT_HOSTS)
+        hosts_path = workspace / OUTPUT_HOSTS
         with open(hosts_path, 'w', encoding='utf-8') as f:
             f.write("\n".join(sorted(self.hosts_rules)))
     
     def _print_summary(self):
-        """打印摘要信息 - 精简输出"""
+        """打印摘要信息"""
         total_time = time.time() - self.start_time
         logger.info(
             f"处理完成! 耗时: {total_time:.1f}秒 | "
