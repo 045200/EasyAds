@@ -31,9 +31,9 @@ class UltraRuleProcessor:
     DNS_TIMEOUT = 1.5       # DNS查询超时(秒)
     
     # 功能开关
-    SKIP_DNS_VALIDATION = False  # 跳过DNS验证
+    SKIP_DNS_VALIDATION = True  # 跳过DNS验证
     SKIP_HOSTS_CONVERSION = False  # 跳过Hosts规则转换
-    FORCE_CI_MODE = True    # 强制CI模式优化
+    FORCE_CI_MODE = False    # 强制CI模式优化
     
     # 自动排除的域名后缀
     EXCLUDE_SUFFIXES = {
