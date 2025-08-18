@@ -2,6 +2,13 @@
 ! Title: EasyAds
 ! Homepage: https://github.com/045200/EasyAds
 ! Expires: 12 Hours
+! Version: 2025-08-18 11:27:29（北京时间）
+! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
+! Total count: 8631
+[Adblock Plus 2.0]
+! Title: EasyAds
+! Homepage: https://github.com/045200/EasyAds
+! Expires: 12 Hours
 ! Version: 2025-08-18 11:03:20（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
 ! Total count: 8630
