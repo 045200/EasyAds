@@ -39,7 +39,6 @@ jobs:
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
           pip install requests dnspython python-whois tenacity
-
           python ./data/python/filter-dns.py
    
       - name: Generate mihomo Rules
