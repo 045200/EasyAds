@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 高效黑名单处理器 - 支持AdGuard和Hosts格式规则验证与转换
-优化点：DNS查询性能、正则效率、内存使用、并行处理
+路径修复版本：确保输入输出文件在根目录，脚本可在子目录运行
 """
 
 import os
@@ -37,10 +37,13 @@ class Config:
     def __init__(self):
         self.IS_CI = os.getenv("CI", "false").lower() == "true"
         
-        # 输入输出配置
-        self.INPUT_FILE = os.getenv("INPUT_FILE", "adblock.txt")
-        self.OUTPUT_ADGUARD = os.getenv("OUTPUT_ADGUARD", "dns.txt")
-        self.OUTPUT_HOSTS = os.getenv("OUTPUT_HOSTS", "hosts.txt")
+        # 根目录路径（脚本可能位于子目录如/data/python/）
+        self.ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")
+        
+        # 输入输出配置（确保路径在根目录）
+        self.INPUT_FILE = self._get_abs_path(os.getenv("INPUT_FILE", "adblock.txt"))
+        self.OUTPUT_ADGUARD = self._get_abs_path(os.getenv("OUTPUT_ADGUARD", "dns.txt"))
+        self.OUTPUT_HOSTS = self._get_abs_path(os.getenv("OUTPUT_HOSTS", "hosts.txt"))
         
         # 性能配置
         self.MAX_WORKERS = int(os.getenv("MAX_WORKERS", 4 if self.IS_CI else 8))
@@ -60,6 +63,12 @@ class Config:
         # WHOIS配置
         self.WHOIS_ENABLED = os.getenv("WHOIS_ENABLED", "false" if self.IS_CI else "true").lower() == "true"
         self.WHOIS_CACHE_TTL = 3600  # 1小时缓存
+
+    def _get_abs_path(self, filename: str) -> str:
+        """将相对路径转换为根目录绝对路径"""
+        if os.path.isabs(filename):
+            return filename
+        return os.path.join(self.ROOT_DIR, filename)
 
 class BlacklistProcessor:
     """黑名单处理核心类"""
@@ -113,6 +122,9 @@ class BlacklistProcessor:
 
     def _atomic_write(self, content: Set[str], filepath: str):
         """原子写入文件"""
+        # 确保输出目录存在
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        
         temp_path = f"{filepath}.tmp"
         try:
             with open(temp_path, "w", encoding="utf-8") as f:
@@ -294,7 +306,7 @@ class BlacklistProcessor:
         # 处理hosts规则
         ip, domains = self._parse_hosts_line(rule)
         if ip and domains:
-            if not self._is_valid_ip(ip):
+            if ip not in self.config.ALLOWED_HOSTS_IPS:
                 return None, None
 
             valid_domains = []
@@ -335,6 +347,7 @@ class BlacklistProcessor:
     def process(self):
         """主处理流程"""
         logger.info(f"开始处理规则文件: {self.config.INPUT_FILE}")
+        logger.info(f"输出位置 - AdGuard: {self.config.OUTPUT_ADGUARD} | Hosts: {self.config.OUTPUT_HOSTS}")
         logger.info(f"DNS服务器: {self.config.DNS_SERVERS} | WHOIS: {'启用' if self.config.WHOIS_ENABLED else '禁用'}")
 
         for batch in self._batch_reader():
