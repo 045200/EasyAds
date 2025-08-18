@@ -59,7 +59,7 @@ if __name__ == "__main__":
     # 修正路径构造
     script_dir = Path(__file__).parent.parent.parent
     base_dir = script_dir.parent  # 假设脚本在data/python/目录下
-    rules_dir = base_dir /
+    rules_dir = base_dir
     
     # 调试输出
     print(f"Looking for rules directory at: {rules_dir}")
