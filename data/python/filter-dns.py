@@ -1,9 +1,3 @@
-#!/usr/bin/env python3
-"""
-AdGuard Home 规则专业处理器 - 增强DNS验证版
-功能：合并、去重、验证、分类输出AdGuard和Hosts规则，带智能DNS交叉验证
-"""
-
 import dns.resolver
 import re
 import time
@@ -13,30 +7,40 @@ import sys
 import psutil
 import os
 import threading
-from typing import Optional, Tuple, Dict
+import ssl
+import socket
+import json
+import requests
+from typing import Optional, Tuple, Dict, List
 
 class UltraRuleProcessor:
     # ========== 可配置参数 ==========
-    # DNS服务器配置（国内外混合）
+    # 调整为指定的DNS服务器（包含DoH和DoT）
     DNS_SERVERS = [
-        '1.1.1.1',      # Cloudflare
-        '8.8.8.8',      # Google
-        '223.5.5.5',    # 阿里
-        '119.29.29.29'  # DNSPod
+        'https://223.5.5.5/dns-query',
+        'tls://223.5.5.5',
+        'https://223.6.6.6/dns-query',
+        'tls://223.6.6.6',
+        'https://dns.alidns.com/dns-query',
+        'tls://9.9.9.9',
+        'tls://8.8.8.8',
+        'tls://dns.google',
+        'https://1.12.12.12/dns-query',
+        'https://120.53.53.53/dns-query'
     ]
-    
+
     # 性能调优参数
     BATCH_SIZE = 10000      # 每批处理量
     MAX_WORKERS = 10        # 最大并发数
-    DNS_TIMEOUT = 1.5       # DNS查询超时(秒)
+    DNS_TIMEOUT = 3.0       # DNS查询超时(秒)（HTTPS/TLS需要更长超时）
     DNS_RETRIES = 1         # DNS查询重试次数
-    
+
     # 功能开关
     SKIP_DNS_VALIDATION = False  # 跳过DNS验证
     SKIP_HOSTS_CONVERSION = False  # 跳过Hosts规则转换
     FORCE_CI_MODE = False    # 强制CI模式优化
     REQUIRE_CONSENSUS = 1    # 需要至少几个DNS服务器确认(1=任意一个)
-    
+
     # 自动排除的域名后缀
     EXCLUDE_SUFFIXES = {
         '.cloudfront.net', '.akamai.net',
@@ -61,25 +65,25 @@ class UltraRuleProcessor:
     def __init__(self):
         # 环境检测
         self.is_ci = self.FORCE_CI_MODE or os.getenv('CI') == 'true'
-        
+
         # CI环境自动优化
         if self.is_ci:
             print("[INFO] CI环境检测: 自动优化配置")
             self.MAX_WORKERS = 4
-            self.DNS_TIMEOUT = 0.5
+            self.DNS_TIMEOUT = 2.0
             if os.getenv('SKIP_DNS_VALIDATION', 'false').lower() == 'true':
                 self.SKIP_DNS_VALIDATION = True
-        
-        # 初始化DNS解析器
-        self.resolver = dns.resolver.Resolver()
-        self.resolver.timeout = self.DNS_TIMEOUT
-        self.resolver.lifetime = self.DNS_TIMEOUT * 1.5
-        
+
+        # 初始化DNS解析器（基础UDP/TCP）
+        self.udp_resolver = dns.resolver.Resolver()
+        self.udp_resolver.timeout = self.DNS_TIMEOUT
+        self.udp_resolver.lifetime = self.DNS_TIMEOUT * 1.5
+
         # 并发控制
         self.semaphore = threading.Semaphore(self.MAX_WORKERS * 2)
         self._valid_domains_cache = set()
         self._failed_domains_cache = set()
-        
+
         # 统计信息
         self.processed_count = 0
         self.last_log_time = time.time()
@@ -90,7 +94,8 @@ class UltraRuleProcessor:
         print(f"[CONFIG] DNS验证: {'跳过' if self.SKIP_DNS_VALIDATION else '启用'} | "
               f"要求确认数: {self.REQUIRE_CONSENSUS}")
         print(f"[CONFIG] 并发数: {self.MAX_WORKERS} 批次: {self.BATCH_SIZE}")
-        
+        print(f"[CONFIG] 使用DNS服务器: {len(self.DNS_SERVERS)}个（包含DoH/DoT）")
+
         start_time = time.time()
         output_dir = input_path.parent
         adg_path = output_dir / "adguard.txt"
@@ -105,7 +110,7 @@ class UltraRuleProcessor:
             batch_adg, batch_hosts = self._process_batch(batch)
             adg_rules.update(batch_adg)
             hosts_rules.update(batch_hosts)
-            
+
             # 进度报告
             self._log_progress(batch_num, len(adg_rules) + len(hosts_rules))
 
@@ -229,12 +234,12 @@ class UltraRuleProcessor:
 
     def _dns_lookup(self, domain: str) -> Optional[Dict[str, bool]]:
         """
-        增强DNS交叉验证
+        增强DNS交叉验证（支持DoH和DoT）
         返回: None=验证失败 | True=缓存命中 | dict=各DNS服务器验证结果
         """
         if self.SKIP_DNS_VALIDATION:
             return True
-            
+
         if domain in self._valid_domains_cache:
             return True
         if domain in self._failed_domains_cache:
@@ -246,19 +251,19 @@ class UltraRuleProcessor:
         for server in self.DNS_SERVERS:
             for attempt in range(self.DNS_RETRIES + 1):
                 try:
-                    resolver = dns.resolver.Resolver()
-                    resolver.nameservers = [server]
-                    resolver.timeout = self.DNS_TIMEOUT
-                    resolver.lifetime = self.DNS_TIMEOUT * 1.5
-                    
-                    start = time.time()
-                    answer = resolver.resolve(domain, 'A', raise_on_no_answer=False)
-                    response_time = time.time() - start
-                    
-                    success = answer.rrset is not None
+                    # 解析服务器类型和地址
+                    if server.startswith('https://'):
+                        # DNS over HTTPS (DoH)
+                        success = self._doh_query(server, domain)
+                    elif server.startswith('tls://'):
+                        # DNS over TLS (DoT)
+                        success = self._dot_query(server, domain)
+                    else:
+                        # 传统UDP查询
+                        success = self._udp_query(server, domain)
+
                     tested_servers[server] = {
                         'success': success,
-                        'time': f"{response_time:.2f}s",
                         'attempt': attempt + 1
                     }
 
@@ -268,7 +273,7 @@ class UltraRuleProcessor:
                             self._valid_domains_cache.add(domain)
                             return True
                         break  # 尝试下一个服务器
-                    
+
                 except Exception as e:
                     tested_servers[server] = {
                         'success': False,
@@ -281,6 +286,66 @@ class UltraRuleProcessor:
         # 所有服务器尝试完毕仍未达到共识
         self._failed_domains_cache.add(domain)
         return tested_servers if self.is_ci else None
+
+    def _udp_query(self, server: str, domain: str) -> bool:
+        """传统UDP DNS查询"""
+        resolver = self.udp_resolver.copy()
+        resolver.nameservers = [server]
+        answer = resolver.resolve(domain, 'A', raise_on_no_answer=False)
+        return answer.rrset is not None
+
+    def _dot_query(self, server: str, domain: str) -> bool:
+        """DNS over TLS (DoT)查询"""
+        # 解析服务器地址（去除tls://前缀）
+        server_addr = server[6:] if server.startswith('tls://') else server
+        # 处理域名形式的服务器（如tls://dns.google）
+        if not re.match(r'^\d+\.\d+\.\d+\.\d+$', server_addr):
+            ips = dns.resolver.resolve(server_addr, 'A')
+            server_ip = ips[0].to_text()
+        else:
+            server_ip = server_addr
+
+        # 建立TLS连接（DoT默认端口853）
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(self.DNS_TIMEOUT)
+        context = ssl.create_default_context()
+        context.check_hostname = False  # 简化处理，生产环境可开启
+        context.verify_mode = ssl.CERT_NONE  # 简化处理，生产环境应验证证书
+        ssl_sock = context.wrap_socket(sock, server_hostname=server_addr)
+        
+        try:
+            ssl_sock.connect((server_ip, 853))
+            # 构建DNS查询包（A记录）
+            query = dns.message.make_query(domain, dns.rdatatype.A)
+            query_data = query.to_wire()
+            # 发送查询（前2字节为长度）
+            ssl_sock.sendall(len(query_data).to_bytes(2, byteorder='big') + query_data)
+            # 接收响应
+            response_len = int.from_bytes(ssl_sock.recv(2), byteorder='big')
+            response_data = ssl_sock.recv(response_len)
+            response = dns.message.from_wire(response_data)
+            return len(response.answer) > 0
+        finally:
+            ssl_sock.close()
+
+    def _doh_query(self, server: str, domain: str) -> bool:
+        """DNS over HTTPS (DoH)查询"""
+        # 构建DoH查询参数
+        params = {'name': domain, 'type': 'A'}
+        headers = {'Accept': 'application/dns-json'}
+        
+        # 发送GET请求（符合RFC 8484）
+        response = requests.get(
+            server,
+            params=params,
+            headers=headers,
+            timeout=self.DNS_TIMEOUT,
+            verify=True  # 验证SSL证书
+        )
+        response.raise_for_status()
+        data = response.json()
+        # 检查是否有解析结果
+        return len(data.get('Answer', [])) > 0
 
     def _atomic_write(self, path: Path, lines: list):
         """原子写入文件"""
@@ -307,12 +372,12 @@ if __name__ == "__main__":
 
     # 初始化处理器 (可通过环境变量配置)
     processor = UltraRuleProcessor()
-    
+
     # 从环境变量读取配置
     processor.SKIP_DNS_VALIDATION = os.getenv('SKIP_DNS_VALIDATION', 'false').lower() == 'true'
     processor.SKIP_HOSTS_CONVERSION = os.getenv('SKIP_HOSTS_CONVERSION', 'false').lower() == 'true'
     processor.FORCE_CI_MODE = os.getenv('FORCE_CI_MODE', 'false').lower() == 'true'
-    
+
     # 性能参数调整
     if 'MAX_WORKERS' in os.environ:
         processor.MAX_WORKERS = int(os.getenv('MAX_WORKERS'))
@@ -320,6 +385,6 @@ if __name__ == "__main__":
         processor.BATCH_SIZE = int(os.getenv('BATCH_SIZE'))
     if 'REQUIRE_CONSENSUS' in os.environ:
         processor.REQUIRE_CONSENSUS = int(os.getenv('REQUIRE_CONSENSUS'))
-    
+
     # 启动处理
     processor.process(input_file)
