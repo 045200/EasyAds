@@ -1,3 +1,9 @@
+#!/usr/bin/env python3
+"""
+高效黑名单处理器 - 支持AdGuard和Hosts格式规则验证与转换
+优化点：DNS查询性能、正则效率、内存使用、并行处理
+"""
+
 import os
 import re
 import sys
@@ -6,17 +12,17 @@ import base64
 import whois
 import logging
 import threading
-from functools import lru_cache
+from functools import lru_cache, cached_property
 from datetime import datetime, timezone
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tenacity import retry, stop_after_attempt, wait_exponential
 import requests
 import dns.resolver
-import dns.exception
-from dns.message import make_query
-from dns.rdatatype import A
+import dns.message
+import dns.rdatatype
 import ssl
 import socket
+from typing import Tuple, List, Set, Optional, Dict
 
 # 配置日志
 logging.basicConfig(
@@ -26,237 +32,252 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# 环境变量配置（支持hosts原始语法输入）
 class Config:
-    INPUT_FILE = os.getenv("INPUT_FILE", "adblock.txt")  # 输入文件可能包含hosts语法
-    OUTPUT_ADGUARD = os.getenv("OUTPUT_ADGUARD", "dns.txt")
-    OUTPUT_HOSTS = os.getenv("OUTPUT_HOSTS", "hosts.txt")
-    IS_CI = os.getenv("CI", "false").lower() == "true"
-    MAX_WORKERS = int(os.getenv("MAX_WORKERS", 4 if IS_CI else 8))
-    BATCH_SIZE = int(os.getenv("BATCH_SIZE", 5000 if IS_CI else 10000))
-    # DNS验证配置
-    DNS_SERVERS = os.getenv("DNS_SERVERS", "8.8.8.8,1.1.1.1").split(",")
-    REQUIRE_CONSENSUS = int(os.getenv("REQUIRE_CONSENSUS", 1))
-    DNS_TIMEOUT = int(os.getenv("DNS_TIMEOUT", 2 if IS_CI else 5))
-    DNS_RETRIES = int(os.getenv("DNS_RETRIES", 1 if IS_CI else 2))
-    # 过滤配置（仅排除放行规则）
-    EXCLUDE_PREFIXES = {"@@"}  # 排除AdGuard放行规则
-    EXCLUDE_SUFFIXES = {".local", ".lan", ".localhost", ".internal"}
-    # 允许的hosts拦截IP（标准拦截IP）
-    ALLOWED_HOSTS_IPS = {"0.0.0.0", "127.0.0.1", "::1"}
-    # WHOIS配置
-    WHOIS_ENABLED = os.getenv("WHOIS_ENABLED", "false" if IS_CI else "true").lower() == "true"
-    WHOIS_CACHE_TTL = 3600
+    """配置类（环境变量优先）"""
+    def __init__(self):
+        self.IS_CI = os.getenv("CI", "false").lower() == "true"
+        
+        # 输入输出配置
+        self.INPUT_FILE = os.getenv("INPUT_FILE", "adblock.txt")
+        self.OUTPUT_ADGUARD = os.getenv("OUTPUT_ADGUARD", "dns.txt")
+        self.OUTPUT_HOSTS = os.getenv("OUTPUT_HOSTS", "hosts.txt")
+        
+        # 性能配置
+        self.MAX_WORKERS = int(os.getenv("MAX_WORKERS", 4 if self.IS_CI else 8))
+        self.BATCH_SIZE = int(os.getenv("BATCH_SIZE", 5000 if self.IS_CI else 10000))
+        
+        # DNS验证配置
+        self.DNS_SERVERS = os.getenv("DNS_SERVERS", "8.8.8.8,1.1.1.1").split(",")
+        self.REQUIRE_CONSENSUS = int(os.getenv("REQUIRE_CONSENSUS", 1))
+        self.DNS_TIMEOUT = int(os.getenv("DNS_TIMEOUT", 2 if self.IS_CI else 5))
+        self.DNS_RETRIES = int(os.getenv("DNS_RETRIES", 1 if self.IS_CI else 2))
+        
+        # 过滤配置
+        self.EXCLUDE_PREFIXES = {"@@"}  # AdGuard放行规则
+        self.EXCLUDE_SUFFIXES = {".local", ".lan", ".localhost", ".internal"}
+        self.ALLOWED_HOSTS_IPS = {"0.0.0.0", "127.0.0.1", "::1"}
+        
+        # WHOIS配置
+        self.WHOIS_ENABLED = os.getenv("WHOIS_ENABLED", "false" if self.IS_CI else "true").lower() == "true"
+        self.WHOIS_CACHE_TTL = 3600  # 1小时缓存
 
 class BlacklistProcessor:
+    """黑名单处理核心类"""
+    
+    # 预编译所有正则表达式（性能关键）
+    REGEX_PATTERNS = {
+        'hosts_comment': re.compile(r"#.*$"),
+        'hosts_split': re.compile(r"\s+"),
+        'adg_base_mod': re.compile(r"^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})(\^|\$)"),
+        'adg_domain_mod': re.compile(r"^([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\$"),
+        'wildcard_mod': re.compile(r"^\*\.(.+?\.[a-zA-Z]{2,})(\^|\$|$)"),
+        'elem_hide': re.compile(r"^([a-zA-Z0-9.*-]+\.[a-zA-Z]{2,})#[@#]"),
+        'domain_param': re.compile(r"\$domain=([^,]+)"),
+        'path_rule': re.compile(r"^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/"),
+        'adg_base': re.compile(r"^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$"),
+        'regex_rule': re.compile(r"^/(.+?\.[a-zA-Z]{2,})/"),
+    }
+
     def __init__(self):
         self.config = Config()
-        # 线程安全缓存
-        self._valid_domains = set()
-        self._invalid_domains = set()
-        self._whois_cache = {}
+        self._init_resolvers()
+        
+        # 线程安全存储
+        self._valid_domains: Set[str] = set()
+        self._invalid_domains: Set[str] = set()
+        self._whois_cache: Dict[str, Tuple[float, bool]] = {}
         self._cache_lock = threading.Lock()
-        # DNS解析器初始化（UDP）
-        self._udp_resolvers = {
-            server: dns.resolver.Resolver() for server in self.config.DNS_SERVERS
-            if not server.startswith(("https://", "tls://"))
+        
+        # 结果存储
+        self.valid_adguard: Set[str] = set()
+        self.valid_hosts: Set[str] = set()
+        self.total_processed = 0
+        self.start_time = time.time()
+
+    def _init_resolvers(self):
+        """初始化DNS解析器（按协议分类）"""
+        self._resolvers = {
+            'doh': [s for s in self.config.DNS_SERVERS if s.startswith("https://")],
+            'dot': [s for s in self.config.DNS_SERVERS if s.startswith("tls://")],
+            'udp': [s for s in self.config.DNS_SERVERS if not s.startswith(("https://", "tls://"))]
         }
-        for server, resolver in self._udp_resolvers.items():
+        
+        # 初始化UDP解析器
+        self._udp_resolvers = {}
+        for server in self._resolvers['udp']:
+            resolver = dns.resolver.Resolver()
             resolver.nameservers = [server]
             resolver.timeout = self.config.DNS_TIMEOUT
             resolver.lifetime = self.config.DNS_TIMEOUT * self.config.DNS_RETRIES
-        # 结果存储
-        self.valid_adguard = set()  # 含AdGuard规则和未转换的hosts规则（保持原始格式）
-        self.valid_hosts = set()    # 标准化hosts规则（IP+域名）
-        self.total_processed = 0
+            self._udp_resolvers[server] = resolver
 
-    def _atomic_write(self, content, filepath):
+    def _atomic_write(self, content: Set[str], filepath: str):
+        """原子写入文件"""
         temp_path = f"{filepath}.tmp"
-        with open(temp_path, "w", encoding="utf-8") as f:
-            f.write("\n".join(sorted(content)) + "\n")
-        os.replace(temp_path, filepath)
-        logger.info(f"已写入 {len(content)} 条规则到 {filepath}")
-
-    def _parse_hosts_line(self, line):
-        """解析hosts原始语法行：提取IP和域名列表（支持空格/制表符分隔、注释）"""
-        # 移除行内注释（#后面的内容）
-        line = re.sub(r"#.*$", "", line).strip()
-        if not line:
-            return None, []  # 空行
-        
-        # 用任意空白字符（空格/制表符）拆分，提取IP和域名列表
-        parts = re.split(r"\s+", line)
-        if len(parts) < 2:
-            return None, []  # 不符合hosts格式（至少IP+1个域名）
-        
-        ip = parts[0]
-        domains = parts[1:]  # 可能有多个域名（如0.0.0.0 a.com b.com）
-        return ip, domains
+        try:
+            with open(temp_path, "w", encoding="utf-8") as f:
+                f.write("\n".join(sorted(content)) + "\n")
+            os.replace(temp_path, filepath)
+            logger.info(f"写入 {len(content)} 条规则到 {filepath}")
+        except Exception as e:
+            logger.error(f"写入文件 {filepath} 失败: {str(e)}")
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
 
     def _batch_reader(self):
-        all_rules = set()
+        """生成器：分批读取输入文件"""
         try:
             with open(self.config.INPUT_FILE, "r", encoding="utf-8") as f:
+                batch = []
                 for line in f:
                     line = line.strip()
-                    if not line or line.startswith(("#", "!")):  # 跳过纯注释行
+                    if not line or line.startswith(("#", "!")):
                         continue
-                    all_rules.add(line)
-            logger.info(f"已加载规则文件: {self.config.INPUT_FILE}，去重后共 {len(all_rules)} 条规则")
+                    batch.append(line)
+                    if len(batch) >= self.config.BATCH_SIZE:
+                        yield batch
+                        batch = []
+                if batch:
+                    yield batch
         except FileNotFoundError:
-            logger.error(f"核心规则文件 {self.config.INPUT_FILE} 不存在，无法继续处理")
+            logger.error(f"输入文件 {self.config.INPUT_FILE} 不存在")
             sys.exit(1)
         except Exception as e:
-            logger.error(f"读取文件 {self.config.INPUT_FILE} 失败: {str(e)}")
+            logger.error(f"读取文件失败: {str(e)}")
             sys.exit(1)
 
-        rules_list = list(all_rules)
-        for i in range(0, len(rules_list), self.config.BATCH_SIZE):
-            yield rules_list[i:i + self.config.BATCH_SIZE]
+    def _parse_hosts_line(self, line: str) -> Tuple[Optional[str], List[str]]:
+        """解析hosts行：返回(IP, 域名列表)"""
+        line = self.REGEX_PATTERNS['hosts_comment'].sub("", line).strip()
+        if not line:
+            return None, []
+        
+        parts = self.REGEX_PATTERNS['hosts_split'].split(line)
+        return (parts[0], parts[1:]) if len(parts) >= 2 else (None, [])
 
     @lru_cache(maxsize=10000)
-    def _is_domain_expired(self, domain):
+    def _is_domain_expired(self, domain: str) -> bool:
+        """检查域名是否过期（带缓存）"""
         if not self.config.WHOIS_ENABLED:
             return False
-        
+
         now = datetime.now(timezone.utc)
         with self._cache_lock:
             if domain in self._whois_cache:
                 cached_time, expired = self._whois_cache[domain]
                 if time.time() - cached_time < self.config.WHOIS_CACHE_TTL:
                     return expired
-        
+
         try:
-            @retry(
-                stop=stop_after_attempt(2),
-                wait=wait_exponential(multiplier=1, min=1, max=3)
-            )
+            @retry(stop=stop_after_attempt(2), wait=wait_exponential(multiplier=1, min=1, max=3))
             def _query():
                 return whois.whois(domain)
-            
+
             w = _query()
-            expiration = w.get("expiration_date")
+            expiration = w.expiration_date if hasattr(w, 'expiration_date') else None
             if not expiration:
                 expired = True
             else:
-                if isinstance(expiration, list):
-                    expiration = expiration[0]
-                expired = expiration < now
+                expiration = expiration[0] if isinstance(expiration, list) else expiration
+                expired = expiration < now if expiration else True
         except Exception as e:
-            logger.debug(f"WHOIS查询 {domain} 失败: {str(e)}")
+            logger.debug(f"WHOIS查询失败: {domain} - {str(e)}")
             expired = False
-        
+
         with self._cache_lock:
             self._whois_cache[domain] = (time.time(), expired)
         return expired
 
-    def _extract_core_domain(self, rule):
-        """增强版解析：兼容hosts语法和AdGuard语法"""
-        # 先尝试解析是否为hosts规则
+    def _extract_core_domain(self, rule: str) -> Tuple[Optional[str], str]:
+        """从规则中提取核心域名（支持所有语法）"""
+        # 1. 尝试解析为hosts规则
         ip, domains = self._parse_hosts_line(rule)
         if ip and domains:
-            # 对于hosts规则，返回第一个有效域名（用于验证）和原始规则
-            return (domains[0], rule) if domains else (None, rule)
-        
-        # AdGuard基础规则（带修饰符$）
-        base_with_modifier = re.match(r"^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})(\^|\$)", rule)
-        if base_with_modifier:
-            return base_with_modifier.group(1), rule
-        
-        # AdGuard无||前缀但带$修饰符
-        domain_with_modifier = re.match(r"^([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\$", rule)
-        if domain_with_modifier:
-            return domain_with_modifier.group(1), rule
-        
-        # 通配符规则（含修饰符）
-        wildcard_with_mod = re.match(r"^\*\.(.+?\.[a-zA-Z]{2,})(\^|\$|$)", rule)
-        if wildcard_with_mod:
-            return wildcard_with_mod.group(1), rule
-        
-        # 元素隐藏规则
-        elem_hide_ext = re.match(r"^([a-zA-Z0-9.*-]+\.[a-zA-Z]{2,})#[@#]", rule)
-        if elem_hide_ext:
-            domain_part = elem_hide_ext.group(1).lstrip("*.").strip()
-            return domain_part, rule
-        
-        # $domain参数规则
-        domain_param = re.search(r"\$domain=([^,]+)", rule)
-        if domain_param:
-            domain = domain_param.group(1).lstrip("~")
-            if "." in domain and len(domain.split(".")) >= 2:
-                return domain, rule
-        
-        # 路径拦截规则
-        path_rule = re.match(r"^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/", rule)
-        if path_rule:
-            return path_rule.group(1), rule
-        
-        # 基础AdGuard规则（无修饰符）
-        adg_base = re.match(r"^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$", rule)
-        if adg_base:
-            return adg_base.group(1), rule
-        
-        # 简单正则规则
-        regex_rule = re.match(r"^/(.+?\.[a-zA-Z]{2,})/", rule)
-        if regex_rule:
-            return regex_rule.group(1), rule
-        
-        # 无法提取域名的特殊规则（保留原始规则）
+            return domains[0], rule
+
+        # 2. 按优先级尝试匹配AdGuard各种语法
+        for pattern_name in [
+            'adg_base_mod', 'adg_domain_mod', 'wildcard_mod',
+            'elem_hide', 'domain_param', 'path_rule', 'adg_base', 'regex_rule'
+        ]:
+            match = self.REGEX_PATTERNS[pattern_name].match(rule)
+            if match:
+                return match.group(1).lstrip("*."), rule
+
         return None, rule
 
-    def _is_valid_ip(self, ip):
-        """验证IP是否为标准拦截IP（hosts规则专用）"""
-        return ip in self.config.ALLOWED_HOSTS_IPS
-
-    def _dns_query(self, server, domain):
+    def _dns_over_https(self, server: str, domain: str) -> bool:
+        """DNS-over-HTTPS查询"""
         try:
-            if server.startswith("https://"):
-                query = make_query(domain, A)
-                b64_data = base64.urlsafe_b64encode(query.to_wire()).decode().rstrip("=")
-                resp = requests.get(
-                    f"{server}?dns={b64_data}",
-                    headers={"Accept": "application/dns-message"},
-                    timeout=self.config.DNS_TIMEOUT,
-                    verify=True
-                )
-                resp.raise_for_status()
-                return len(dns.message.from_wire(resp.content).answer) > 0
-            elif server.startswith("tls://"):
-                host = server.split("://")[-1].split(":")[0]
-                with socket.create_connection((host, 853)) as sock:
-                    with ssl.create_default_context().wrap_socket(sock, server_hostname=host) as tls_sock:
-                        tls_sock.sendall(make_query(domain, A).to_wire())
-                        return len(dns.message.from_wire(tls_sock.recv(1024)).answer) > 0
-            else:
-                self._udp_resolvers[server].resolve(domain, "A")
-                return True
+            query = dns.message.make_query(domain, dns.rdatatype.A)
+            b64_data = base64.urlsafe_b64encode(query.to_wire()).decode().rstrip("=")
+            resp = requests.get(
+                f"{server}?dns={b64_data}",
+                headers={"Accept": "application/dns-message"},
+                timeout=self.config.DNS_TIMEOUT,
+                verify=True
+            )
+            resp.raise_for_status()
+            return len(dns.message.from_wire(resp.content).answer) > 0
         except Exception:
             return False
 
-    @retry(
-        stop=stop_after_attempt(Config.DNS_RETRIES),
-        wait=wait_exponential(multiplier=1, min=1, max=3)
-    )
-    def _is_domain_valid(self, domain):
+    def _dns_over_tls(self, server: str, domain: str) -> bool:
+        """DNS-over-TLS查询"""
+        try:
+            host = server.split("://")[-1].split(":")[0]
+            with socket.create_connection((host, 853), timeout=self.config.DNS_TIMEOUT) as sock:
+                context = ssl.create_default_context()
+                with context.wrap_socket(sock, server_hostname=host) as tls_sock:
+                    tls_sock.sendall(dns.message.make_query(domain, dns.rdatatype.A).to_wire())
+                    return len(dns.message.from_wire(tls_sock.recv(1024)).answer) > 0
+        except Exception:
+            return False
+
+    def _dns_over_udp(self, server: str, domain: str) -> bool:
+        """传统UDP DNS查询"""
+        try:
+            self._udp_resolvers[server].resolve(domain, "A")
+            return True
+        except Exception:
+            return False
+
+    @retry(stop=stop_after_attempt(Config.DNS_RETRIES), wait=wait_exponential(multiplier=1, min=1, max=3))
+    def _is_domain_valid(self, domain: str) -> bool:
+        """验证域名有效性（多协议DNS查询）"""
+        if not domain or any(domain.endswith(s) for s in self.config.EXCLUDE_SUFFIXES):
+            return False
+
         with self._cache_lock:
             if domain in self._valid_domains:
                 return True
             if domain in self._invalid_domains:
                 return False
-        
-        if not domain or any(domain.endswith(s) for s in self.config.EXCLUDE_SUFFIXES):
-            with self._cache_lock:
-                self._invalid_domains.add(domain)
-            return False
-        
+
         success_count = 0
-        for server in self.config.DNS_SERVERS:
-            if self._dns_query(server, domain):
-                success_count += 1
-                if success_count >= self.config.REQUIRE_CONSENSUS:
-                    break
+        required = self.config.REQUIRE_CONSENSUS
         
-        is_valid = success_count >= self.config.REQUIRE_CONSENSUS
+        # 按协议类型并行查询
+        with ThreadPoolExecutor(max_workers=3) as executor:
+            futures = []
+            for proto, servers in self._resolvers.items():
+                if not servers:
+                    continue
+                server = servers[0]  # 每类协议只查一个服务器
+                if proto == 'doh':
+                    futures.append(executor.submit(self._dns_over_https, server, domain))
+                elif proto == 'dot':
+                    futures.append(executor.submit(self._dns_over_tls, server, domain))
+                else:
+                    futures.append(executor.submit(self._dns_over_udp, server, domain))
+
+            for future in as_completed(futures):
+                if future.result():
+                    success_count += 1
+                    if success_count >= required:
+                        break
+
+        is_valid = success_count >= required
         with self._cache_lock:
             if is_valid:
                 self._valid_domains.add(domain)
@@ -264,61 +285,58 @@ class BlacklistProcessor:
                 self._invalid_domains.add(domain)
         return is_valid
 
-    def _process_single_rule(self, rule):
-        # 过滤AdGuard放行规则（@@开头）
+    def _process_single_rule(self, rule: str) -> Tuple[Optional[str], Optional[List[str]]]:
+        """处理单条规则（核心逻辑）"""
+        # 排除放行规则
         if any(rule.startswith(p) for p in self.config.EXCLUDE_PREFIXES):
             return None, None
-        
-        # 解析是否为hosts规则（单独处理多域名场景）
+
+        # 处理hosts规则
         ip, domains = self._parse_hosts_line(rule)
         if ip and domains:
-            # 验证hosts规则的IP有效性
             if not self._is_valid_ip(ip):
-                logger.debug(f"无效hosts IP（过滤）: {ip}（规则: {rule}）")
                 return None, None
-            
-            # 验证所有域名（只要有一个有效，就保留整个hosts规则）
+
             valid_domains = []
             for domain in domains:
                 clean_domain = domain.lstrip("*.").strip()
                 if self._is_domain_valid(clean_domain) and not self._is_domain_expired(clean_domain):
-                    valid_domains.append(domain)  # 保留原始域名格式（含*）
-            
+                    valid_domains.append(domain)
+
             if not valid_domains:
-                logger.debug(f"hosts域名均无效（过滤）: {domains}（规则: {rule}）")
                 return None, None
-            
-            # 保留原始hosts规则（含所有有效域名）到AdGuard输出（兼容原始格式）
-            # 同时生成标准化hosts规则（每个域名一行，避免多域名）
-            original_hosts_rule = f"{ip} {' '.join(valid_domains)}"
-            standardized_hosts = [f"{ip} {d}" for d in valid_domains]
-            return original_hosts_rule, standardized_hosts
-        
-        # 处理非hosts规则（AdGuard语法）
+
+            return f"{ip} {' '.join(valid_domains)}", [f"{ip} {d}" for d in valid_domains]
+
+        # 处理AdGuard规则
         domain, original_rule = self._extract_core_domain(rule)
-        
-        # 验证域名（若能提取）
         if domain:
-            if not self._is_domain_valid(domain):
-                logger.debug(f"域名无效（过滤）: {domain}（规则: {original_rule}）")
+            if not self._is_domain_valid(domain) or self._is_domain_expired(domain):
                 return None, None
-            if self._is_domain_expired(domain):
-                logger.debug(f"域名已过期（过滤）: {domain}（规则: {original_rule}）")
-                return None, None
-        
-        # 生成Hosts规则（仅对可转换的AdGuard规则）
+
+        # 生成Hosts规则
         hosts_rule = None
-        if domain and re.match(r"^\|\|.*|^\*\.", original_rule):
-            clean_domain = domain.lstrip("*.").strip()
-            hosts_rule = [f"0.0.0.0 {clean_domain}"]  # 用列表统一格式
-        
+        if domain and (rule.startswith("||") or rule.startswith("*.")):
+            hosts_rule = [f"0.0.0.0 {domain.lstrip('*.')}"]
+
         return original_rule, hosts_rule
 
+    def _log_progress(self):
+        """记录处理进度"""
+        elapsed = time.time() - self.start_time
+        rate = self.total_processed / elapsed if elapsed > 0 else 0
+        logger.info(
+            f"已处理 {self.total_processed} 条 | "
+            f"有效AdGuard: {len(self.valid_adguard)} | "
+            f"有效Hosts: {len(self.valid_hosts)} | "
+            f"速度: {rate:.1f} 条/秒"
+        )
+
     def process(self):
-        start_time = time.time()
-        logger.info(f"开始处理规则（含hosts语法），输入文件: {self.config.INPUT_FILE}，CI环境: {self.config.IS_CI}")
-        logger.info(f"WHOIS验证状态: {'启用' if self.config.WHOIS_ENABLED else '禁用'}，DNS服务器: {self.config.DNS_SERVERS}")
-        
+        """主处理流程"""
+        logger.info(f"开始处理规则文件: {self.config.INPUT_FILE}")
+        logger.info(f"DNS服务器: {self.config.DNS_SERVERS} | WHOIS: {'启用' if self.config.WHOIS_ENABLED else '禁用'}")
+
         for batch in self._batch_reader():
             with ThreadPoolExecutor(max_workers=self.config.MAX_WORKERS) as executor:
                 futures = {executor.submit(self._process_single_rule, rule): rule for rule in batch}
@@ -326,18 +344,25 @@ class BlacklistProcessor:
                     adg_rule, hosts_rules = future.result()
                     if adg_rule:
                         self.valid_adguard.add(adg_rule)
-                    if hosts_rules:  # hosts_rules可能是列表（多域名）
+                    if hosts_rules:
                         self.valid_hosts.update(hosts_rules)
                     self.total_processed += 1
-                    if self.total_processed % 200 == 0:
-                        rate = len(self.valid_adguard) / self.total_processed if self.total_processed > 0 else 0.0
-                        logger.info(f"已处理 {self.total_processed} 条规则，有效率: {rate:.2%}")
-        
+                    
+                    if self.total_processed % 500 == 0:
+                        self._log_progress()
+
+        # 最终写入
         self._atomic_write(self.valid_adguard, self.config.OUTPUT_ADGUARD)
         self._atomic_write(self.valid_hosts, self.config.OUTPUT_HOSTS)
         
-        elapsed = time.time() - start_time
-        logger.info(f"处理完成！耗时: {elapsed:.2f}秒，有效AdGuard规则: {len(self.valid_adguard)}，有效Hosts规则: {len(self.valid_hosts)}")
+        # 最终报告
+        total_time = time.time() - self.start_time
+        logger.info(
+            f"处理完成！耗时: {total_time:.2f}秒 | "
+            f"总处理: {self.total_processed} | "
+            f"AdGuard规则: {len(self.valid_adguard)} | "
+            f"Hosts规则: {len(self.valid_hosts)}"
+        )
 
 if __name__ == "__main__":
     processor = BlacklistProcessor()
