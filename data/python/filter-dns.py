@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-高效黑名单处理器 - CI优化版
+高效黑名单处理器 - CI路径修复版
 支持完整 AdGuard Home 语法 | 特殊语法跳过验证 | GitHub CI 优化
 """
 
@@ -45,12 +45,25 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 class PathResolver:
-    """路径解析器 - 优化内存使用"""
+    """路径解析器 - GitHub CI 优化版"""
     @staticmethod
     def resolve_path(relative_path: str) -> Path:
-        """解析相对路径为绝对路径"""
+        """解析相对路径为绝对路径 - 适应GitHub CI目录结构"""
+        # 优先使用GitHub工作流环境变量
+        if "GITHUB_WORKSPACE" in os.environ:
+            base_dir = Path(os.environ["GITHUB_WORKSPACE"])
+            logger.info(f"使用GITHUB_WORKSPACE路径: {base_dir}")
+            return base_dir / relative_path
+        
+        # 使用脚本路径推导
         script_dir = Path(__file__).parent.resolve()
-        return (script_dir.parent.parent / relative_path).resolve()
+        
+        # 检查脚本是否在仓库的data/python目录中
+        if "data/python" in str(script_dir):
+            return script_dir.parent.parent / relative_path
+        
+        # 如果不在标准位置，使用脚本目录的父目录作为基础
+        return script_dir.parent / relative_path
 
 class RuleValidator:
     """规则验证器 - 预编译正则优化"""
@@ -188,6 +201,15 @@ class BlacklistProcessor:
         logger.info("启动规则处理 (CI优化版)")
         input_path = PathResolver.resolve_path(INPUT_FILE)
         logger.info(f"输入文件: {input_path}")
+        
+        # 检查文件是否存在
+        if not input_path.exists():
+            logger.error(f"输入文件不存在: {input_path}")
+            logger.info("请检查路径是否正确:")
+            logger.info(f"当前工作目录: {Path.cwd()}")
+            if "GITHUB_WORKSPACE" in os.environ:
+                logger.info(f"GITHUB_WORKSPACE: {os.environ['GITHUB_WORKSPACE']}")
+            sys.exit(1)
         
         # 分批处理文件
         for batch in self._read_batches(input_path):
