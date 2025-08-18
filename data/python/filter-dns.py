@@ -12,7 +12,7 @@ import base64
 import whois
 import logging
 import threading
-from functools import lru_cache, cached_property
+from functools import lru_cache
 from datetime import datetime, timezone
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -34,32 +34,33 @@ logger = logging.getLogger(__name__)
 
 class Config:
     """配置类（环境变量优先）"""
+    # 类级别的基础配置，确保装饰器可以访问
+    IS_CI = os.getenv("CI", "false").lower() == "true"
+    DNS_RETRIES = int(os.getenv("DNS_RETRIES", 1 if IS_CI else 2))  # 类属性，供装饰器使用
+    
     def __init__(self):
-        self.IS_CI = os.getenv("CI", "false").lower() == "true"
-        
         # 根目录路径（脚本可能位于子目录如/data/python/）
         self.ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
-        
+
         # 输入输出配置（确保路径在根目录）
         self.INPUT_FILE = self._get_abs_path(os.getenv("INPUT_FILE", "adblock.txt"))
         self.OUTPUT_ADGUARD = self._get_abs_path(os.getenv("OUTPUT_ADGUARD", "dns.txt"))
         self.OUTPUT_HOSTS = self._get_abs_path(os.getenv("OUTPUT_HOSTS", "hosts.txt"))
-        
+
         # 性能配置
         self.MAX_WORKERS = int(os.getenv("MAX_WORKERS", 4 if self.IS_CI else 8))
         self.BATCH_SIZE = int(os.getenv("BATCH_SIZE", 5000 if self.IS_CI else 10000))
-        
+
         # DNS验证配置
         self.DNS_SERVERS = os.getenv("DNS_SERVERS", "8.8.8.8,1.1.1.1").split(",")
         self.REQUIRE_CONSENSUS = int(os.getenv("REQUIRE_CONSENSUS", 1))
         self.DNS_TIMEOUT = int(os.getenv("DNS_TIMEOUT", 2 if self.IS_CI else 5))
-        self.DNS_RETRIES = int(os.getenv("DNS_RETRIES", 1 if self.IS_CI else 2))
         
         # 过滤配置
         self.EXCLUDE_PREFIXES = {"@@"}  # AdGuard放行规则
         self.EXCLUDE_SUFFIXES = {".local", ".lan", ".localhost", ".internal"}
         self.ALLOWED_HOSTS_IPS = {"0.0.0.0", "127.0.0.1", "::1"}
-        
+
         # WHOIS配置
         self.WHOIS_ENABLED = os.getenv("WHOIS_ENABLED", "false" if self.IS_CI else "true").lower() == "true"
         self.WHOIS_CACHE_TTL = 3600  # 1小时缓存
@@ -72,7 +73,7 @@ class Config:
 
 class BlacklistProcessor:
     """黑名单处理核心类"""
-    
+
     # 预编译所有正则表达式（性能关键）
     REGEX_PATTERNS = {
         'hosts_comment': re.compile(r"#.*$"),
@@ -90,13 +91,13 @@ class BlacklistProcessor:
     def __init__(self):
         self.config = Config()
         self._init_resolvers()
-        
+
         # 线程安全存储
         self._valid_domains: Set[str] = set()
         self._invalid_domains: Set[str] = set()
         self._whois_cache: Dict[str, Tuple[float, bool]] = {}
         self._cache_lock = threading.Lock()
-        
+
         # 结果存储
         self.valid_adguard: Set[str] = set()
         self.valid_hosts: Set[str] = set()
@@ -110,7 +111,7 @@ class BlacklistProcessor:
             'dot': [s for s in self.config.DNS_SERVERS if s.startswith("tls://")],
             'udp': [s for s in self.config.DNS_SERVERS if not s.startswith(("https://", "tls://"))]
         }
-        
+
         # 初始化UDP解析器
         self._udp_resolvers = {}
         for server in self._resolvers['udp']:
@@ -124,7 +125,7 @@ class BlacklistProcessor:
         """原子写入文件"""
         # 确保输出目录存在
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
-        
+
         temp_path = f"{filepath}.tmp"
         try:
             with open(temp_path, "w", encoding="utf-8") as f:
@@ -163,7 +164,7 @@ class BlacklistProcessor:
         line = self.REGEX_PATTERNS['hosts_comment'].sub("", line).strip()
         if not line:
             return None, []
-        
+
         parts = self.REGEX_PATTERNS['hosts_split'].split(line)
         return (parts[0], parts[1:]) if len(parts) >= 2 else (None, [])
 
@@ -268,7 +269,7 @@ class BlacklistProcessor:
 
         success_count = 0
         required = self.config.REQUIRE_CONSENSUS
-        
+
         # 按协议类型并行查询
         with ThreadPoolExecutor(max_workers=3) as executor:
             futures = []
@@ -360,14 +361,14 @@ class BlacklistProcessor:
                     if hosts_rules:
                         self.valid_hosts.update(hosts_rules)
                     self.total_processed += 1
-                    
+
                     if self.total_processed % 500 == 0:
                         self._log_progress()
 
         # 最终写入
         self._atomic_write(self.valid_adguard, self.config.OUTPUT_ADGUARD)
         self._atomic_write(self.valid_hosts, self.config.OUTPUT_HOSTS)
-        
+
         # 最终报告
         total_time = time.time() - self.start_time
         logger.info(
