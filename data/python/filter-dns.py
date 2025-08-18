@@ -18,9 +18,9 @@ PREFER_DOH = True      # 优先DoH协议
 PREFER_DOT = False     # 次选DoT协议
 
 # 路径配置
-INPUT_PATH = "adblock.txt"         # 输入文件（相对于脚本位置）
-OUTPUT_ADGUARD = "dns.txt"         # AdGuard输出
-OUTPUT_HOSTS = "hosts.txt"         # Hosts输出
+INPUT_PATH = "adblock.txt"         # 输入文件（位于仓库根目录）
+OUTPUT_ADGUARD = "dns.txt"         # AdGuard输出（位于仓库根目录）
+OUTPUT_HOSTS = "hosts.txt"         # Hosts输出（位于仓库根目录）
 
 # 性能配置
 MAX_WORKERS = 8
@@ -78,16 +78,16 @@ class PathResolver:
 class ConfigLoader:
     """配置加载器（单例模式）"""
     _instance = None
-    
+
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance._load_config()
         return cls._instance
-    
+
     def _load_config(self):
         self.config = configparser.ConfigParser()
-        
+
         # 从Python变量加载配置
         self.config.read_dict({
             'DNS': {
@@ -111,17 +111,17 @@ class ConfigLoader:
                 'retries': RETRIES
             }
         })
-        
+
         # 环境变量覆盖
         self._apply_env_overrides()
-        
+
         # 初始化DNS服务器和正则
         self._init_dns_servers()
         self._init_regex_patterns()
-        
+
         # 解析路径
         self._resolve_paths()
-    
+
     def _apply_env_overrides(self):
         env_map = {
             'DNS_VALIDATION': ('DNS', 'validation'),
@@ -130,38 +130,49 @@ class ConfigLoader:
             'PREFER_DOH': ('Protocol', 'prefer_doh'),
             'PREFER_DOT': ('Protocol', 'prefer_dot')
         }
-        
+
         for env_var, (section, key) in env_map.items():
             if env_var in os.environ:
                 self.config[section][key] = os.environ[env_var].lower()
-    
+
     def _resolve_paths(self):
         """解析所有路径为绝对路径"""
         for key in ['input', 'output_adguard', 'output_hosts']:
             rel_path = self.config.get('Paths', key)
             abs_path = PathResolver.resolve_path(rel_path)
             self.config['Paths'][key] = str(abs_path)
-    
+
     def _init_dns_servers(self):
-        """初始化DNS服务器配置"""
+        """初始化DNS服务器配置 - 混合交叉验证策略"""
+        # 混合国内和国际DNS服务器
         self.dns_servers = {
-            "cn": [
+            # 国内DNS服务器
+            "cn_servers": [
                 {"doh": "https://dns.alidns.com/dns-query", "dot": "tls://dns.alidns.com", "udp": "223.5.5.5"},
                 {"doh": "https://doh.pub/dns-query", "dot": "tls://dot.pub", "udp": "119.29.29.29"},
-                {"udp": "223.6.6.6", "udp": "114.114.114.144", "udp": "114.114.115.115"},
-            "intl": [
-                {"doh": "https://cloudflare-dns.com/dns-query", "dot": "tls://1.1.1.1", "udp": "1.1.1.1", "udp": "1.0.0.1"},
-                {"doh": "https://dns.google/dns-query", "dot": "tls://dns.google", "udp": "8.8.8.8", "udp": "8.8.4.4"}
+                {"udp": "223.6.6.6"},
+                {"udp": "114.114.114.114"},
+                {"udp": "114.114.115.115"},
+                {"doh": "https://dns.twnic.tw/dns-query", "udp": "101.101.101.101"},
+                {"doh": "https://doh.dns.sb/dns-query", "udp": "185.222.222.222"}
+            ],
+            # 国际DNS服务器
+            "intl_servers": [
+                {"doh": "https://cloudflare-dns.com/dns-query", "dot": "tls://1.1.1.1", "udp": "1.1.1.1"},
+                {"doh": "https://dns.google/dns-query", "dot": "tls://dns.google", "udp": "8.8.8.8"},
+                {"doh": "https://doh.opendns.com/dns-query", "udp": "208.67.222.222"},
+                {"doh": "https://dns.quad9.net/dns-query", "udp": "9.9.9.9"},
+                {"doh": "https://dns.nextdns.io/dns-query", "udp": "45.90.28.0"}
             ]
         }
-        
-        # 协议权重
+
+        # 协议权重 - 调整为更平衡的策略
         self.protocol_weights = {
-            "doh": 0.6 if self.getbool('Protocol', 'prefer_doh') else 0.2,
+            "doh": 0.5 if self.getbool('Protocol', 'prefer_doh') else 0.3,
             "dot": 0.3 if self.getbool('Protocol', 'prefer_dot') else 0.2,
-            "udp": 0.1
+            "udp": 0.2
         }
-    
+
     def _init_regex_patterns(self):
         """初始化正则表达式"""
         self.regex = {
@@ -184,22 +195,26 @@ class ConfigLoader:
                 re.compile(r"^!")    # 注释
             ]
         }
-    
+
     def getbool(self, section: str, key: str) -> bool:
         return self.config.getboolean(section, key)
-    
+
     def getint(self, section: str, key: str) -> int:
         return self.config.getint(section, key)
-    
+
     def get(self, section: str, key: str) -> str:
         return self.config.get(section, key)
 
 class DNSValidator:
-    """DNS验证器"""
+    """DNS验证器 - 混合交叉验证策略"""
     def __init__(self):
         self.config = ConfigLoader()
         self._init_resolvers()
-    
+        # 混合所有服务器
+        self.all_servers = []
+        for group in self.config.dns_servers.values():
+            self.all_servers.extend(group)
+
     def _init_resolvers(self):
         self.resolvers = {proto: [] for proto in ['doh', 'dot', 'udp']}
         for group in self.config.dns_servers.values():
@@ -207,34 +222,72 @@ class DNSValidator:
                 for proto in ['doh', 'dot', 'udp']:
                     if proto in server:
                         self.resolvers[proto].append(server[proto])
-    
+
     def query(self, domain: str) -> bool:
-        """执行DNS查询"""
-        protocols = []
-        for proto, weight in self.config.protocol_weights.items():
-            protocols.extend([proto] * int(weight * 10))
-        
+        """执行DNS查询 - 混合交叉验证策略"""
+        # 尝试所有协议和所有服务器，只要有一个成功就返回True
+        protocols = list(self.config.protocol_weights.keys())
         random.shuffle(protocols)
         
         for proto in protocols:
-            servers = self.resolvers.get(proto, [])
-            if not servers:
+            if not self.resolvers.get(proto):
                 continue
                 
-            server = random.choice(servers)
+            # 随机打乱服务器顺序
+            servers = self.resolvers[proto][:]
+            random.shuffle(servers)
+            
+            for server in servers:
+                try:
+                    if proto == "doh":
+                        if self._doh_query(server, domain):
+                            return True
+                    elif proto == "dot":
+                        if self._dot_query(server, domain):
+                            return True
+                    else:
+                        if self._udp_query(server, domain):
+                            return True
+                except Exception as e:
+                    logger.debug(f"DNS查询失败: {proto}://{server} {domain} - {str(e)}")
+                    continue
+        
+        # 如果所有协议都失败，尝试备用方案
+        return self._fallback_query(domain)
+
+    def _fallback_query(self, domain: str) -> bool:
+        """备用查询方案 - 使用系统DNS和混合服务器"""
+        try:
+            # 首先尝试系统DNS解析
+            socket.getaddrinfo(domain, 80)
+            return True
+        except socket.gaierror:
+            pass
+        
+        # 尝试所有服务器混合查询
+        all_servers = []
+        for proto in ['udp', 'doh', 'dot']:
+            if proto in self.resolvers:
+                all_servers.extend([(proto, s) for s in self.resolvers[proto]])
+        
+        random.shuffle(all_servers)
+        
+        for proto, server in all_servers:
             try:
                 if proto == "doh":
-                    return self._doh_query(server, domain)
+                    if self._doh_query(server, domain):
+                        return True
                 elif proto == "dot":
-                    return self._dot_query(server, domain)
+                    if self._dot_query(server, domain):
+                        return True
                 else:
-                    return self._udp_query(server, domain)
-            except Exception as e:
-                logger.debug(f"DNS查询失败: {proto}://{server} {domain} - {str(e)}")
+                    if self._udp_query(server, domain):
+                        return True
+            except Exception:
                 continue
-                
+        
         return False
-    
+
     def _doh_query(self, server: str, domain: str) -> bool:
         """DoH查询实现"""
         try:
@@ -250,7 +303,7 @@ class DNSValidator:
         except Exception as e:
             logger.debug(f"DoH查询失败: {server} {domain} - {str(e)}")
             return False
-    
+
     def _dot_query(self, server: str, domain: str) -> bool:
         """DoT查询实现"""
         try:
@@ -264,7 +317,7 @@ class DNSValidator:
         except Exception as e:
             logger.debug(f"DoT查询失败: {server} {domain} - {str(e)}")
             return False
-    
+
     def _udp_query(self, server: str, domain: str) -> bool:
         """UDP查询实现"""
         try:
