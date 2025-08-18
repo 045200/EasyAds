@@ -7,10 +7,10 @@ def update_readme():
     try:
         # 定义文件路径
         rule_files = {
-            'adblock': Path('./adblock.txt'),
-            'dns': Path('./dns.txt'),
-            'allow': Path('./allow.txt'),
-            'hosts': Path('./hosts.txt')
+            'adblock': Path('../adblock.txt'),
+            'dns': Path('../dns.txt'),
+            'allow': Path('../allow.txt'),
+            'hosts': Path('../hosts.txt')
         }
         
         # 验证文件存在
