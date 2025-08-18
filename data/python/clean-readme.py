@@ -7,9 +7,10 @@ def update_readme():
     try:
         # 定义文件路径
         rule_files = {
-            'adblock': Path('./data/rules/adblock.txt'),
-            'dns': Path('./data/rules/dns.txt'),
-            'allow': Path('./data/rules/allow.txt')
+            'adblock': Path('./adblock.txt'),
+            'dns': Path('./dns.txt'),
+            'allow': Path('./allow.txt'),
+            'hosts': Path('./hosts.txt')
         }
         
         # 验证文件存在
@@ -46,7 +47,8 @@ def update_readme():
                 '更新时间:.*': f'更新时间: {beijing_time} （北京时间）',
                 '拦截规则数量.*': f'拦截规则数量: {counts["adblock"]}',
                 'DNS拦截规则数量.*': f'DNS拦截规则数量: {counts["dns"]}',
-                '白名单规则数量.*': f'白名单规则数量: {counts["allow"]}'
+                '白名单规则数量.*': f'白名单规则数量: {counts["allow"]}',
+                'hosts规则数量.*': f'Hosts规则数量: {counts["hosts"]}'
             }
             
             for pattern, repl in replacements.items():
