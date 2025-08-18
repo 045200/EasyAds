@@ -53,28 +53,18 @@
 
 | 规则类型 | 📥 GitHub直链 | 🚀 国内加速链接 |
 | :---- | :---- | :---- |
-| AdGuard 拦截规则 | [adblock.txt](https://raw.githubusercontent.com/045200/EasyAds/master/data/rules/adblock.txt) | [adblock.txt](https://ghfast.top/raw.githubusercontent.com/045200/EasyAds/master/data/rules/adblock.txt) |
-| AdGuard Home DNS拦截规则 | [dns.txt](https://raw.githubusercontent.com/045200/EasyAds/master/data/rules/dns.txt) | [dns.txt](https://ghfast.top/raw.githubusercontent.com/045200/EasyAds/master/data/rules/dns.txt) |
+| AdGuard 拦截规则 | [adblock.txt](https://raw.githubusercontent.com/045200/EasyAds/master/adblock.txt) | [adblock.txt](https://ghfast.top/raw.githubusercontent.com/045200/EasyAds/master/adblock.txt) |
+| AdGuard Home DNS拦截规则 | [dns.txt](https://raw.githubusercontent.com/045200/EasyAds/master/dns.txt) | [dns.txt](https://ghfast.top/raw.githubusercontent.com/045200/EasyAds/master/dns.txt) |
 
 </details>
 
 <details>
-<summary><b>📋 仅域名规则</b></summary>
+<summary><b>📋 hosts规则</b></summary>
 <br>
 
 | 规则类型 | 📥 GitHub直链 | 🚀 国内加速链接 |
 | :---- | :---- | :---- |
-| 黑名单域名列表 | [ad-domain.txt](https://raw.githubusercontent.com/045200/EasyAds/master/data/rules/ad-domain.txt) | [ad-domain.txt](https://ghfast.top/raw.githubusercontent.com/045200/EasyAds/master/data/rules/ad-domain.txt) |
-
-</details>
-
-<details>
-<summary><b>📱 Quantumult X规则</b></summary>
-<br>
-
-| 规则类型 | 📥 GitHub直链 | 🚀 国内加速链接 |
-| :---- | :---- | :---- |
-| Quantumult X规则 | [qx.list](https://raw.githubusercontent.com/045200/EasyAds/master/data/rules/qx.list) | [qx.list](https://ghfast.top/raw.githubusercontent.com/045200/EasyAds/master/data/rules/qx.list) |
+| hosts规则 | [ad-domain.txt](https://raw.githubusercontent.com/045200/EasyAds/master/hosts.txt) | [ad-domain.txt](https://ghfast.top/raw.githubusercontent.com/045200/EasyAds/master/hosts.txt) |
 
 </details>
 
@@ -84,7 +74,7 @@
 
 | 规则类型 | 📥 GitHub直链 | 🚀 国内加速链接 |
 | :---- | :---- | :---- |
-| Clash Mihomo规则 | [mihomo.mrs](https://raw.githubusercontent.com/045200/EasyAds/master/data/rules/adb.mrs) | [mihomo.mrs](https://ghfast.top/raw.githubusercontent.com/045200/EasyAds/master/data/rules/adb.mrs) |
+| Clash Mihomo规则 | [mihomo.mrs](https://raw.githubusercontent.com/045200/EasyAds/master/adb.mrs) | [mihomo.mrs](https://ghfast.top/raw.githubusercontent.com/045200/EasyAds/master/adb.mrs) |
 
 </details>
 
@@ -94,7 +84,7 @@
 
 | 规则类型 | 📥 GitHub直链 | 🚀 国内加速链接 |
 | :---- | :---- | :---- |
-| 白名单规则 | [allow.txt](https://raw.githubusercontent.com/045200/EasyAds/master/data/rules/allow.txt) | [allow.txt](https://ghfast.top/raw.githubusercontent.com/045200/EasyAds/master/data/rules/allow.txt) |
+| 白名单规则 | [allow.txt](https://raw.githubusercontent.com/045200/EasyAds/master/allow.txt) | [allow.txt](https://ghfast.top/raw.githubusercontent.com/045200/EasyAds/master/allow.txt) |
 </details>
 
 ## 🚫 拦截效果
