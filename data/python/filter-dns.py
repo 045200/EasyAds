@@ -29,23 +29,27 @@ logger = logging.getLogger(__name__)
 
 # 环境变量配置（支持CI动态调整）
 class Config:
-    INPUT_FILE = os.getenv("INPUT_FILE", "adblock.txt")
+    # 多输入文件配置（根目录主文件 + 本地补充文件）
+    INPUT_FILES = [
+        os.getenv("INPUT_MAIN", "adblock.txt"),  # 根目录已合并去重的主文件
+    ]
+    # 输出文件
     OUTPUT_ADGUARD = os.getenv("OUTPUT_ADGUARD", "dns.txt")
     OUTPUT_HOSTS = os.getenv("OUTPUT_HOSTS", "hosts.txt")
     # 环境与并发控制
     IS_CI = os.getenv("CI", "false").lower() == "true"
     MAX_WORKERS = int(os.getenv("MAX_WORKERS", 4 if IS_CI else 8))
     BATCH_SIZE = int(os.getenv("BATCH_SIZE", 5000 if IS_CI else 10000))
-    # DNS验证配置
-    DNS_SERVERS = os.getenv("DNS_SERVERS", "https://1.1.1.1/dns-query,https://8.8.8.8/dns-query,8.8.8.8,1.1.1.1").split(",")
-    REQUIRE_CONSENSUS = int(os.getenv("REQUIRE_CONSENSUS", 1))
-    DNS_TIMEOUT = int(os.getenv("DNS_TIMEOUT", 3 if IS_CI else 5))
-    DNS_RETRIES = int(os.getenv("DNS_RETRIES", 2))
-    # 过滤配置（黑名单专属）
+    # DNS验证配置（优化CI环境适应性）
+    DNS_SERVERS = os.getenv("DNS_SERVERS", "8.8.8.8,1.1.1.1").split(",")  # 仅保留可靠UDP服务器
+    REQUIRE_CONSENSUS = int(os.getenv("REQUIRE_CONSENSUS", 1))  # 至少1个服务器成功即有效
+    DNS_TIMEOUT = int(os.getenv("DNS_TIMEOUT", 2 if IS_CI else 5))  # CI环境缩短超时
+    DNS_RETRIES = int(os.getenv("DNS_RETRIES", 1 if IS_CI else 2))  # 减少CI环境重试
+    # 过滤配置
     EXCLUDE_PREFIXES = {"@@"}  # 移除例外规则
     EXCLUDE_SUFFIXES = {".local", ".lan", ".localhost", ".internal"}
-    # WHOIS配置
-    WHOIS_ENABLED = os.getenv("WHOIS_ENABLED", "true").lower() == "true"
+    # WHOIS配置（CI环境强制禁用，解决连接失败问题）
+    WHOIS_ENABLED = os.getenv("WHOIS_ENABLED", "false" if IS_CI else "true").lower() == "true"
     WHOIS_CACHE_TTL = 3600  # 1小时缓存
 
 class BlacklistProcessor:
@@ -79,28 +83,35 @@ class BlacklistProcessor:
         logger.info(f"已写入 {len(content)} 条规则到 {filepath}")
 
     def _batch_reader(self):
-        """分批读取规则（降低内存占用）"""
-        try:
-            with open(self.config.INPUT_FILE, "r", encoding="utf-8") as f:
-                batch = []
-                for line in f:
-                    line = line.strip()
-                    if line and not line.startswith(("#", "!")):  # 跳过注释和空行
-                        batch.append(line)
-                        if len(batch) >= self.config.BATCH_SIZE:
-                            yield batch
-                            batch = []
-                if batch:
-                    yield batch
-        except FileNotFoundError:
-            logger.error(f"输入文件 {self.config.INPUT_FILE} 不存在")
-            sys.exit(1)
+        """读取多个输入文件，合并内容并去重（分批返回）"""
+        all_rules = set()  # 用set自动去重
+        for filepath in self.config.INPUT_FILES:
+            try:
+                with open(filepath, "r", encoding="utf-8") as f:
+                    file_rules = set()
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith(("#", "!")):  # 跳过注释和空行
+                            file_rules.add(line)
+                    # 计算新增规则数（排除已存在的）
+                    new_rules = len(file_rules - all_rules)
+                    all_rules.update(file_rules)
+                    logger.info(f"已加载规则文件: {filepath}，新增规则数: {new_rules}，总去重后: {len(all_rules)}")
+            except FileNotFoundError:
+                logger.warning(f"规则文件 {filepath} 不存在，将跳过该文件")
+            except Exception as e:
+                logger.error(f"读取文件 {filepath} 失败: {str(e)}")
+
+        # 分批返回处理（避免一次性加载过多规则占用内存）
+        rules_list = list(all_rules)
+        for i in range(0, len(rules_list), self.config.BATCH_SIZE):
+            yield rules_list[i:i + self.config.BATCH_SIZE]
 
     @lru_cache(maxsize=10000)
     def _is_domain_expired(self, domain):
-        """WHOIS检测域名过期（带缓存）"""
+        """WHOIS检测域名过期（带缓存，CI环境自动禁用）"""
         if not self.config.WHOIS_ENABLED:
-            return False
+            return False  # CI环境直接返回未过期
         
         now = datetime.now(timezone.utc)
         with self._cache_lock:
@@ -127,14 +138,14 @@ class BlacklistProcessor:
                 expired = expiration < now
         except Exception as e:
             logger.debug(f"WHOIS查询 {domain} 失败: {str(e)}")
-            expired = True  # 查询失败默认视为过期
+            expired = False  # 非CI环境查询失败不直接判为过期（降低误判）
         
         with self._cache_lock:
             self._whois_cache[domain] = (time.time(), expired)
         return expired
 
     def _extract_core_domain(self, rule):
-        """从黑名单规则中提取核心域名（用于验证）"""
+        """从黑名单规则中提取核心域名（添加调试日志）"""
         # 1. AdGuard基础规则（||example.com^ 或 ||example.com）
         adg_base = re.match(r"^\|\|([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})(\^|$)", rule)
         if adg_base:
@@ -167,7 +178,9 @@ class BlacklistProcessor:
         if regex_rule:
             return regex_rule.group(1), rule
         
-        return None, None  # 无法提取域名的规则（如特殊修饰符）
+        # 无法提取域名的规则（输出调试日志）
+        logger.debug(f"无法提取域名的规则（可能被过滤）: {rule}")
+        return None, None
 
     def _is_valid_ip(self, ip):
         """验证IP格式是否有效（用于Hosts规则）"""
@@ -178,7 +191,7 @@ class BlacklistProcessor:
             return False
 
     def _dns_query(self, server, domain):
-        """多协议DNS查询（DoH/DoT/UDP）"""
+        """多协议DNS查询（修复DeprecationWarning）"""
         try:
             if server.startswith("https://"):
                 # DoH查询（RFC 8484标准）
@@ -200,7 +213,7 @@ class BlacklistProcessor:
                         tls_sock.sendall(make_query(domain, A).to_wire())
                         return len(dns.message.from_wire(tls_sock.recv(1024)).answer) > 0
             else:
-                # UDP查询（修复DeprecationWarning：使用resolve替代query）
+                # UDP查询（已修复：使用resolve替代query，消除警告）
                 self._udp_resolvers[server].resolve(domain, "A")
                 return True
         except Exception:
@@ -225,7 +238,7 @@ class BlacklistProcessor:
                 self._invalid_domains.add(domain)
             return False
         
-        # 多服务器共识验证
+        # 多服务器共识验证（CI环境仅需1个成功）
         success_count = 0
         for server in self.config.DNS_SERVERS:
             if self._dns_query(server, domain):
@@ -272,7 +285,8 @@ class BlacklistProcessor:
     def process(self):
         """主处理流程"""
         start_time = time.time()
-        logger.info(f"开始处理纯黑名单规则，输入: {self.config.INPUT_FILE}，CI环境: {self.config.IS_CI}")
+        logger.info(f"开始处理黑名单规则，输入文件: {self.config.INPUT_FILES}，CI环境: {self.config.IS_CI}")
+        logger.info(f"WHOIS验证状态: {'启用' if self.config.WHOIS_ENABLED else '禁用'}，DNS服务器: {self.config.DNS_SERVERS}")
         
         # 分批处理规则
         for batch in self._batch_reader():
@@ -286,7 +300,12 @@ class BlacklistProcessor:
                         self.valid_hosts.add(hosts_rule)
                     self.total_processed += 1
                     if self.total_processed % 200 == 0:
-                        logger.info(f"已处理 {self.total_processed} 条规则，有效率: {len(self.valid_adguard)/self.total_processed:.2%}")
+                        # 避免除以0错误（初始阶段）
+                        if self.total_processed == 0:
+                            rate = 0.0
+                        else:
+                            rate = len(self.valid_adguard) / self.total_processed
+                        logger.info(f"已处理 {self.total_processed} 条规则，有效率: {rate:.2%}")
         
         # 写入结果
         self._atomic_write(self.valid_adguard, self.config.OUTPUT_ADGUARD)
