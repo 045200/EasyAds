@@ -38,7 +38,7 @@ jobs:
       - name: Generate dns＋hosts Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
-          pip install dnspython
+          pip install dnspython psutil
           python ./data/python/filter-dns.py
    
       - name: Generate mihomo Rules
