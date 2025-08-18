@@ -1,109 +1,69 @@
-import os
+import re
 from pathlib import Path
 
-def replace_content_in_file(input_file: str, output_file: str) -> int:
+def filter_hosts_rules(input_path, output_path):
     """
-    Convert DNS rules to Quantumult X format and filter unwanted patterns.
+    从DNS规则文件(dns.txt)中提取并转换Hosts格式规则
     
     Args:
-        input_file: Path to input DNS rules file
-        output_file: Path to output Quantumult X rules file
-    
-    Returns:
-        Number of rules processed
+        input_path (str/Path): 输入dns.txt文件路径
+        output_path (str/Path): 输出hosts.txt文件路径
     """
-    input_path = Path(input_file)
-    output_path = Path(output_file)
-    
+    input_path = Path(input_path)
+    output_path = Path(output_path)
+
+    # 增强版Hosts规则匹配正则（适配dns.txt格式）
+    HOSTS_RULE_PATTERN = re.compile(
+        r'^(\|\|([\w.-]+)\^($|[\w,=-]*))|'        # 基础域名规则(含修饰符)
+        r'^\|\|([\w.-]+)\^\$dnsrewrite=(\d+\.\d+\.\d+\.\d+)|'  # DNS重写规则
+        r'^(\d+\.\d+\.\d+\.\d+)\s+([\w.-]+)$'    # 原生Hosts格式
+    )
+
     if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    processed_count = 0
-    
+        raise FileNotFoundError(f"DNS规则文件不存在: {input_path}")
+
     try:
         with input_path.open('r', encoding='utf-8') as infile, \
              output_path.open('w', encoding='utf-8') as outfile:
+
+            count = 0
+            seen = set()
             
             for line in infile:
                 line = line.strip()
-                if not line or line.startswith('#'):
-                    # Skip empty lines and comments
+                if not line or line.startswith(('!', '#')):
                     continue
+                
+                match = HOSTS_RULE_PATTERN.match(line)
+                if match:
+                    # 处理三种匹配情况
+                    if match.group(2):  # ||domain.com^ 格式
+                        ip = '0.0.0.0'
+                        domain = match.group(2)
+                    elif match.group(4):  # DNS重写格式
+                        ip = match.group(5)
+                        domain = match.group(4)
+                    else:  # 原生Hosts格式
+                        ip = match.group(7)
+                        domain = match.group(8)
                     
-                if (':' not in line and '.js' not in line and '/' not in line and
-                    line.startswith("||") and line.endswith("^")):
-                    new_line = line.replace("||", "DOMAIN,").replace("^", ",reject")
-                    outfile.write(new_line + '\n')
-                    processed_count += 1
-                    
-        return processed_count
-        
-    except IOError as e:
-        print(f"Error processing files: {e}")
-        return 0
+                    # 标准化输出
+                    entry = f"{ip} {domain}".lower()
+                    if entry not in seen:
+                        seen.add(entry)
+                        outfile.write(f"{ip} {domain}\n")
+                        count += 1
 
-def remove_whitelist_domains(input_file: str, whitelist_file: str) -> int:
-    """
-    Remove whitelisted domains from the rules file.
-    
-    Args:
-        input_file: Path to rules file to filter
-        whitelist_file: Path to whitelist file
-    
-    Returns:
-        Number of rules removed
-    """
-    input_path = Path(input_file)
-    whitelist_path = Path(whitelist_file)
-    
-    if not input_path.exists() or not whitelist_path.exists():
-        raise FileNotFoundError("Input or whitelist file not found")
-    
-    removed_count = 0
-    
-    try:
-        # Read whitelist domains
-        with whitelist_path.open('r', encoding='utf-8') as wfile:
-            whitelist = {entry.strip()[4:-1] 
-                        for entry in wfile 
-                        if entry.strip().startswith('@@||') 
-                        and entry.strip().endswith('^')}
-        
-        # Filter input file
-        with input_path.open('r', encoding='utf-8') as infile:
-            lines = infile.readlines()
-        
-        with input_path.open('w', encoding='utf-8') as outfile:
-            for line in lines:
-                domain = line.split(',')[1] if line.startswith('DOMAIN,') else None
-                if domain and domain in whitelist:
-                    removed_count += 1
-                else:
-                    outfile.write(line)
-                    
-        return removed_count
-        
-    except IOError as e:
-        print(f"Error processing files: {e}")
-        return 0
+            print(f"从DNS规则转换 {count} 条Hosts记录")
+
+    except Exception as e:
+        print(f"处理失败: {e}")
+        raise
 
 if __name__ == "__main__":
-    # 获取当前脚本所在目录的父目录
-    script_dir = Path(__file__).parent
-    base_dir = script_dir.parent  # 假设脚本在data/python/目录下
-    
-    # 构造正确的文件路径
-    input_file = base_dir / "rules" / "dns.txt"
-    output_file = base_dir / "rules" / "qx.list"
-    whitelist_file = base_dir / "mod" / "whitelist.txt"
-    
-    # 确保输出目录存在
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    print(f"Looking for input file at: {input_file}")
-    print(f"Absolute input path: {input_file.absolute()}")
-    
-    processed = replace_content_in_file(input_file, output_file)
-    removed = remove_whitelist_domains(output_file, whitelist_file)
-    
-    print(f"Processed {processed} rules, removed {removed} whitelisted domains")
+    base_dir = Path(__file__).parent.parent.parent
+    input_file = base_dir / "dns.txt"  # 修改输入为dns.txt
+    output_file = base_dir / "hosts.txt"
+
+    output_file.parent.mkdir(exist_ok=True)
+    filter_hosts_rules(input_file, output_file)
