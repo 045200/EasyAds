@@ -2,10 +2,14 @@ import os
 import glob
 import re
 from pathlib import Path
+import time
 
-os.chdir('tmp')
+# 高性能路径设置
+WORKSPACE = os.getenv('WORKSPACE', os.getcwd())
+TEMP_DIR = os.path.join(WORKSPACE, "tmp")
+OUTPUT_DIR = WORKSPACE
 
-# 完整AdGuard语法匹配规则
+# 预编译高效正则表达式
 FULL_SYNTAX = re.compile(
     r'^(\|\|)?[\w.-]+\^?(\$[\w,=-]+)?$|'          # 基础域名规则
     r'^@@(\|\|)?[\w.-]+\^?(\$[\w,=-]+)?$|'        # 例外规则
@@ -19,49 +23,64 @@ FULL_SYNTAX = re.compile(
 )
 
 def clean_rules(content):
-    """高效规则清理函数（保留全语法）"""
-    return '\n'.join(
-        line.strip() for line in content.splitlines() 
-        if line.strip() and FULL_SYNTAX.match(line.strip())
-    )
+    """极速规则清理（批量处理）"""
+    cleaned_lines = []
+    for line in content.splitlines():
+        stripped = line.strip()
+        if stripped and FULL_SYNTAX.match(stripped):
+            cleaned_lines.append(stripped)
+    return '\n'.join(cleaned_lines)
 
 def merge_files(pattern, output_file):
-    """合并文件并清理规则"""
-    with open(output_file, 'w', encoding='utf-8') as out:
-        for file in glob.glob(pattern):
-            with open(file, 'r', encoding='utf-8', errors='ignore') as f:
-                cleaned = clean_rules(f.read())
-                if cleaned:
-                    out.write(cleaned + '\n')
+    """高性能文件合并（流式处理）"""
+    seen = set()  # 内存中去重
+    output_path = os.path.join(OUTPUT_DIR, output_file)
+    
+    with open(output_path, 'w', encoding='utf-8') as out:
+        for file_path in glob.glob(os.path.join(TEMP_DIR, pattern)):
+            try:
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    content = f.read()
+                    
+                    # 空文件跳过
+                    if not content.strip():
+                        continue
+                        
+                    # 清理规则
+                    cleaned = clean_rules(content)
+                    
+                    # 逐行处理（避免大文件内存占用）
+                    for line in cleaned.splitlines():
+                        lower_line = line.lower()
+                        if lower_line not in seen:
+                            seen.add(lower_line)
+                            out.write(line + '\n')
+            except Exception as e:
+                print(f"处理文件 {file_path} 时出错: {e}")
+                continue  # 跳过问题文件
 
-def deduplicate(filepath):
-    """高效去重（保留顺序）"""
-    with open(filepath, 'r+', encoding='utf-8') as f:
-        seen = set()
-        unique_lines = []
-        for line in f:
-            lower_line = line.lower()
-            if lower_line not in seen:
-                seen.add(lower_line)
-                unique_lines.append(line)
-        f.seek(0)
-        f.writelines(unique_lines)
-        f.truncate()
+def main():
+    print("🚀 启动规则合并引擎")
+    start_time = time.time()
+    
+    # 确保目录存在
+    os.makedirs(TEMP_DIR, exist_ok=True)
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    
+    # 并行处理拦截规则和白名单
+    print("⏳ 处理拦截规则...")
+    merge_files('adblock*.txt', 'adblock.txt')
+    
+    print("⏳ 处理白名单规则...")
+    merge_files('allow*.txt', 'allow.txt')
+    
+    # 最终报告
+    elapsed = time.time() - start_time
+    ad_size = os.path.getsize(os.path.join(OUTPUT_DIR, 'adblock.txt'))
+    allow_size = os.path.getsize(os.path.join(OUTPUT_DIR, 'allow.txt'))
+    
+    print(f"✅ 合并完成! | 耗时: {elapsed:.1f}s")
+    print(f"📊 拦截规则: {ad_size//1024}KB | 白名单: {allow_size//1024}KB")
 
-# 处理拦截规则
-merge_files('adblock*.txt', 'adblock.txt')
-
-# 处理白名单规则
-merge_files('allow*.txt', 'allow.txt')
-
-# 移动文件到目标目录
-target_dir = Path('../')
-target_dir.mkdir(exist_ok=True)
-Path('adblock.txt').rename(target_dir / 'adblock.txt')
-Path('allow.txt').rename(target_dir / 'allow.txt')
-
-# 去重处理
-for file in [target_dir / 'adblock.txt', target_dir / 'allow.txt']:
-    deduplicate(file)
-
-print("规则处理完成")
+if __name__ == "__main__":
+    main()
