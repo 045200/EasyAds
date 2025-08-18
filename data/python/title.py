@@ -54,12 +54,12 @@ def process_rule_files(target_files: Set[str], rules_dir: Path) -> None:
             print(f"Error processing {file_path.name}: {e}")
 
 if __name__ == "__main__":
-    target_files = {'adblock.txt', 'allow.txt', 'dns.txt'}
+    target_files = {'adblock.txt', 'allow.txt', 'dns.txt', 'hosts.txt'}
     
     # 修正路径构造
     script_dir = Path(__file__).parent
     base_dir = script_dir.parent  # 假设脚本在data/python/目录下
-    rules_dir = base_dir / "rules"  # 规则目录在data/rules/
+    rules_dir = base_dir / ../
     
     # 调试输出
     print(f"Looking for rules directory at: {rules_dir}")
