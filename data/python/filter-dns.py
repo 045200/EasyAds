@@ -10,7 +10,7 @@
 
 # DNS配置
 DNS_VALIDATION = True  # DNS验证开关
-WHOIS_ENABLED = True   # WHOIS检查开关
+WHOIS_ENABLED = False   # WHOIS检查开关
 CI_MODE = True          # CI环境模式
 
 # 协议配置
