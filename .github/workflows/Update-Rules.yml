@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       WORKSPACE: ${{ github.workspace }}
+      MIHOMO_PATH: ${{ github.workspace }}/data/mihomo-linux-amd64
       
     steps:
       - uses: actions/checkout@v4
@@ -38,13 +39,46 @@ jobs:
         run: |
           pip install requests aiodns
 
-      - name: Download Mihomo binary
+      - name: Manage Mihomo binary
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
-          mkdir -p /data
-          if [ ! -f /data/mihomo-linux-amd64 ]; then
-            curl -L -o /data/mihomo-linux-amd64 https://github.com/MetaCubeX/mihomo/releases/latest/download/mihomo-linux-amd64
-            chmod +x /data/mihomo-linux-amd64
+          # 检查是否需要更新
+          LATEST_VERSION=$(curl -sL https://github.com/MetaCubeX/mihomo/releases/latest/download/version.txt | sed 's/v//')
+          
+          if [ -f "$MIHOMO_PATH" ]; then
+            CURRENT_VERSION=$("$MIHOMO_PATH" -v 2>/dev/null | awk '{print $2}' | sed 's/v//' || echo "0.0.0")
+            echo "Current version: $CURRENT_VERSION"
+            echo "Latest version: $LATEST_VERSION"
+            
+            if [ "$CURRENT_VERSION" != "$LATEST_VERSION" ]; then
+              echo "::notice::Updating Mihomo from v$CURRENT_VERSION to v$LATEST_VERSION"
+              UPDATE_MIHOMO=true
+            else
+              echo "::notice::Mihomo is up-to-date (v$LATEST_VERSION)"
+              UPDATE_MIHOMO=false
+            fi
+          else
+            echo "::notice::Downloading Mihomo v$LATEST_VERSION"
+            UPDATE_MIHOMO=true
+          fi
+          
+          # 下载新版本（如果需要）
+          if [ "$UPDATE_MIHOMO" = true ]; then
+            TEMP_FILE=$(mktemp)
+            curl -sLo "${TEMP_FILE}.gz" \
+              "https://github.com/MetaCubeX/mihomo/releases/latest/download/mihomo-linux-amd64-v${LATEST_VERSION}.gz"
+            
+            gunzip "${TEMP_FILE}.gz"
+            mv "$TEMP_FILE" "$MIHOMO_PATH"
+            chmod +x "$MIHOMO_PATH"
+            echo "Mihomo updated to v$LATEST_VERSION"
+          fi
+          
+          # 设置输出变量供后续步骤使用
+          if [ "$UPDATE_MIHOMO" = true ]; then
+            echo "mihomo_updated=true" >> $GITHUB_ENV
+          else
+            echo "mihomo_updated=false" >> $GITHUB_ENV
           fi
 
       - name: Download Rules
@@ -86,7 +120,14 @@ jobs:
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
           git add --all
-          git commit -m "Updated at $(TZ=UTC-8 date +'%Y-%m-%d %H:%M:%S')（北京时间）" || echo "No changes to commit"
+          
+          # 定制提交消息
+          if [ "${{ env.mihomo_updated }}" = "true" ]; then
+            VERSION=$("$MIHOMO_PATH" -v 2>/dev/null | awk '{print $2}' || echo "unknown")
+            git commit -m "Updated at $(TZ=UTC-8 date +'%Y-%m-%d %H:%M:%S')（北京时间） + Mihomo v$VERSION"
+          else
+            git commit -m "Updated at $(TZ=UTC-8 date +'%Y-%m-%d %H:%M:%S')（北京时间）"
+          fi || echo "No changes to commit"
 
       - name: Sync and Push Changes
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
@@ -96,7 +137,7 @@ jobs:
             git push origin master && break || sleep 5
           done
 
-      - name: Delete workflow runs 
+      - name: Cleanup workflow runs
         uses: Mattraks/delete-workflow-runs@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
