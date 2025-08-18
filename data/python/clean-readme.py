@@ -8,7 +8,7 @@ def update_readme():
     """更新README.md中的规则计数和时间戳"""
     try:
         # 获取脚本所在目录的父目录（项目根目录）
-        base_dir = Path(__file__).parent.parent
+        base_dir = Path(__file__).parent.parent.parent
         
         # 定义文件路径（相对于项目根目录）
         rule_files = {
