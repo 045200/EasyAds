@@ -1,0 +1,57 @@
+name: Download Mihomo Tool
+on:
+  schedule:
+    - cron: '0 */8 * * *'  # 每8小时检查一次
+  workflow_dispatch:       # 支持手动触发
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create data directory
+        run: mkdir -p ./data
+
+      - name: Download latest Mihomo binary
+        id: download
+        run: |
+          # 获取最新版本号
+          VERSION=$(curl -sL https://github.com/MetaCubeX/mihomo/releases/latest/download/version.txt)
+          echo "Latest version: $VERSION"
+
+          # 检查本地版本
+          if [[ -f "./data/mihomo-linux-amd64" ]]; then
+            LOCAL_VERSION=$("./data/mihomo-linux-amd64" -v | awk '{print $2}')
+            echo "Local version: $LOCAL_VERSION"
+            
+            # 版本相同则跳过下载
+            if [[ "$VERSION" == "$LOCAL_VERSION" ]]; then
+              echo "::notice::Already up-to-date (v$VERSION)"
+              exit 0
+            fi
+          fi
+
+          # 下载新版本
+          echo "::group::Downloading mihomo v$VERSION"
+          curl -sLo ./data/mihomo-linux-amd64.gz \
+            "https://github.com/MetaCubeX/mihomo/releases/latest/download/mihomo-linux-amd64-$VERSION.gz"
+          
+          # 解压并设置权限
+          gunzip ./data/mihomo-linux-amd64.gz
+          chmod +x ./data/mihomo-linux-amd64
+          echo "::endgroup::"
+
+          # 输出版本信息
+          echo "::set-output name=version::$VERSION"
+          echo "::notice::Successfully updated to v$VERSION"
+
+      - name: Commit changes (if updated)
+        if: steps.download.outputs.version != ''
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add ./data/mihomo-linux-amd64
+          git commit -m "chore: Update mihomo to v${{ steps.download.outputs.version }}"
+          git push
