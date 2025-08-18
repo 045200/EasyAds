@@ -4,11 +4,33 @@ import requests
 import shutil
 from glob import glob
 
+# 从环境变量获取路径
+def get_base_path():
+    """获取基础路径（根目录）"""
+    base_dir = os.getenv('WORKSPACE', os.getcwd())
+    return base_dir
+
+def get_data_path(relative_path=""):
+    """获取数据目录路径"""
+    base_dir = get_base_path()
+    return os.path.join(base_dir, "data", relative_path)
+
+def get_output_path(relative_path=""):
+    """获取输出目录路径"""
+    base_dir = get_base_path()
+    return os.path.join(base_dir, "rules", relative_path)
+
+def get_temp_path(relative_path=""):
+    """获取临时目录路径"""
+    base_dir = get_base_path()
+    return os.path.join(base_dir, "tmp", relative_path)
+
 def clean_files():
     """清理根目录下的.txt和.mrs文件"""
     try:
+        base_dir = get_base_path()
         # 获取根目录下所有.txt和.mrs文件
-        files_to_delete = glob('./*.txt') + glob('./*.mrs')
+        files_to_delete = glob(os.path.join(base_dir, '*.txt')) + glob(os.path.join(base_dir, '*.mrs'))
         
         for file_path in files_to_delete:
             try:
@@ -16,18 +38,25 @@ def clean_files():
                 print(f"已删除文件: {file_path}")
             except Exception as e:
                 print(f"无法删除文件 {file_path}, 错误: {e}")
-                
+
     except Exception as e:
         print(f"清理文件时发生错误: {e}")
 
 def create_temp_dir():
     """创建临时目录并复制本地规则"""
-    os.makedirs("./tmp/", exist_ok=True)
+    temp_dir = get_temp_path()
+    os.makedirs(temp_dir, exist_ok=True)
+    
     # 复制本地规则到临时目录
-    for src, dest in [("./data/mod/adblock.txt", "./tmp/adblock01.txt"),
-                     ("./data/mod/whitelist.txt", "./tmp/allow01.txt")]:
+    copy_pairs = [
+        (get_data_path("mod/adblock.txt"), get_temp_path("adblock01.txt")),
+        (get_data_path("mod/whitelist.txt"), get_temp_path("allow01.txt"))
+    ]
+    
+    for src, dest in copy_pairs:
         try:
             shutil.copy2(src, dest)
+            print(f"已复制: {src} -> {dest}")
         except Exception as e:
             print(f"无法复制文件 {src} 到 {dest}, 错误: {e}")
 
@@ -37,9 +66,10 @@ def download_file(url, filename, timeout=30):
         headers = {'User-Agent': 'Mozilla/5.0'}
         response = requests.get(url, headers=headers, timeout=timeout)
         response.raise_for_status()
-        
+
         with open(filename, 'wb') as f:
             f.write(response.content)
+        print(f"成功下载: {url} -> {filename}")
         return True
     except Exception as e:
         print(f"下载失败: {url}, 错误: {str(e)}")
@@ -52,9 +82,6 @@ def download_rules():
         "https://raw.githubusercontent.com/damengzhu/banad/main/jiekouAD.txt",
         "https://raw.githubusercontent.com/afwfv/DD-AD/main/rule/DD-AD.txt",
         "https://raw.hellogithub.com/hosts",
-        #"https://raw.githubusercontent.com/Cats-Team/AdRules/main/adblock.txt",
-        #"https://raw.githubusercontent.com/qq5460168/666/main/adblock.txt",
-        #"https://lingeringsound.github.io/10007_auto/adb.txt",
         "https://raw.githubusercontent.com/790953214/qy-Ads-Rule/main/black.txt",
         "https://raw.githubusercontent.com/2771936993/HG/main/hg1.txt",
         "https://github.com/entr0pia/fcm-hosts/raw/fcm/fcm-hosts",
@@ -75,8 +102,7 @@ def download_rules():
         "https://raw.githubusercontent.com/Cats-Team/AdRules/script/script/allowlist.txt",
         "https://raw.githubusercontent.com/user001235/112/main/white.txt",
         "https://raw.githubusercontent.com/urkbio/adguardhomefilter/main/whitelist.txt",
-        
-"https://anti-ad.net/easylist.txt"
+        "https://anti-ad.net/easylist.txt"
     ]
 
     # 使用线程池并发下载
@@ -84,18 +110,22 @@ def download_rules():
         # 下载拦截规则
         futures = []
         for i, url in enumerate(adblock, start=2):
-            filename = f"./tmp/adblock{i:02d}.txt"
+            filename = get_temp_path(f"adblock{i:02d}.txt")
             futures.append(executor.submit(download_file, url, filename))
-        
+
         # 下载白名单规则
         for j, url in enumerate(allow, start=2):
-            filename = f"./tmp/allow{j:02d}.txt"
+            filename = get_temp_path(f"allow{j:02d}.txt")
             futures.append(executor.submit(download_file, url, filename))
-        
+
         # 等待所有下载完成
         concurrent.futures.wait(futures)
 
 if __name__ == "__main__":
+    print(f"工作目录: {get_base_path()}")
+    print(f"数据目录: {get_data_path()}")
+    print(f"临时目录: {get_temp_path()}")
+    
     clean_files()  # 清理根目录的.txt和.mrs文件
     create_temp_dir()
     download_rules()
