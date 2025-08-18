@@ -57,6 +57,7 @@ jobs:
       - name: Generate dns＋hosts Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
+          pip install aiodns
           python ${{ env.DATA_DIR }}/filter-dns.py
         working-directory: ${{ env.WORKSPACE }}
 
