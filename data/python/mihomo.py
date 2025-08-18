@@ -18,7 +18,7 @@ from pathlib import Path
 # === 配置区 ===
 MIHOMO_BIN = "/data/mihomo-linux-amd64"  # 预置二进制路径
 INPUT_FILE = "ads.yaml"                  # 根目录输入文件
-OUTPUT_FILE = "data/adb.mrs"             # 二进制规则输出
+OUTPUT_FILE = "adb.mrs"             # 二进制规则输出
 TIMEOUT = 180                            # 转换超时时间(秒)
 MAX_RETRIES = 2                          # 转换失败重试次数
 
