@@ -42,7 +42,7 @@ class AdvancedRuleProcessor:
     def process(self):
         """主处理流程"""
         start_time = time.time()
-        base_dir = Path(__file__).parent.parent.parent
+        base_dir = Path(__file__).parent.parent
         
         # 输入输出路径
         input_file = base_dir / "adblock.txt"
