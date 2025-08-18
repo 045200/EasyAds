@@ -38,7 +38,7 @@ class Config:
         self.IS_CI = os.getenv("CI", "false").lower() == "true"
         
         # 根目录路径（脚本可能位于子目录如/data/python/）
-        self.ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")
+        self.ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
         
         # 输入输出配置（确保路径在根目录）
         self.INPUT_FILE = self._get_abs_path(os.getenv("INPUT_FILE", "adblock.txt"))
