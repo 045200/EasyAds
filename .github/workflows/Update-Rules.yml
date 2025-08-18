@@ -35,17 +35,11 @@ jobs:
         run: |
           python ./data/python/merge.py
           
-      - name: Generate dns Rules
+      - name: Generate dns＋hosts Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
           pip install dnspython
           python ./data/python/filter-dns.py
-       
-      - name: Generate hosts Rules
-        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        working-directory: ${{ github.workspace }}
-        run: |
-          python ./data/python/hosts.py
    
       - name: Generate mihomo Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
