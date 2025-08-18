@@ -148,7 +148,7 @@ class ConfigLoader:
             "cn": [
                 {"doh": "https://dns.alidns.com/dns-query", "dot": "tls://dns.alidns.com", "udp": "223.5.5.5"},
                 {"doh": "https://doh.pub/dns-query", "dot": "tls://dot.pub", "udp": "119.29.29.29"},
-                {"udp": "223.6.6.6"，"udp": "114.114.114.144", "udp: ""114.114.115.115"},
+                {"udp": "223.6.6.6", "udp": "114.114.114.144", "udp": "114.114.115.115"},
             "intl": [
                 {"doh": "https://cloudflare-dns.com/dns-query", "dot": "tls://1.1.1.1", "udp": "1.1.1.1", "udp": "1.0.0.1"},
                 {"doh": "https://dns.google/dns-query", "dot": "tls://dns.google", "udp": "8.8.8.8", "udp": "8.8.4.4"}
