@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-AdGuard Home 规则专业处理器 - 增强CI兼容版
-功能：合并、去重、验证、分类输出AdGuard和Hosts规则
+AdGuard Home 规则专业处理器 - 增强DNS验证版
+功能：合并、去重、验证、分类输出AdGuard和Hosts规则，带智能DNS交叉验证
 """
 
 import dns.resolver
@@ -13,7 +13,7 @@ import sys
 import psutil
 import os
 import threading
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict
 
 class UltraRuleProcessor:
     # ========== 可配置参数 ==========
@@ -29,11 +29,13 @@ class UltraRuleProcessor:
     BATCH_SIZE = 10000      # 每批处理量
     MAX_WORKERS = 10        # 最大并发数
     DNS_TIMEOUT = 1.5       # DNS查询超时(秒)
+    DNS_RETRIES = 1         # DNS查询重试次数
     
     # 功能开关
-    SKIP_DNS_VALIDATION = True  # 跳过DNS验证
+    SKIP_DNS_VALIDATION = False  # 跳过DNS验证
     SKIP_HOSTS_CONVERSION = False  # 跳过Hosts规则转换
     FORCE_CI_MODE = False    # 强制CI模式优化
+    REQUIRE_CONSENSUS = 1    # 需要至少几个DNS服务器确认(1=任意一个)
     
     # 自动排除的域名后缀
     EXCLUDE_SUFFIXES = {
@@ -72,11 +74,11 @@ class UltraRuleProcessor:
         self.resolver = dns.resolver.Resolver()
         self.resolver.timeout = self.DNS_TIMEOUT
         self.resolver.lifetime = self.DNS_TIMEOUT * 1.5
-        self.resolver.nameservers = self.DNS_SERVERS
         
         # 并发控制
         self.semaphore = threading.Semaphore(self.MAX_WORKERS * 2)
         self._valid_domains_cache = set()
+        self._failed_domains_cache = set()
         
         # 统计信息
         self.processed_count = 0
@@ -85,7 +87,8 @@ class UltraRuleProcessor:
     def process(self, input_path: Path):
         """主处理流程"""
         print(f"[INFO] 开始处理规则文件: {input_path}")
-        print(f"[CONFIG] DNS验证: {'跳过' if self.SKIP_DNS_VALIDATION else '启用'}")
+        print(f"[CONFIG] DNS验证: {'跳过' if self.SKIP_DNS_VALIDATION else '启用'} | "
+              f"要求确认数: {self.REQUIRE_CONSENSUS}")
         print(f"[CONFIG] 并发数: {self.MAX_WORKERS} 批次: {self.BATCH_SIZE}")
         
         start_time = time.time()
@@ -175,8 +178,12 @@ class UltraRuleProcessor:
                     return None, None
 
                 # DNS验证
-                if not self.SKIP_DNS_VALIDATION and not self._dns_lookup(domain):
-                    return None, None
+                if not self.SKIP_DNS_VALIDATION:
+                    dns_status = self._dns_lookup(domain)
+                    if dns_status is None:  # 验证失败
+                        return None, None
+                    elif isinstance(dns_status, dict) and self.is_ci:
+                        print(f"[DNS] {domain} 验证详情: {dns_status}")
 
                 # Hosts转换
                 hosts_rule = None
@@ -220,23 +227,60 @@ class UltraRuleProcessor:
             all(p.isdigit() and 0 <= int(p) <= 255 for p in ip_parts)
         )
 
-    def _dns_lookup(self, domain: str) -> bool:
-        """增强DNS验证"""
+    def _dns_lookup(self, domain: str) -> Optional[Dict[str, bool]]:
+        """
+        增强DNS交叉验证
+        返回: None=验证失败 | True=缓存命中 | dict=各DNS服务器验证结果
+        """
         if self.SKIP_DNS_VALIDATION:
             return True
             
         if domain in self._valid_domains_cache:
             return True
+        if domain in self._failed_domains_cache:
+            return None
 
-        try:
-            # 快速失败模式
-            answer = self.resolver.resolve(domain, 'A', raise_on_no_answer=False)
-            if answer.rrset is not None:
-                self._valid_domains_cache.add(domain)
-                return True
-            return False
-        except:
-            return False
+        tested_servers = {}
+        consensus = 0
+
+        for server in self.DNS_SERVERS:
+            for attempt in range(self.DNS_RETRIES + 1):
+                try:
+                    resolver = dns.resolver.Resolver()
+                    resolver.nameservers = [server]
+                    resolver.timeout = self.DNS_TIMEOUT
+                    resolver.lifetime = self.DNS_TIMEOUT * 1.5
+                    
+                    start = time.time()
+                    answer = resolver.resolve(domain, 'A', raise_on_no_answer=False)
+                    response_time = time.time() - start
+                    
+                    success = answer.rrset is not None
+                    tested_servers[server] = {
+                        'success': success,
+                        'time': f"{response_time:.2f}s",
+                        'attempt': attempt + 1
+                    }
+
+                    if success:
+                        consensus += 1
+                        if consensus >= self.REQUIRE_CONSENSUS:
+                            self._valid_domains_cache.add(domain)
+                            return True
+                        break  # 尝试下一个服务器
+                    
+                except Exception as e:
+                    tested_servers[server] = {
+                        'success': False,
+                        'error': str(e),
+                        'attempt': attempt + 1
+                    }
+                    if attempt == self.DNS_RETRIES:  # 最后一次尝试也失败
+                        continue
+
+        # 所有服务器尝试完毕仍未达到共识
+        self._failed_domains_cache.add(domain)
+        return tested_servers if self.is_ci else None
 
     def _atomic_write(self, path: Path, lines: list):
         """原子写入文件"""
@@ -274,6 +318,8 @@ if __name__ == "__main__":
         processor.MAX_WORKERS = int(os.getenv('MAX_WORKERS'))
     if 'BATCH_SIZE' in os.environ:
         processor.BATCH_SIZE = int(os.getenv('BATCH_SIZE'))
+    if 'REQUIRE_CONSENSUS' in os.environ:
+        processor.REQUIRE_CONSENSUS = int(os.getenv('REQUIRE_CONSENSUS'))
     
     # 启动处理
     processor.process(input_file)
