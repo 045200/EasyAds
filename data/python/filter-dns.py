@@ -217,7 +217,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         input_file = Path(sys.argv[1])
     else:
-        input_file = Path(__file__).parent.parent.parents / "adblock.txt"
+        input_file = Path(__file__).parent.parent.parent / "adblock.txt"
     
     if not input_file.exists():
         print(f"[ERROR] 输入文件不存在: {input_file}")
