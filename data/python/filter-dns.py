@@ -18,9 +18,9 @@ PREFER_DOH = True      # 优先DoH协议
 PREFER_DOT = False     # 次选DoT协议
 
 # 路径配置
-INPUT_PATH = "../adblock.txt"         # 输入文件（相对于脚本位置）
-OUTPUT_ADGUARD = "../dns.txt"         # AdGuard输出
-OUTPUT_HOSTS = "../hosts.txt"         # Hosts输出
+INPUT_PATH = "./adblock.txt"         # 输入文件（相对于脚本位置）
+OUTPUT_ADGUARD = "./dns.txt"         # AdGuard输出
+OUTPUT_HOSTS = "./hosts.txt"         # Hosts输出
 
 # 性能配置
 MAX_WORKERS = 8
