@@ -39,11 +39,6 @@ jobs:
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
           pip install dnspython
-          python ./data/python/dns.py
-
-      - name: Generate filter-dns Rules
-        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: |
           python ./data/python/filter-dns.py
        
       - name: Generate hosts Rules
