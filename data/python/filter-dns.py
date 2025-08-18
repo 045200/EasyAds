@@ -200,8 +200,8 @@ class BlacklistProcessor:
                         tls_sock.sendall(make_query(domain, A).to_wire())
                         return len(dns.message.from_wire(tls_sock.recv(1024)).answer) > 0
             else:
-                # UDP查询
-                self._udp_resolvers[server].query(domain, "A")
+                # UDP查询（修复DeprecationWarning：使用resolve替代query）
+                self._udp_resolvers[server].resolve(domain, "A")
                 return True
         except Exception:
             return False
