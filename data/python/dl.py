@@ -2,19 +2,26 @@ import os
 import concurrent.futures
 import requests
 import shutil
+from glob import glob
 
-# 清理旧数据目录
-def clean_directory():
-    directory = "./data/rules/"
+def clean_files():
+    """清理根目录下的.txt和.mrs文件"""
     try:
-        if os.path.exists(directory):
-            shutil.rmtree(directory)
-            print(f"成功删除目录 {directory}")
+        # 获取根目录下所有.txt和.mrs文件
+        files_to_delete = glob('./*.txt') + glob('./*.mrs')
+        
+        for file_path in files_to_delete:
+            try:
+                os.remove(file_path)
+                print(f"已删除文件: {file_path}")
+            except Exception as e:
+                print(f"无法删除文件 {file_path}, 错误: {e}")
+                
     except Exception as e:
-        print(f"无法删除目录 {directory}, 错误: {e}")
+        print(f"清理文件时发生错误: {e}")
 
-# 创建临时目录
 def create_temp_dir():
+    """创建临时目录并复制本地规则"""
     os.makedirs("./tmp/", exist_ok=True)
     # 复制本地规则到临时目录
     for src, dest in [("./data/mod/adblock.txt", "./tmp/adblock01.txt"),
@@ -24,8 +31,8 @@ def create_temp_dir():
         except Exception as e:
             print(f"无法复制文件 {src} 到 {dest}, 错误: {e}")
 
-# 下载单个规则文件
 def download_file(url, filename, timeout=30):
+    """下载单个规则文件"""
     try:
         headers = {'User-Agent': 'Mozilla/5.0'}
         response = requests.get(url, headers=headers, timeout=timeout)
@@ -38,8 +45,8 @@ def download_file(url, filename, timeout=30):
         print(f"下载失败: {url}, 错误: {str(e)}")
         return False
 
-# 主下载函数
 def download_rules():
+    """主下载函数"""
     # 规则源列表
     adblock = [
         "https://raw.githubusercontent.com/damengzhu/banad/main/jiekouAD.txt",
@@ -88,7 +95,7 @@ def download_rules():
         concurrent.futures.wait(futures)
 
 if __name__ == "__main__":
-    clean_directory()
+    clean_files()  # 清理根目录的.txt和.mrs文件
     create_temp_dir()
     download_rules()
     print('规则下载完成')
