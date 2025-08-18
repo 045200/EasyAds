@@ -29,9 +29,9 @@ logger = logging.getLogger(__name__)
 
 # 环境变量配置（支持CI动态调整）
 class Config:
-    INPUT_FILE = os.getenv("INPUT_FILE", "blacklist.txt")
-    OUTPUT_ADGUARD = os.getenv("OUTPUT_ADGUARD", "adguard_blacklist.txt")
-    OUTPUT_HOSTS = os.getenv("OUTPUT_HOSTS", "hosts_blacklist.txt")
+    INPUT_FILE = os.getenv("INPUT_FILE", "adblock.txt")
+    OUTPUT_ADGUARD = os.getenv("OUTPUT_ADGUARD", "dns.txt")
+    OUTPUT_HOSTS = os.getenv("OUTPUT_HOSTS", "hosts.txt")
     # 环境与并发控制
     IS_CI = os.getenv("CI", "false").lower() == "true"
     MAX_WORKERS = int(os.getenv("MAX_WORKERS", 4 if IS_CI else 8))
