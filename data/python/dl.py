@@ -72,7 +72,7 @@ def download_rules():
         "https://raw.githubusercontent.com/liwenjie119/adg-rules/master/white.txt",
         "https://raw.githubusercontent.com/miaoermua/AdguardFilter/main/whitelist.txt",
         "https://raw.githubusercontent.com/Kuroba-Sayuki/FuLing-AdRules/main/FuLingRules/FuLingAllowList.txt",
-        "https://raw.githubusercontent.com/Cats-Team/AdRules/script/allowlist.txt",
+        "https://raw.githubusercontent.com/Cats-Team/AdRules/script/script/allowlist.txt",
         "https://raw.githubusercontent.com/user001235/112/main/white.txt",
         "https://raw.githubusercontent.com/urkbio/adguardhomefilter/main/whitelist.txt",
         
