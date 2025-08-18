@@ -13,13 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     env:
       WORKSPACE: ${{ github.workspace }}
-      DATA_DIR: ${{ github.workspace }}/data/python
-      OUTPUT_DIR: ${{ github.workspace }}/rules
       
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: 'master'
 
       - name: Check for file changes
         id: changes
@@ -29,49 +28,51 @@ jobs:
             data/python/**
             data/mod/**
 
-      - name: Setup Python
-        if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+          cache: 'pip'
 
       - name: Install dependencies
+        run: |
+          pip install requests aiodns
+
+      - name: Download Mihomo binary
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
-          pip install requests dnspython python-whois tenacity
-        working-directory: ${{ env.WORKSPACE }}
+          mkdir -p /data
+          if [ ! -f /data/mihomo-linux-amd64 ]; then
+            curl -L -o /data/mihomo-linux-amd64 https://github.com/MetaCubeX/mihomo/releases/latest/download/mihomo-linux-amd64
+            chmod +x /data/mihomo-linux-amd64
+          fi
 
       - name: Download Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         continue-on-error: true
-        run: |
-          python ${{ env.DATA_DIR }}/dl.py
+        run: python ./data/python/dl.py
         working-directory: ${{ env.WORKSPACE }}
 
       - name: Merge Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: |
-          python ${{ env.DATA_DIR }}/merge.py
+        run: python ./data/python/merge.py
         working-directory: ${{ env.WORKSPACE }}
 
       - name: Generate dns＋hosts Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: |
-          pip install aiodns
-          python ${{ env.DATA_DIR }}/filter-dns.py
+        run: python ./data/python/filter-dns.py
         working-directory: ${{ env.WORKSPACE }}
 
       - name: Generate mihomo Rules
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        run: |
-          python ${{ env.DATA_DIR }}/mihomo.py
+        run: python ./data/python/mihomo.py
         working-directory: ${{ env.WORKSPACE }}
 
       - name: Update Title&ReadMe
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
-          python ${{ env.DATA_DIR }}/title.py
-          python ${{ env.DATA_DIR }}/clean-readme.py
+          python ./data/python/title.py
+          python ./data/python/clean-readme.py
         working-directory: ${{ env.WORKSPACE }}
 
       - name: Configure Git
@@ -80,23 +81,20 @@ jobs:
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
           git branch -m master
-        working-directory: ${{ env.WORKSPACE }}
 
       - name: Commit Changes
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
           git add --all
           git commit -m "Updated at $(TZ=UTC-8 date +'%Y-%m-%d %H:%M:%S')（北京时间）" || echo "No changes to commit"
-        working-directory: ${{ env.WORKSPACE }}
 
       - name: Sync and Push Changes
         if: steps.changes.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
-          for i in {1..3}; do
+          for i in 1 2 3; do
             git pull --rebase origin master
             git push origin master && break || sleep 5
           done
-        working-directory: ${{ env.WORKSPACE }}
 
       - name: Delete workflow runs 
         uses: Mattraks/delete-workflow-runs@main
